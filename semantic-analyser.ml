@@ -21,7 +21,7 @@ type expr' =
   | Applic' of expr' * (expr' list)
   | ApplicTP' of expr' * (expr' list);;
 
-let rec expr'_eq e1 e2 =
+let rec expr'_eq e1 e2 = 
   match e1, e2 with
   | Const' Void, Const' Void -> true
   | Const'(Sexpr s1), Const'(Sexpr s2) -> sexpr_eq s1 s2
@@ -61,17 +61,38 @@ end;;
 
 module Semantics : SEMANTICS = struct
 
-let annotate_lexical_addresses e = raise X_not_yet_implemented;;
+let rec find_var_in_paramlist x lst =
+  match lst with
+  | [] -> raise (Failure "Not Found")
+  | h :: t -> if x = h then 0 else 1 + find x t;;
+
+let rec calculate_lexical_addresses paramList boundList expr  =  
+                                    match expr with 
+                                    | Const(x) -> Const'(x)
+                                    (* | Def(var,value) -> Def'(var, calculate_lexical_addresses paramList boundList value)
+                                    | Set(var,value) -> Set'(var, calculate_lexical_addresses paramList boundList value)   *)
+                                    | Or(expr) -> Or'(List.map (fun(y) -> calculate_lexical_addresses paramList boundList y) expr) 
+                                    | Seq(expr) -> Seq'(List.map (fun(y) -> calculate_lexical_addresses paramList boundList y) expr)
+                                    | Applic(expr, exprList) -> Applic' (calculate_lexical_addresses paramList boundList expr, List.map (fun(y) -> calculate_lexical_addresses paramList boundList y) exprList)
+                                    | Var(x) -> If (List.mem x paramList) == true then Var'(x, find_var_in_paramlist x paramList) 
+                                    | LambdaSimple(args, body) -> LambdaSimple'(args, calculate_lexical_addresses params (List.append paramList boundList) body )
+                                    | LambdaOpt(args, optArgs, body) -> LambdaOpt'(args, optArgs, (calculate_lexical_addresses (List.append args [optArgs]) (List.append paramList boundList)))
+
+let annotate_lexical_addresses e = calculate_lexical_addresses [] [] e;;
+                                
+ 
 
 let annotate_tail_calls e = raise X_not_yet_implemented;;
 
 let box_set e = raise X_not_yet_implemented;;
 
 let run_semantics expr =
-  box_set
-    (annotate_tail_calls
-       (annotate_lexical_addresses expr));;
+  (* box_set
+    (annotate_tail_calls *)
+       (annotate_lexical_addresses expr);;
   
 end;; (* struct Semantics *)
+
+open Semantics;;
 
 
