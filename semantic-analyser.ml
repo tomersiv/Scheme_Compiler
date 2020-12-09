@@ -61,22 +61,49 @@ end;;
 
 module Semantics : SEMANTICS = struct
 
-let rec find_var_in_paramlist x lst =
-  match lst with
-  | [] -> raise (Failure "Not Found")
-  | h :: t -> if x = h then 0 else 1 + find x t;;
+let rec find_var_in_paramlist x paramlst index =
+  match paramlst with
+  | [] -> -1
+  | h :: t -> if x = h then index else find_var_in_paramlist x t (index + 1);;
+
+let rec find_var_in_boundlist x boundlst index = 
+  match boundlst with
+  | [] -> -1
+  | lst1 :: lst2 -> if (List.mem x lst1) == true then index else find_var_in_boundlist x lst2 (index + 1)
+
+                                
+                                          
+
+  (* (lambda a p z)
+    (lambda (v q)
+      z)
+      (lambda (a b))  
+        p )       
+       
+        
+       boundList = [ [a b], [v q]    ] *)
 
 let rec calculate_lexical_addresses paramList boundList expr  =  
                                     match expr with 
                                     | Const(x) -> Const'(x)
-                                    (* | Def(var,value) -> Def'(var, calculate_lexical_addresses paramList boundList value)
-                                    | Set(var,value) -> Set'(var, calculate_lexical_addresses paramList boundList value)   *)
+                                    | If(test,dit,dif) ->  If' ((calculate_lexical_addresses paramList boundList test) , 
+                                                               (calculate_lexical_addresses paramList boundList dit) , 
+                                                               (calculate_lexical_addresses paramList boundList dif))
+                                    | Def(Var(varName),value) -> Def'(VarBound(varName,0,0), calculate_lexical_addresses paramList boundList value)
+                                    | Set(Var(varName),value) -> Set'(VarBound(varName,0,0), calculate_lexical_addresses paramList boundList value)  
                                     | Or(expr) -> Or'(List.map (fun(y) -> calculate_lexical_addresses paramList boundList y) expr) 
                                     | Seq(expr) -> Seq'(List.map (fun(y) -> calculate_lexical_addresses paramList boundList y) expr)
                                     | Applic(expr, exprList) -> Applic' (calculate_lexical_addresses paramList boundList expr, List.map (fun(y) -> calculate_lexical_addresses paramList boundList y) exprList)
-                                    | Var(x) -> If (List.mem x paramList) == true then Var'(x, find_var_in_paramlist x paramList) 
-                                    | LambdaSimple(args, body) -> LambdaSimple'(args, calculate_lexical_addresses params (List.append paramList boundList) body )
-                                    | LambdaOpt(args, optArgs, body) -> LambdaOpt'(args, optArgs, (calculate_lexical_addresses (List.append args [optArgs]) (List.append paramList boundList)))
+                                    | Var(x) -> if (List.mem x paramList) == true then Var'(VarParam(x, find_var_in_paramlist x paramList 0))
+                                     else 
+                                     let major_index = find_var_in_boundlist x boundList 0 in
+                                     if(major_index == -1) then Var'(VarFree(x)) else
+                                     let minor_list = List.nth boundList major_index in
+                                     let minor_index = find_var_in_paramlist x minor_list 0 in
+                                     Var'(VarBound(x,major_index,minor_index))
+
+                                    | LambdaSimple(args, body) -> LambdaSimple'(args, (calculate_lexical_addresses args (paramList :: boundList) body))
+                                    | LambdaOpt(args, optArgs, body) -> LambdaOpt'(args, optArgs, (calculate_lexical_addresses (List.append args [optArgs]) (paramList :: boundList) body))
 
 let annotate_lexical_addresses e = calculate_lexical_addresses [] [] e;;
                                 
@@ -93,6 +120,5 @@ let run_semantics expr =
   
 end;; (* struct Semantics *)
 
-open Semantics;;
 
 
