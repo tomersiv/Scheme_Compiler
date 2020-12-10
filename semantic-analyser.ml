@@ -71,29 +71,22 @@ let rec find_var_in_boundlist x boundlst index =
   | [] -> -1
   | lst1 :: lst2 -> if (List.mem x lst1) == true then index else find_var_in_boundlist x lst2 (index + 1)
 
-                                
-                                          
-
-  (* (lambda a p z)
-    (lambda (v q)
-      z)
-      (lambda (a b))  
-        p )       
-       
-        
-       boundList = [ [a b], [v q]    ] *)
+let extract_var expr = 
+                    match expr with
+                    | Var'(x) -> x  
+                    | _ -> raise X_syntax_error                             
 
 let rec calculate_lexical_addresses paramList boundList expr  =  
                                     match expr with 
                                     | Const(x) -> Const'(x)
-                                    | If(test,dit,dif) ->  If' ((calculate_lexical_addresses paramList boundList test) , 
+                                    | If(test, dit, dif) ->  If' ((calculate_lexical_addresses paramList boundList test) , 
                                                                (calculate_lexical_addresses paramList boundList dit) , 
                                                                (calculate_lexical_addresses paramList boundList dif))
-                                    | Def(Var(varName),value) -> Def'(VarBound(varName,0,0), calculate_lexical_addresses paramList boundList value)
-                                    | Set(Var(varName),value) -> Set'(VarBound(varName,0,0), calculate_lexical_addresses paramList boundList value)  
+                                    | Def(var, value) -> Def'(extract_var(calculate_lexical_addresses paramList boundList var) , calculate_lexical_addresses paramList boundList value)
+                                    | Set(var, value) -> Set'(extract_var(calculate_lexical_addresses paramList boundList var), calculate_lexical_addresses paramList boundList value)  
                                     | Or(expr) -> Or'(List.map (fun(y) -> calculate_lexical_addresses paramList boundList y) expr) 
                                     | Seq(expr) -> Seq'(List.map (fun(y) -> calculate_lexical_addresses paramList boundList y) expr)
-                                    | Applic(expr, exprList) -> Applic' (calculate_lexical_addresses paramList boundList expr, List.map (fun(y) -> calculate_lexical_addresses paramList boundList y) exprList)
+                                    | Applic(rator, rands) -> Applic' (calculate_lexical_addresses paramList boundList rator, List.map (fun(y) -> calculate_lexical_addresses paramList boundList y) rands)
                                     | Var(x) -> if (List.mem x paramList) == true then Var'(VarParam(x, find_var_in_paramlist x paramList 0))
                                      else 
                                      let major_index = find_var_in_boundlist x boundList 0 in
@@ -104,18 +97,45 @@ let rec calculate_lexical_addresses paramList boundList expr  =
 
                                     | LambdaSimple(args, body) -> LambdaSimple'(args, (calculate_lexical_addresses args (paramList :: boundList) body))
                                     | LambdaOpt(args, optArgs, body) -> LambdaOpt'(args, optArgs, (calculate_lexical_addresses (List.append args [optArgs]) (paramList :: boundList) body))
+                                    | _ -> raise X_syntax_error
 
 let annotate_lexical_addresses e = calculate_lexical_addresses [] [] e;;
                                 
- 
 
-let annotate_tail_calls e = raise X_not_yet_implemented;;
+
+let rec calculate_tail_calls tp e = 
+                                match e with      
+                                | Const'(x) -> Const'(x)
+                                | Var'(x) -> Var'(x)
+                                | Or'(exprs) -> Or'(calculate_last_tail tp exprs)
+                                | If'(test, dit, dif) -> If'(calculate_tail_calls false test, calculate_tail_calls tp dit, calculate_tail_calls tp dif)
+                                | Def'(var, value) -> Def'(var, calculate_tail_calls false value)
+                                | Set'(var, value) -> Set'(var, calculate_tail_calls false value)
+                                | Seq'(expr) -> Seq'(calculate_last_tail tp expr)
+                                | LambdaSimple'(args, body) -> LambdaSimple'(args, calculate_tail_calls true body)
+                                | LambdaOpt'(args, optArgs, body) -> LambdaOpt'(args, optArgs, calculate_tail_calls true body)
+                                | Applic'(rator, rands) -> match tp with  
+                                                           | true -> ApplicTP'(calculate_tail_calls false rator, List.map (fun x -> calculate_tail_calls false x) rands)
+                                                           | _ -> Applic'(calculate_tail_calls false rator, List.map (fun x -> calculate_tail_calls false x) rands)
+
+
+and calculate_last_tail tp exprs = 
+                              match exprs with  
+                              | last :: [] -> [calculate_tail_calls tp last]
+                              | curr :: rest ->  [(calculate_tail_calls false curr)] @ (calculate_last_tail tp rest)
+                              | _ -> raise X_syntax_error
+
+
+
+let annotate_tail_calls e = let tp = false in
+                            calculate_tail_calls tp e;;
+
 
 let box_set e = raise X_not_yet_implemented;;
 
 let run_semantics expr =
-  (* box_set
-    (annotate_tail_calls *)
+  (* box_set *)
+    annotate_tail_calls
        (annotate_lexical_addresses expr);;
   
 end;; (* struct Semantics *)
