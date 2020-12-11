@@ -21,13 +21,22 @@ type expr' =
   | Applic' of expr' * (expr' list)
   | ApplicTP' of expr' * (expr' list);;
 
-let rec expr'_eq e1 e2 = 
+let rec expr'_eq e1 e2 =
   match e1, e2 with
   | Const' Void, Const' Void -> true
   | Const'(Sexpr s1), Const'(Sexpr s2) -> sexpr_eq s1 s2
   | Var'(VarFree v1), Var'(VarFree v2) -> String.equal v1 v2
   | Var'(VarParam (v1,mn1)), Var'(VarParam (v2,mn2)) -> String.equal v1 v2 && mn1 = mn2
   | Var'(VarBound (v1,mj1,mn1)), Var'(VarBound (v2,mj2,mn2)) -> String.equal v1 v2 && mj1 = mj2  && mn1 = mn2
+  | Box'(VarFree v1), Box'(VarFree v2) -> String.equal v1 v2
+  | Box'(VarParam (v1,mn1)), Box'(VarParam (v2,mn2)) -> String.equal v1 v2 && mn1 = mn2
+  | Box'(VarBound (v1,mj1,mn1)), Box'(VarBound (v2,mj2,mn2)) -> String.equal v1 v2 && mj1 = mj2  && mn1 = mn2
+  | BoxGet'(VarFree v1), BoxGet'(VarFree v2) -> String.equal v1 v2
+  | BoxGet'(VarParam (v1,mn1)), BoxGet'(VarParam (v2,mn2)) -> String.equal v1 v2 && mn1 = mn2
+  | BoxGet'(VarBound (v1,mj1,mn1)), BoxGet'(VarBound (v2,mj2,mn2)) -> String.equal v1 v2 && mj1 = mj2  && mn1 = mn2
+  | BoxSet'(VarFree v1,e1), BoxSet'(VarFree v2, e2) -> String.equal v1 v2 && (expr'_eq e1 e2)
+  | BoxSet'(VarParam (v1,mn1), e1), BoxSet'(VarParam (v2,mn2),e2) -> String.equal v1 v2 && mn1 = mn2 && (expr'_eq e1 e2)
+  | BoxSet'(VarBound (v1,mj1,mn1),e1), BoxSet'(VarBound (v2,mj2,mn2),e2) -> String.equal v1 v2 && mj1 = mj2  && mn1 = mn2 && (expr'_eq e1 e2)
   | If'(t1, th1, el1), If'(t2, th2, el2) -> (expr'_eq t1 t2) &&
                                             (expr'_eq th1 th2) &&
                                               (expr'_eq el1 el2)
@@ -47,9 +56,8 @@ let rec expr'_eq e1 e2 =
   | ApplicTP'(e1, args1), ApplicTP'(e2, args2) ->
 	 (expr'_eq e1 e2) &&
 	   (List.for_all2 expr'_eq args1 args2)
-  | _ -> false;;
-	
-                       
+  | _ -> false;;	
+                      
 exception X_syntax_error;;
 
 module type SEMANTICS = sig
@@ -103,15 +111,15 @@ let annotate_lexical_addresses e = calculate_lexical_addresses [] [] e;;
                                 
 
 
-let rec calculate_tail_calls tp e = 
-                                match e with      
+let rec calculate_tail_calls tp expr = 
+                                match expr with      
                                 | Const'(x) -> Const'(x)
                                 | Var'(x) -> Var'(x)
                                 | Or'(exprs) -> Or'(calculate_last_tail tp exprs)
                                 | If'(test, dit, dif) -> If'(calculate_tail_calls false test, calculate_tail_calls tp dit, calculate_tail_calls tp dif)
                                 | Def'(var, value) -> Def'(var, calculate_tail_calls false value)
                                 | Set'(var, value) -> Set'(var, calculate_tail_calls false value)
-                                | Seq'(expr) -> Seq'(calculate_last_tail tp expr)
+                                | Seq'(exprs) -> Seq'(calculate_last_tail tp exprs)
                                 | LambdaSimple'(args, body) -> LambdaSimple'(args, calculate_tail_calls true body)
                                 | LambdaOpt'(args, optArgs, body) -> LambdaOpt'(args, optArgs, calculate_tail_calls true body)
                                 | Applic'(rator, rands) -> match tp with  
@@ -131,7 +139,38 @@ let annotate_tail_calls e = let tp = false in
                             calculate_tail_calls tp e;;
 
 
-let box_set e = raise X_not_yet_implemented;;
+let rec calculate_boxing box_list expr = 
+                                  match expr with 
+                                  | Const'(x) -> Const'(x)
+                                  | Var'(var) -> box_get_var var box_list
+                                  | If'(test, dit, dif) -> If' (calculate_boxing box_list test, calculate_boxing box_list dit,calculate_boxing box_list dif)
+                                  | Def'(var, value) -> Def'(var, calculate_boxing box_list value)
+                                  | Or'(exprs) -> Or'(List.map (fun x -> calculate_boxing box_list x) exprs)
+                                  | Set'(var, value) -> box_set_var var value box_list
+                                  (* | Seq'(exprs) ->  *)
+                                  (* | LambdaSimple'(args, body) ->
+                                  | LambdaOpt'(args, optArgs, body) -> *)
+                                  | Applic'(rator, rands) -> Applic'(calculate_boxing box_list rator, List.map(fun x -> calculate_boxing box_list x) rands)
+                                  | ApplicTP'(rator, rands) -> ApplicTP'(calculate_boxing box_list rator, List.map(fun x -> calculate_boxing box_list x) rands)
+                                  | Box'(x) -> Box'(x) 
+                                  | BoxGet'(var) -> BoxGet'(var) 
+                                  | BoxSet'(var, value) -> BoxSet'(var, value) 
+                                  | _ -> raise X_syntax_error
+
+
+and box_get_var var box_list = 
+                  match var with  
+                  | VarFree(varname) -> Var'(var)
+                  | _ ->  if ((List.mem (Var'(var)) box_list)) then BoxGet'(var) else Var'(var)
+
+and box_set_var var value box_list = 
+                           match var with
+                           | VarFree(varname) -> Set'(var, calculate_boxing box_list value)
+                           | _ -> if (List.mem (Var'(var)) box_list) then BoxSet'(var, calculate_boxing box_list value) else Set'(var, calculate_boxing box_list value)                 
+                   
+
+
+let box_set e = calculate_boxing [] e ;;
 
 let run_semantics expr =
   (* box_set *)
