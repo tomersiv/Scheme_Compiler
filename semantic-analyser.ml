@@ -88,8 +88,8 @@ let rec calculate_lexical_addresses paramList boundList expr  =
                                     match expr with 
                                     | Const(x) -> Const'(x)
                                     | If(test, dit, dif) ->  If' ((calculate_lexical_addresses paramList boundList test) , 
-                                                               (calculate_lexical_addresses paramList boundList dit) , 
-                                                               (calculate_lexical_addresses paramList boundList dif))
+                                                                 (calculate_lexical_addresses paramList boundList dit) , 
+                                                                 (calculate_lexical_addresses paramList boundList dif))
                                     | Def(var, value) -> Def'(extract_var(calculate_lexical_addresses paramList boundList var) , calculate_lexical_addresses paramList boundList value)
                                     | Set(var, value) -> Set'(extract_var(calculate_lexical_addresses paramList boundList var), calculate_lexical_addresses paramList boundList value)  
                                     | Or(expr) -> Or'(List.map (fun(y) -> calculate_lexical_addresses paramList boundList y) expr) 
@@ -105,7 +105,6 @@ let rec calculate_lexical_addresses paramList boundList expr  =
 
                                     | LambdaSimple(args, body) -> LambdaSimple'(args, (calculate_lexical_addresses args (paramList :: boundList) body))
                                     | LambdaOpt(args, optArgs, body) -> LambdaOpt'(args, optArgs, (calculate_lexical_addresses (List.append args [optArgs]) (paramList :: boundList) body))
-                                    | _ -> raise X_syntax_error
 
 let annotate_lexical_addresses e = calculate_lexical_addresses [] [] e;;
                                 
@@ -148,14 +147,11 @@ let rec calculate_boxing box_list expr =
                                   | Or'(exprs) -> Or'(List.map (fun x -> calculate_boxing box_list x) exprs)
                                   | Set'(var, value) -> box_set_var var value box_list
                                   (* | Seq'(exprs) ->  *)
-                                  (* | LambdaSimple'(args, body) ->
-                                  | LambdaOpt'(args, optArgs, body) -> *)
+                                  | LambdaSimple'(args, body) -> calculate_box_lambda args body box_list expr 
+                                  | LambdaOpt'(args, optArgs, body) -> calculate_box_lambda (List.append args [optArgs]) body box_list expr
                                   | Applic'(rator, rands) -> Applic'(calculate_boxing box_list rator, List.map(fun x -> calculate_boxing box_list x) rands)
                                   | ApplicTP'(rator, rands) -> ApplicTP'(calculate_boxing box_list rator, List.map(fun x -> calculate_boxing box_list x) rands)
-                                  | Box'(x) -> Box'(x) 
-                                  | BoxGet'(var) -> BoxGet'(var) 
-                                  | BoxSet'(var, value) -> BoxSet'(var, value) 
-                                  | _ -> raise X_syntax_error
+                                  | rest -> rest
 
 
 and box_get_var var box_list = 
@@ -168,6 +164,7 @@ and box_set_var var value box_list =
                            | VarFree(varname) -> Set'(var, calculate_boxing box_list value)
                            | _ -> if (List.mem (Var'(var)) box_list) then BoxSet'(var, calculate_boxing box_list value) else Set'(var, calculate_boxing box_list value)                 
                    
+and box_lambda args body box_list lambda_type = 
 
 
 let box_set e = calculate_boxing [] e ;;
