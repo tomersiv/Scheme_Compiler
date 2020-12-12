@@ -69,6 +69,9 @@ end;;
 
 module Semantics : SEMANTICS = struct
 
+let read_depth = ref 0 ;;
+let write_depth = ref 0 ;; 
+
 let rec find_var_in_paramlist x paramlst index =
   match paramlst with
   | [] -> -1
@@ -165,7 +168,7 @@ and box_set_var var value box_list =
                            | _ -> if (List.mem (Var'(var)) box_list) then BoxSet'(var, calculate_boxing box_list value) else Set'(var, calculate_boxing box_list value)                 
                    
 and calculate_box_lambda args body box_list lambda_type = 
-                                                        let should_be_boxed = List.filter (fun(arg) -> shouldBeBoxed arg body) args
+                                                       let should_be_boxed = List.filter (fun(arg) -> shouldBeBoxed arg body) args
 
 
 
@@ -174,9 +177,9 @@ and shouldBeBoxed arg body =
                     let write_occurrences = calculate_write_occurrences arg body in 
                     if(List.length read_occurrences == 0 || List.length read_occurrences == 0) then false 
                     else 
-                      let res1 = List.map (fun x -> compare_read_write x read_occurrences) write_occurrences in
-                      let res2 = List.map (fun x -> compare_read_write x write_occurrences) read_occurrences in 
-                      if(List.mem true res1 || List.mem true res2) then true else false
+                    let res1 = List.map (fun x -> compare_read_write x read_occurrences) write_occurrences in
+                    let res2 = List.map (fun x -> compare_read_write x write_occurrences) read_occurrences in 
+                    if(List.mem true res1 || List.mem true res2) then true else false
                           
                      
 and calculate_read_occurrences arg body = 
@@ -185,8 +188,19 @@ and calculate_read_occurrences arg body =
                                       | Var'(var) -> calculate_read_var var arg
                                       | If'(test, dit, dif) -> List.append((calculate_read_occurrences arg test) 
                                                               (List.append ((calculate_read_occurrences arg dit) (calculate_read_occurrences arg dif))))
-                                      | Def'(var, value) ->                                               
+                                      (* | Def'(var, value -> *)
+                                      | Or'(exprs) -> List.flatten(List.map(fun x -> calculate_read_occurrences arg x) exprs)
+                                      | Set'(var, value) -> calculate_read_occurrences arg value
+                                      | Applic'(rator, rands) -> (calculate_read_occurrences arg rator) @
+                                                                 List.flatten(List.map (fun x -> calculate_read_occurrences arg x) rands)
+                                      | ApplicTP'(rator, rands) -> (calculate_read_occurrences arg rator) @
+                                                                 List.flatten(List.map (fun x -> calculate_read_occurrences arg x) rands)
+                                      | LambdaSimple'(args, innerbody) -> calculate_box_innerLambda arg args innerbody
+                                      | LambdaOpt'(args, optArgs, innerbody) -> calculate_box_innerLambda arg (List.append args [optArgs]) innerbody                                                       
 
+and calculate_box_innerLambda arg args innerbody = 
+                                                if ((List.mem arg args) == true) then [] else 
+                                                read_depth := !read_depth + 1                                      
 
 and calculate_read_var var arg = 
                               match var with 
