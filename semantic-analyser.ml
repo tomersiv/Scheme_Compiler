@@ -137,7 +137,7 @@ and calculate_last_tail tp exprs =
 let annotate_tail_calls e = let tp = false in
                             calculate_tail_calls tp e;;
 
-
+(*TODO: check if removing box_list will succeed*)
 let rec calculate_boxing box_list expr = 
                                   match expr with 
                                   | Const'(x) -> Const'(x)
@@ -164,13 +164,48 @@ and box_set_var var value box_list =
                            | VarFree(varname) -> Set'(var, calculate_boxing box_list value)
                            | _ -> if (List.mem (Var'(var)) box_list) then BoxSet'(var, calculate_boxing box_list value) else Set'(var, calculate_boxing box_list value)                 
                    
-and box_lambda args body box_list lambda_type = 
+and calculate_box_lambda args body box_list lambda_type = 
+                                                        let should_be_boxed = List.filter (fun(arg) -> shouldBeBoxed arg body) args
 
 
-let box_set e = calculate_boxing [] e ;;
+
+and shouldBeBoxed arg body =
+                    let read_occurrences = calculate_read_occurrences arg body in
+                    let write_occurrences = calculate_write_occurrences arg body in 
+                    if(List.length read_occurrences == 0 || List.length read_occurrences == 0) then false 
+                    else 
+                      let res1 = List.map (fun x -> compare_read_write x read_occurrences) write_occurrences in
+                      let res2 = List.map (fun x -> compare_read_write x write_occurrences) read_occurrences in 
+                      if(List.mem true res1 || List.mem true res2) then true else false
+                          
+                     
+and calculate_read_occurrences arg body = 
+                                      match body with 
+                                      | Const'(x) -> [] 
+                                      | Var'(var) -> calculate_read_var var arg
+                                      | If'(test, dit, dif) -> List.append((calculate_read_occurrences arg test) 
+                                                              (List.append ((calculate_read_occurrences arg dit) (calculate_read_occurrences arg dif))))
+                                      | Def'(var, value) ->                                               
+
+
+and calculate_read_var var arg = 
+                              match var with 
+                              | VarFree(varname) -> []
+                              | VarParam(varname, minor_index) -> if (varname != arg) then [] else [0] 
+                              | VarBound(varname, minor_index, major_index) -> if (varname != arg) then [] else [0]
+
+and calculate_write_occurrences arg occurrences = 
+                                              match occurrences with
+                                              | [] -> false 
+                                              | curr :: rest -> if (compare arg curr != 0) then true else calculate_write_occurrences arg rest 
+
+
+
+
+let box_set e = calculate_boxing [] e;;
 
 let run_semantics expr =
-  (* box_set *)
+  box_set
     annotate_tail_calls
        (annotate_lexical_addresses expr);;
   
