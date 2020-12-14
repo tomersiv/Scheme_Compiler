@@ -127,7 +127,7 @@ let rec calculate_tail_calls tp expr =
                                 | Applic'(rator, rands) -> match tp with  
                                                            | true -> ApplicTP'(calculate_tail_calls false rator, List.map (fun x -> calculate_tail_calls false x) rands)
                                                            | _ -> Applic'(calculate_tail_calls false rator, List.map (fun x -> calculate_tail_calls false x) rands)
-
+                                
 
 and calculate_last_tail tp exprs = 
                               match exprs with  
@@ -192,14 +192,17 @@ and calculate_box_lambda args body box_list lambda_type =
                                                                     )
                                                               | _ -> 
                                                                     (match lambda_type with
-                                                                    | LambdaSimple'(args, body) -> LambdaSimple'(args, Seq'(List.append (final_box_list) ([boxed_body])))
-                                                                    | LambdaOpt'(params, optParams, body) -> LambdaOpt'(params, optParams, Seq'(List.append (final_box_list) ([boxed_body])))
+                                                                    | LambdaSimple'(args, body) -> LambdaSimple'(args, Seq'(List.flatten(flatten_sequence (List.append (final_box_list) ([boxed_body])))))
+                                                                    | LambdaOpt'(params, optParams, body) -> LambdaOpt'(params, optParams, Seq'(List.flatten(flatten_sequence (List.append (final_box_list) ([boxed_body])))))
                                                                     | _ -> raise X_syntax_error
                                                                     )
                                                               in
                                                               boss                                               
 
-                                                       
+and flatten_sequence lst = List.map (fun lst -> match lst with
+                                            |Seq'(lst) -> lst
+                                            |x -> [x]
+                                            )lst                                                       
 
 
 
@@ -243,8 +246,8 @@ and calculate_read_innerLambda arg args innerbody =
 and calculate_read_var var arg = 
                               match var with 
                               | VarFree(varname) -> []
-                              | VarParam(varname, minor_index) -> if (varname != arg) then [] else [0] 
-                              | VarBound(varname, minor_index, major_index) -> if (varname != arg) then [] else [0]
+                              | VarParam(varname, minor_index) -> if (varname = arg) then [0] else [] 
+                              | VarBound(varname, minor_index, major_index) -> if (varname = arg) then [0] else []
 
 and compare_read_write arg occurrences = 
                                       match occurrences with
@@ -271,12 +274,12 @@ and calculate_write_occurrences arg body =
 
 and calculate_write_var var value arg = 
                                 match var with
-                                | VarFree(varname) -> if (varname != arg) then (calculate_write_occurrences arg value) 
-                                                                          else (List.append [0] (calculate_write_occurrences arg value))
-                                | VarParam(varname, minor_index) -> if (varname != arg) then (calculate_write_occurrences arg value) 
-                                                                    else (List.append [0] (calculate_write_occurrences arg value)) 
-                                | VarBound(varname, minor_index, major_index) -> if (varname != arg) then (calculate_write_occurrences arg value) 
-                                                                                 else (List.append [0] (calculate_write_occurrences arg value))                                                                                                                        
+                                | VarFree(varname) -> if (varname = arg) then (List.append [0] (calculate_write_occurrences arg value)) 
+                                                                          else (calculate_write_occurrences arg value) 
+                                | VarParam(varname, minor_index) -> if (varname = arg) then (List.append [0] (calculate_write_occurrences arg value)) 
+                                                                          else (calculate_write_occurrences arg value) 
+                                | VarBound(varname, minor_index, major_index) -> if (varname = arg) then (List.append [0] (calculate_write_occurrences arg value)) 
+                                                                          else (calculate_write_occurrences arg value)                                                                                                                        
 
 and calculate_write_innerLambda arg args innerbody = 
                                                 if ((List.mem arg args) == true) then [] else 
@@ -294,6 +297,3 @@ let run_semantics expr =
        (annotate_lexical_addresses expr));;
   
 end;; (* struct Semantics *)
-
-
-
