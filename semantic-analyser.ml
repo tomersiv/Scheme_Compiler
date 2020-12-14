@@ -149,9 +149,9 @@ let rec calculate_boxing box_list expr =
                                   | Def'(var, value) -> Def'(var, calculate_boxing box_list value)
                                   | Or'(exprs) -> Or'(List.map (fun x -> calculate_boxing box_list x) exprs)
                                   | Set'(var, value) -> box_set_var var value box_list
-                                  (* | Seq'(exprs) ->  *)
+                                  | Seq'(exprs) -> Seq'(List.map (fun x -> calculate_boxing box_list x) exprs) (*TODO change seq to match 3.4.1*)
                                   | LambdaSimple'(args, body) -> calculate_box_lambda args body box_list expr 
-                                  | LambdaOpt'(args, optArgs, body) -> calculate_box_lambda (List.append args [optArgs]) body box_list expr
+                                  | LambdaOpt'(args, optArgs, body) -> calculate_box_lambda (List.append args [optArgs]) body box_list expr 
                                   | Applic'(rator, rands) -> Applic'(calculate_boxing box_list rator, List.map(fun x -> calculate_boxing box_list x) rands)
                                   | ApplicTP'(rator, rands) -> ApplicTP'(calculate_boxing box_list rator, List.map(fun x -> calculate_boxing box_list x) rands)
                                   | rest -> rest
@@ -168,7 +168,36 @@ and box_set_var var value box_list =
                            | _ -> if (List.mem (Var'(var)) box_list) then BoxSet'(var, calculate_boxing box_list value) else Set'(var, calculate_boxing box_list value)                 
                    
 and calculate_box_lambda args body box_list lambda_type = 
-                                                       let should_be_boxed = List.filter (fun(arg) -> shouldBeBoxed arg body) args
+                                                       let updated_box_list = List.map (fun x -> 
+                                                                                            match x with 
+                                                                                            | Var'(VarParam(varname, index)) -> Var'(VarBound(varname, 0, index))
+                                                                                            | Var'(VarBound(varname, minor_index, major_index)) ->  Var'(VarBound(varname, minor_index + 1, major_index))
+                                                                                            | _-> raise X_syntax_error) 
+                                                                                            box_list in
+                                                       let should_be_boxed = List.filter (fun(arg) -> shouldBeBoxed arg body) args in
+                                                       let wrapped_boxed_vars = List.map (fun var -> Var'(VarParam(var, find_var_in_paramlist var args 0))) should_be_boxed in
+                                                       let final_box_list = List.map (fun var -> Set'(Var'(VarParam(var, find_var_in_paramlist var args 0 )),
+                                                                                                      Box'(VarParam(var, find_var_in_paramlist var args 0))))
+                                                                                                      should_be_boxed in
+                                                       let boxed_body = (calculate_boxing body (List.append newParamsToWraplist updatedWrapList)) in
+                                                       let boss = 
+                                                              match final_box_list with
+                                                              | [] ->
+                                                                    (match lambda_type with
+                                                                    | LambdaSimple'(args, body) -> LambdaSimple' (args, boxed_body)
+                                                                    | LambdaOpt'(params, optParams, body) -> LambdaOpt'(params, optParams, boxed_body)
+                                                                    | _ -> raise X_syntax_error 
+                                                                    )
+                                                              | _ -> 
+                                                                    (match lambda_type with
+                                                                    | LambdaSimple'(args, body) -> LambdaSimple'(args, Seq'(List.append (final_box_list [boxed_body])))
+                                                                    | LambdaOpt'(params, optParams, body) -> LambdaOpt'(params, optParams, Seq'(List.append (final_box_list [boxed_body])))
+                                                                    | _ -> raise X_syntax_error
+                                                                    )
+                                                              in
+                                                              boss                                               
+
+                                                       
 
 
 
@@ -188,33 +217,70 @@ and calculate_read_occurrences arg body =
                                       | Var'(var) -> calculate_read_var var arg
                                       | If'(test, dit, dif) -> List.append((calculate_read_occurrences arg test) 
                                                               (List.append ((calculate_read_occurrences arg dit) (calculate_read_occurrences arg dif))))
-                                      (* | Def'(var, value -> *)
+                                      | Def'(var, value) -> raise X_syntax_error 
                                       | Or'(exprs) -> List.flatten(List.map(fun x -> calculate_read_occurrences arg x) exprs)
+                                      | Seq'(exprs) -> List.flatten(List.map(fun x -> calculate_read_occurrences arg x) exprs) (*TODO change seq to match 3.4.1*)
                                       | Set'(var, value) -> calculate_read_occurrences arg value
                                       | Applic'(rator, rands) -> (calculate_read_occurrences arg rator) @
                                                                  List.flatten(List.map (fun x -> calculate_read_occurrences arg x) rands)
                                       | ApplicTP'(rator, rands) -> (calculate_read_occurrences arg rator) @
                                                                  List.flatten(List.map (fun x -> calculate_read_occurrences arg x) rands)
-                                      | LambdaSimple'(args, innerbody) -> calculate_box_innerLambda arg args innerbody
-                                      | LambdaOpt'(args, optArgs, innerbody) -> calculate_box_innerLambda arg (List.append args [optArgs]) innerbody                                                       
+                                      | LambdaSimple'(args, innerbody) -> calculate_read_innerLambda arg args innerbody
+                                      | LambdaOpt'(args, optArgs, innerbody) -> calculate_read_innerLambda arg (List.append args [optArgs]) innerbody    
+                                      | _ -> []                                                   
 
-and calculate_box_innerLambda arg args innerbody = 
+
+and calculate_read_innerLambda arg args innerbody = 
                                                 if ((List.mem arg args) == true) then [] else 
-                                                read_depth := !read_depth + 1                                      
-
+                                                begin 
+                                                read_depth := !read_depth + 1  (*TODO  change to func parameter*)                                    
+                                                if (List.length (calculate_read_occurrences arg innerbody) == 0) then []
+                                                else [!read_depth] 
+                                                end
 and calculate_read_var var arg = 
                               match var with 
                               | VarFree(varname) -> []
                               | VarParam(varname, minor_index) -> if (varname != arg) then [] else [0] 
                               | VarBound(varname, minor_index, major_index) -> if (varname != arg) then [] else [0]
 
-and calculate_write_occurrences arg occurrences = 
-                                              match occurrences with
-                                              | [] -> false 
-                                              | curr :: rest -> if (compare arg curr != 0) then true else calculate_write_occurrences arg rest 
+and compare_read_write arg occurrences = 
+                                      match occurrences with
+                                      | [] -> false 
+                                      | curr :: rest -> if (compare arg curr != 0) then true else compare_read_write arg rest
 
+and calculate_write_occurrences arg body = 
+                                        match body with
+                                        | Const'(x) -> []
+                                        | If'(test, dit, dif) -> List.append((calculate_write_occurrences arg test) 
+                                                                 (List.append ((calculate_write_occurrences arg dit) (calculate_write_occurrences arg dif))))
+                                        | Def'(var, value) -> raise X_syntax_error
+                                        | Or'(exprs) -> List.flatten(List.map(fun x -> calculate_write_occurrences arg x) exprs)                       
+                                        | Seq'(exprs) -> List.flatten(List.map(fun x -> calculate_write_occurrences arg x) exprs) (*TODO change seq to match 3.4.1*)
+                                        | Set'(Var'(var), value) -> calculate_write_var var value arg
+                                        | Applic'(rator, rands) -> (calculate_write_occurrences arg rator) @
+                                                                   List.flatten(List.map (fun x -> calculate_write_occurrences arg x) rands)
+                                        | ApplicTP'(rator, rands) -> (calculate_write_occurrences arg rator) @
+                                                                     List.flatten(List.map (fun x -> calculate_write_occurrences arg x) rands)
+                                        | LambdaSimple'(args, innerbody) -> calculate_write_innerLambda arg args innerbody
+                                        | LambdaOpt'(args, optArgs, innerbody) -> calculate_write_innerLambda arg (List.append args [optArgs]) innerbody
+                                        | _ -> []
 
+and calculate_write_var var value arg = 
+                                match var with
+                                | VarFree(varname) -> if (varname != arg) then (calculate_write_occurrences arg value) 
+                                                                          else (List.append [0] (calculate_write_occurrences arg value))
+                                | VarParam(varname, minor_index) -> if (varname != arg) then (calculate_write_occurrences arg value) 
+                                                                    else (List.append [0] (calculate_write_occurrences arg value)) 
+                                | VarBound(varname, minor_index, major_index) -> if (varname != arg) then (calculate_write_occurrences arg value) 
+                                                                                 else (List.append [0] (calculate_write_occurrences arg value))                                                                                                                        
 
+and calculate_write_innerLambda arg args innerbody = 
+                                                if ((List.mem arg args) == true) then [] else 
+                                                begin 
+                                                write_depth := !write_depth + 1  (*TODO  change to func parameter*)                                    
+                                                if (List.length (calculate_write_occurrences arg innerbody) == 0) then []
+                                                else [!write_depth] 
+                                                end 
 
 let box_set e = calculate_boxing [] e;;
 
