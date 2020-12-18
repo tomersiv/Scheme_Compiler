@@ -71,6 +71,7 @@ module Semantics : SEMANTICS = struct
 
 let read_depth = ref 0 ;;
 let write_depth = ref 0 ;; 
+let sequence_counter = ref 0;;
 
 let rec find_var_in_paramlist x paramlst index =
   match paramlst with
@@ -140,7 +141,6 @@ and calculate_last_tail tp exprs =
 let annotate_tail_calls e = let tp = false in
                             calculate_tail_calls tp e;;
 
-(*TODO: check if removing box_list will succeed*)
 let rec calculate_boxing box_list expr = 
                                   match expr with 
                                   | Const'(x) -> Const'(x)
@@ -149,13 +149,12 @@ let rec calculate_boxing box_list expr =
                                   | Def'(var, value) -> Def'(var, calculate_boxing box_list value)
                                   | Or'(exprs) -> Or'(List.map (fun x -> calculate_boxing box_list x) exprs)
                                   | Set'(var, value) -> box_set_var var value box_list
-                                  | Seq'(exprs) -> Seq'(List.map (fun x -> calculate_boxing box_list x) exprs) (*TODO change seq to match 3.4.1*)
+                                  | Seq'(exprs) -> Seq'(List.map (fun x -> calculate_boxing box_list x) exprs)
                                   | LambdaSimple'(args, body) -> calculate_box_lambda args body box_list expr 
                                   | LambdaOpt'(args, optArgs, body) -> calculate_box_lambda (List.append args [optArgs]) body box_list expr 
                                   | Applic'(rator, rands) -> Applic'(calculate_boxing box_list rator, List.map(fun x -> calculate_boxing box_list x) rands)
                                   | ApplicTP'(rator, rands) -> ApplicTP'(calculate_boxing box_list rator, List.map(fun x -> calculate_boxing box_list x) rands)
                                   | rest -> rest 
- 
 
 
 and box_get_var var box_list = 
@@ -175,7 +174,7 @@ and calculate_box_lambda args body box_list lambda_type =
                                                                                             | Var'(VarBound(varname, minor_index, major_index)) ->  Var'(VarBound(varname, minor_index + 1, major_index))
                                                                                             | _-> raise X_syntax_error) 
                                                                                             box_list in
-                                                       let should_be_boxed = List.filter (fun(arg) -> shouldBeBoxed arg body) args in
+                                                       let should_be_boxed = List.filter (fun(arg) -> needs_boxing arg body) args in
                                                        let wrapped_boxed_vars = List.map (fun var -> Var'(VarParam(var, find_var_in_paramlist var args 0))) should_be_boxed in
 
                                                        let final_box_list = List.map (fun var -> Set'(VarParam(var, find_var_in_paramlist var args 0 ),
@@ -205,15 +204,58 @@ and flatten_sequence lst = List.map (fun lst -> match lst with
                                             )lst                                                       
 
 
+  and calculate_additional_criteria read_occur write_occur expression_with_read_occur expression_with_write_occur exprs arg_name =
+    let read_occur_expr expr = 
+                          match expr with  
+                          | Var'(VarParam(varname, minor_index)) -> if (varname = arg_name) then true else false
+                          | Var'(VarBound(varname, minor_index, major_index)) -> if (varname = arg_name) then true else false
+                          | _ -> false in
+    let write_occur_expr expr = 
+                            match expr with
+                            | Set'(var, value) -> true 
+                            | _ -> false in
+    let e_with_read_occur_expr expr = 
+    List.exists (fun x -> x > 0) (calculate_read_occurrences arg_name expr)  in
+    let e_with_write_occur_expr expr =
+    List.exists (fun x -> x > 0) (calculate_write_occurrences arg_name expr) in
+    let calculate_rest_of_expressions1 curr_expr rest = 
+                                                      match (read_occur_expr curr_expr) || (write_occur_expr curr_expr) ||
+                                                            (e_with_read_occur_expr curr_expr) || (e_with_write_occur_expr curr_expr)
+                                                      with
+                                                      | true -> false      
+                                                      | false -> calculate_additional_criteria read_occur write_occur expression_with_read_occur expression_with_write_occur rest arg_name
+    in
+    let calculate_rest_of_expressions2 curr_expr rest read_occur write_occur expression_with_read_occur expression_with_write_occur = 
+        calculate_additional_criteria ((read_occur_expr curr_expr) || read_occur)
+                                      ((write_occur_expr curr_expr) || write_occur)
+                                      ((e_with_read_occur_expr curr_expr) || expression_with_read_occur)
+                                      ((e_with_write_occur_expr curr_expr) || expression_with_write_occur)
+                                      rest 
+                                      arg_name
+    in
+    match read_occur, write_occur, expression_with_read_occur, expression_with_write_occur, exprs with
+    | true, _, _, true, [] -> true 
+    | _, true, true, _, [] -> true 
+    | _, _, _, _, [] -> false
+    | true, _, _, true, curr_expr :: rest -> calculate_rest_of_expressions1 curr_expr rest
+    | _, true, true, _, curr_expr :: rest -> calculate_rest_of_expressions1 curr_expr rest
+    | _, _, _, _, curr_expr :: rest -> calculate_rest_of_expressions2 curr_expr rest read_occur write_occur expression_with_read_occur expression_with_write_occur
 
-and shouldBeBoxed arg body =
+
+
+
+and needs_boxing arg body =
                     let read_occurrences = calculate_read_occurrences arg body in
                     let write_occurrences = calculate_write_occurrences arg body in 
                     if(List.length read_occurrences == 0 || List.length read_occurrences == 0) then false 
                     else 
                     let res1 = List.map (fun x -> compare_read_write x read_occurrences) write_occurrences in
                     let res2 = List.map (fun x -> compare_read_write x write_occurrences) read_occurrences in 
-                    if(List.mem true res1 || List.mem true res2) then true else false
+                    if(List.mem true res1 || List.mem true res2)
+                    then match body with
+                    | Seq'(exprs) ->  not (calculate_additional_criteria false false false false exprs arg)
+                    | _ -> true
+                    else false
                           
                      
 and calculate_read_occurrences arg body = 
@@ -225,16 +267,15 @@ and calculate_read_occurrences arg body =
                                                                (calculate_read_occurrences arg dif)
                                       | Def'(var, value) -> raise X_syntax_error 
                                       | Or'(exprs) -> List.flatten(List.map(fun x -> calculate_read_occurrences arg x) exprs)
-                                      | Seq'(exprs) -> List.flatten(List.map(fun x -> calculate_read_occurrences arg x) exprs) (*TODO change seq to match 3.4.1*)
+                                      | Seq'(exprs) -> List.flatten(List.map(fun x -> calculate_read_occurrences arg x) exprs) 
                                       | Set'(var, value) -> calculate_read_occurrences arg value
                                       | Applic'(rator, rands) -> (calculate_read_occurrences arg rator) @
                                                                  List.flatten(List.map (fun x -> calculate_read_occurrences arg x) rands)
                                       | ApplicTP'(rator, rands) -> (calculate_read_occurrences arg rator) @
                                                                  List.flatten(List.map (fun x -> calculate_read_occurrences arg x) rands)
-                                      | LambdaSimple'(args, innerbody) -> calculate_read_innerLambda arg args innerbody
-                                      | LambdaOpt'(args, optArgs, innerbody) -> calculate_read_innerLambda arg (List.append args [optArgs]) innerbody    
-                                      | _ -> []                                                   
-
+                                      | LambdaSimple'(args, innerbody) -> calculate_read_innerLambda arg args innerbody 
+                                      | LambdaOpt'(args, optArgs, innerbody) -> calculate_read_innerLambda arg (List.append args [optArgs]) innerbody     
+                                      | _ -> []                                                    
 
 and calculate_read_innerLambda arg args innerbody = 
                                                 if ((List.mem arg args) == true) then [] else 
@@ -284,7 +325,7 @@ and calculate_write_var var value arg =
 and calculate_write_innerLambda arg args innerbody = 
                                                 if ((List.mem arg args) == true) then [] else 
                                                 begin 
-                                                write_depth := !write_depth + 1;  (*TODO  change to func parameter*)                                    
+                                                write_depth := !write_depth + 1;                                   
                                                 if (List.length (calculate_write_occurrences arg innerbody) == 0) then []
                                                 else [!write_depth] 
                                                 end 
