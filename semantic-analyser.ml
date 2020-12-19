@@ -71,7 +71,6 @@ module Semantics : SEMANTICS = struct
 
 let read_depth = ref 0 ;;
 let write_depth = ref 0 ;; 
-let sequence_counter = ref 0;;
 
 let rec find_var_in_paramlist x paramlst index =
   match paramlst with
@@ -118,8 +117,6 @@ let annotate_lexical_addresses e = calculate_lexical_addresses [] [] e;;
 
 let rec calculate_tail_calls tp expr = 
                                 match expr with      
-                                | Const'(x) -> Const'(x)
-                                | Var'(x) -> Var'(x)
                                 | Or'(exprs) -> Or'(calculate_last_tail tp exprs)
                                 | If'(test, dit, dif) -> If'(calculate_tail_calls false test, calculate_tail_calls tp dit, calculate_tail_calls tp dif)
                                 | Def'(var, value) -> Def'(var, calculate_tail_calls false value)
@@ -130,9 +127,9 @@ let rec calculate_tail_calls tp expr =
                                 | Applic'(rator, rands) -> begin 
                                                             match tp with  
                                                            | true -> ApplicTP'(calculate_tail_calls false rator, List.map (fun x -> calculate_tail_calls false x) rands)
-                                                           | _ -> Applic'(calculate_tail_calls false rator, List.map (fun x -> calculate_tail_calls false x) rands)
+                                                           | false -> Applic'(calculate_tail_calls false rator, List.map (fun x -> calculate_tail_calls false x) rands)
                                                             end 
-                                (* handles pattern matching warning *)                           
+                                | BoxSet'(var, value) -> BoxSet'(var, calculate_tail_calls false value)
                                 | rest -> rest  
                 
 
@@ -149,7 +146,6 @@ let annotate_tail_calls e =
 
 let rec calculate_boxing box_list expr = 
                                   match expr with 
-                                  | Const'(x) -> Const'(x)
                                   | Var'(var) -> box_get_var var box_list
                                   | If'(test, dit, dif) -> If' (calculate_boxing box_list test, calculate_boxing box_list dit,calculate_boxing box_list dif)
                                   | Def'(var, value) -> Def'(var, calculate_boxing box_list value)
@@ -273,7 +269,6 @@ and needs_boxing arg body =
                      
 and calculate_read_occurrences arg body = 
                                       match body with 
-                                      | Const'(x) -> [] 
                                       | Var'(var) -> calculate_read_var var arg
                                       | If'(test, dit, dif) -> (calculate_read_occurrences arg test) @
                                                                (calculate_read_occurrences arg dit) @
@@ -309,8 +304,10 @@ and calculate_read_innerLambda arg args innerbody =
 and calculate_read_var var arg = 
                               match var with 
                               | VarFree(varname) -> []
-                              | VarParam(varname, minor_index) -> if (varname = arg) then [0] else [] 
-                              | VarBound(varname, minor_index, major_index) -> if (varname = arg) then [0] else []
+                              | VarParam(varname, minor_index) -> check_read_occur varname arg
+                              | VarBound(varname, minor_index, major_index) -> check_read_occur varname arg
+
+and check_read_occur varname arg = if (varname = arg) then [0] else []                              
 
 and compare_read_write arg occurrences = 
                                       match occurrences with
@@ -324,8 +321,14 @@ and calculate_write_occurrences arg body =
                                                                  (calculate_write_occurrences arg dit) @
                                                                  (calculate_write_occurrences arg dif)
                                         | Def'(var, value) -> raise X_syntax_error
-                                        | Or'(exprs) -> List.flatten(List.map(fun x -> calculate_write_occurrences arg x) exprs)                       
-                                        | Seq'(exprs) -> List.flatten(List.map(fun x -> calculate_write_occurrences arg x) exprs) (*TODO change seq to match 3.4.1*)
+                                        | Or'(exprs) -> begin 
+                                          let f = (fun x -> calculate_write_occurrences arg x) in
+                                            List.flatten (List.map f exprs)
+                                        end                       
+                                        | Seq'(exprs) -> begin 
+                                          let f = (fun x -> calculate_write_occurrences arg x) in
+                                            List.flatten (List.map f exprs)
+                                        end
                                         | Set'(var, value) -> calculate_write_var var value arg
                                         | Applic'(rator, rands) -> (calculate_write_occurrences arg rator) @
                                                                    List.flatten(List.map (fun x -> calculate_write_occurrences arg x) rands)
@@ -337,20 +340,23 @@ and calculate_write_occurrences arg body =
 
 and calculate_write_var var value arg = 
                                 match var with
-                                | VarFree(varname) -> if (varname = arg) then (List.append [0] (calculate_write_occurrences arg value)) 
-                                                                          else (calculate_write_occurrences arg value) 
-                                | VarParam(varname, minor_index) -> if (varname = arg) then (List.append [0] (calculate_write_occurrences arg value)) 
-                                                                          else (calculate_write_occurrences arg value) 
-                                | VarBound(varname, minor_index, major_index) -> if (varname = arg) then (List.append [0] (calculate_write_occurrences arg value)) 
-                                                                          else (calculate_write_occurrences arg value)                                                                                                                        
+                                | VarFree(varname) -> check_write_occur varname arg value
+                                | VarParam(varname, minor_index) -> check_write_occur varname arg value
+                                | VarBound(varname, minor_index, major_index) -> check_write_occur varname arg value                                                                                                                       
+
+and check_write_occur varname arg value = if (varname = arg)
+                                          then let new_write_list = (List.append [0] (calculate_write_occurrences arg value)) in
+                                          new_write_list 
+                                          else (calculate_write_occurrences arg value)
 
 and calculate_write_innerLambda arg args innerbody = 
-                                                if ((List.mem arg args) == true) then [] else 
+                                                if ((List.mem arg args) == false) then 
                                                 begin 
                                                 write_depth := !write_depth + 1;                                   
                                                 if (List.length (calculate_write_occurrences arg innerbody) == 0) then []
                                                 else [!write_depth] 
-                                                end 
+                                                end
+                                                else [] 
 
 let box_set e = calculate_boxing [] e;;
 
