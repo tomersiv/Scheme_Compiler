@@ -99,20 +99,22 @@ let rec calculate_lexical_addresses paramList boundList expr  =
                                     | Or(expr) -> Or'(List.map (fun(y) -> calculate_lexical_addresses paramList boundList y) expr) 
                                     | Seq(expr) -> Seq'(List.map (fun(y) -> calculate_lexical_addresses paramList boundList y) expr)
                                     | Applic(rator, rands) -> Applic' (calculate_lexical_addresses paramList boundList rator, List.map (fun(y) -> calculate_lexical_addresses paramList boundList y) rands)
-                                    | Var(x) -> if (List.mem x paramList) == true then Var'(VarParam(x, find_var_in_paramlist x paramList 0))
-                                     else 
-                                     let major_index = find_var_in_boundlist x boundList 0 in
-                                     if(major_index == -1) then Var'(VarFree(x)) else
-                                     let minor_list = List.nth boundList major_index in
-                                     let minor_index = find_var_in_paramlist x minor_list 0 in
-                                     Var'(VarBound(x,major_index,minor_index))
+                                    | Var(x) -> begin 
+                                      if (List.mem x paramList) == false then
+                                      let major_index = find_var_in_boundlist x boundList 0 in
+                                      if(major_index == -1) then Var'(VarFree(x)) else
+                                        let minor_list = List.nth boundList major_index in
+                                        let minor_index = find_var_in_paramlist x minor_list 0 in
+                                        Var'(VarBound(x,major_index,minor_index))
+                                      else 
+                                      Var'(VarParam(x, find_var_in_paramlist x paramList 0))
+                                    end 
 
                                     | LambdaSimple(args, body) -> LambdaSimple'(args, (calculate_lexical_addresses args (paramList :: boundList) body))
                                     | LambdaOpt(args, optArgs, body) -> LambdaOpt'(args, optArgs, (calculate_lexical_addresses (List.append args [optArgs]) (paramList :: boundList) body))
 
 let annotate_lexical_addresses e = calculate_lexical_addresses [] [] e;;
                                 
-
 
 let rec calculate_tail_calls tp expr = 
                                 match expr with      
@@ -125,21 +127,25 @@ let rec calculate_tail_calls tp expr =
                                 | Seq'(exprs) -> Seq'(calculate_last_tail tp exprs)
                                 | LambdaSimple'(args, body) -> LambdaSimple'(args, calculate_tail_calls true body)
                                 | LambdaOpt'(args, optArgs, body) -> LambdaOpt'(args, optArgs, calculate_tail_calls true body)
-                                | Applic'(rator, rands) -> match tp with  
+                                | Applic'(rator, rands) -> begin 
+                                                            match tp with  
                                                            | true -> ApplicTP'(calculate_tail_calls false rator, List.map (fun x -> calculate_tail_calls false x) rands)
                                                            | _ -> Applic'(calculate_tail_calls false rator, List.map (fun x -> calculate_tail_calls false x) rands)
-                                
+                                                            end 
+                                (* handles pattern matching warning *)                           
+                                | rest -> rest  
+                
 
 and calculate_last_tail tp exprs = 
                               match exprs with  
                               | last :: [] -> [calculate_tail_calls tp last]
                               | curr :: rest ->  [(calculate_tail_calls false curr)] @ (calculate_last_tail tp rest)
-                              | _ -> raise X_syntax_error
+                              | _ -> raise X_this_should_not_happen
 
 
-
-let annotate_tail_calls e = let tp = false in
-                            calculate_tail_calls tp e;;
+let annotate_tail_calls e = 
+                let tp = false in
+                calculate_tail_calls tp e;;
 
 let rec calculate_boxing box_list expr = 
                                   match expr with 
@@ -160,20 +166,27 @@ let rec calculate_boxing box_list expr =
 and box_get_var var box_list = 
                   match var with  
                   | VarFree(varname) -> Var'(var)
-                  | _ ->  if ((List.mem (Var'(var)) box_list)) then BoxGet'(var) else Var'(var)
+                  | _ ->  if ((List.mem (Var'(var)) box_list) == false) then
+                              Var'(var) 
+                              else BoxGet'(var)
 
 and box_set_var var value box_list = 
                            match var with
                            | VarFree(varname) -> Set'(var, calculate_boxing box_list value)
-                           | _ -> if (List.mem (Var'(var)) box_list) then BoxSet'(var, calculate_boxing box_list value) else Set'(var, calculate_boxing box_list value)                 
+                           | _ -> if ( (List.mem (Var'(var)) box_list) == false) then 
+                                Set'(var, calculate_boxing box_list value)  
+                               else 
+                                BoxSet'(var, calculate_boxing box_list value)              
                    
 and calculate_box_lambda args body box_list lambda_type = 
-                                                       let updated_box_list = List.map (fun x -> 
-                                                                                            match x with 
-                                                                                            | Var'(VarParam(varname, index)) -> Var'(VarBound(varname, 0, index))
-                                                                                            | Var'(VarBound(varname, minor_index, major_index)) ->  Var'(VarBound(varname, minor_index + 1, major_index))
-                                                                                            | _-> raise X_syntax_error) 
-                                                                                            box_list in
+                                                       let updated_box_list = 
+                                                        let f = fun x -> 
+                                                          match x with 
+                                                          | Var'(VarBound(varname, minor_index, major_index)) ->  Var'(VarBound(varname, minor_index + 1, major_index))
+                                                          | Var'(VarParam(varname, index)) -> Var'(VarBound(varname, 0, index))  
+                                                          | _-> raise X_syntax_error in 
+                                                        List.map f box_list in  
+
                                                        let should_be_boxed = List.filter (fun(arg) -> needs_boxing arg body) args in
                                                        let wrapped_boxed_vars = List.map (fun var -> Var'(VarParam(var, find_var_in_paramlist var args 0))) should_be_boxed in
 
@@ -245,8 +258,8 @@ and flatten_sequence lst = List.map (fun lst -> match lst with
 
 
 and needs_boxing arg body =
-                    let read_occurrences = calculate_read_occurrences arg body in
                     let write_occurrences = calculate_write_occurrences arg body in 
+                    let read_occurrences = calculate_read_occurrences arg body in
                     if(List.length read_occurrences == 0 || List.length read_occurrences == 0) then false 
                     else 
                     let res1 = List.map (fun x -> compare_read_write x read_occurrences) write_occurrences in
@@ -266,8 +279,16 @@ and calculate_read_occurrences arg body =
                                                                (calculate_read_occurrences arg dit) @
                                                                (calculate_read_occurrences arg dif)
                                       | Def'(var, value) -> raise X_syntax_error 
-                                      | Or'(exprs) -> List.flatten(List.map(fun x -> calculate_read_occurrences arg x) exprs)
-                                      | Seq'(exprs) -> List.flatten(List.map(fun x -> calculate_read_occurrences arg x) exprs) 
+                                      | Or'(exprs) -> 
+                                        begin 
+                                          let f = (fun x -> calculate_read_occurrences arg x) in
+                                            List.flatten (List.map f exprs)
+                                        end 
+                                      | Seq'(exprs) -> 
+                                        begin 
+                                          let f = (fun x -> calculate_read_occurrences arg x) in 
+                                            List.flatten(List.map f exprs) 
+                                        end 
                                       | Set'(var, value) -> calculate_read_occurrences arg value
                                       | Applic'(rator, rands) -> (calculate_read_occurrences arg rator) @
                                                                  List.flatten(List.map (fun x -> calculate_read_occurrences arg x) rands)
@@ -278,12 +299,13 @@ and calculate_read_occurrences arg body =
                                       | _ -> []                                                    
 
 and calculate_read_innerLambda arg args innerbody = 
-                                                if ((List.mem arg args) == true) then [] else 
-                                                begin 
-                                                read_depth := !read_depth + 1;  (*TODO  change to func parameter*)                                    
-                                                if (List.length (calculate_read_occurrences arg innerbody) == 0) then []
-                                                else [!read_depth] 
-                                                end
+                                                if ((List.mem arg args) == false) then
+                                                  begin 
+                                                  read_depth := !read_depth + 1;                                    
+                                                  if (List.length (calculate_read_occurrences arg innerbody) == 0) then []
+                                                  else [!read_depth] 
+                                                  end
+                                                else []
 and calculate_read_var var arg = 
                               match var with 
                               | VarFree(varname) -> []
