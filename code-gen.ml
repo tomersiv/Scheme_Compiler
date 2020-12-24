@@ -32,7 +32,32 @@ module type CODE_GEN = sig
 end;;
 
 module Code_Gen : CODE_GEN = struct
-  let make_consts_tbl asts = raise X_not_yet_implemented;;
+  let make_consts_tbl asts = List.map (fun ast -> create_const_list ast []) asts;;
+
+  let rec create_const_list ast const_list = match ast with
+  | If'(test, dit, dif) -> (create_const_list test const_list) @ (create_const_list dit const_list) @ (create_const_list dif const_list)  
+  | Def'(var, value) -> create_const_list value const_list
+  | Set'(var, value) -> create_const_list value const_list
+  | Seq'(exprs) -> List.flatten(List.map (fun expr -> create_const_list expr const_list) exprs)
+  | Or'(exprs) -> List.flatten(List.map (fun expr -> create_const_list expr const_list) exprs)
+  | LambdaSimple'(args, body) ->  create_const_list body const_list
+  | LambdaOpt'(args,optArg, body) -> create_const_list body const_list
+  | Applic'(rator, rands) -> (create_const_list rator const_list) @ (List.flatten(List.map (fun rand -> create_const_list rand const_list)) rands)
+  | ApplicTP'(rator, rands) -> (create_const_list rator const_list) @ (List.flatten(List.map (fun rand -> create_const_list rand const_list)) rands) 
+  | BoxSet'(var, value) -> create_const_list value const_list
+  | Const'(x) -> (match x with
+                 | Void -> const_list
+                 | Sexpr(expr) -> (match expr with
+                                   | Nil -> const_list
+                                   | Bool(x) -> const_list
+                                   | Symbol(str) -> [Sexpr(String(str)); Sexpr(expr)] @ const_list
+                                   | Pair(first, res) -> (create_const_list Const'(Sexpr(first)) const_list) @ (create_const_list Const'(Sexpr(rest)) const_list) @ [Sexpr(Pair(first, res))] 
+                                   | _ -> [Sexpr(expr)] @ const_list
+                 )
+                 | _ -> const_list
+  )
+  | _ -> const_list
+
   let make_fvars_tbl asts = raise X_not_yet_implemented;;
   let generate consts fvars e = raise X_not_yet_implemented;;
 end;;
