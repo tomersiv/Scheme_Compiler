@@ -32,13 +32,13 @@
    	 init
 	(f (car lst) (fold-right f init (cdr lst))))))	
 
-(* TODO complete function *)
-(define cons*
+
+(define cons*  
   (lambda lst
   	(if (null? (cdr lst))
-	  (car lst)
-	   
-	   ))
+	  	(car lst)
+		(cons (car lst) (apply cons* (cdr lst))))))
+
 
 (define append
   (let ((null? null?)
