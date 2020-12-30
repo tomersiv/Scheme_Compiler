@@ -164,7 +164,7 @@ match fvar_table with
 | [] -> raise X_syntax_error
                            
 
-let label_counter_Gen label =
+let label_counter_gen label =
   let counter = ref (-1) 
   in
   fun ToIncrease ->
@@ -175,39 +175,61 @@ let label_counter_Gen label =
 
 let rec generate_code consts fvars e depth = 
 match e with
-| Const'(x) -> "mov rax, const_tbl + " ^ (string_of_int (find_const_offset consts x)) ^ ""
+| Const'(x) -> "\n mov rax, const_tbl + " ^ (string_of_int (find_const_offset consts x)) ^ ""
 | Var'(var) -> (match var with 
-                | VarFree(varname) -> "mov rax, qword [fvar_tbl + WORD_SIZE * " ^ (string_of_int (find_fvar_offset fvars varname)) ^ "]"
-                | VarParam(varname, minor) -> "mov rax, qword [rbp + WORD_SIZE * (4 + " ^ (string_of_int minor) ^ ")]"
-                | VarBound(varname, major, minor) -> "mov rax, qword [rbp + WORD_SIZE * (4 + " ^ (string_of_int minor) ^ ")]""
+                | VarFree(varname) -> "\n mov rax, qword [fvar_tbl + WORD_SIZE * " ^ (string_of_int (find_fvar_offset fvars varname)) ^ "]"
+                | VarParam(varname, minor) -> "\n mov rax, qword [rbp + WORD_SIZE * (4 + " ^ (string_of_int minor) ^ ")]"
+                | VarBound(varname, major, minor) -> "\n mov rax, qword [rbp + WORD_SIZE * (4 + " ^ (string_of_int minor) ^ ")]""
                                                       mov rax, qword [rbp + WORD_SIZE * 2]
                                                       mov rax, qword [rax + WORD_SIZE * " ^ (string_of_int major) ^ "]
                                                       mov rax, qword [rax + WORD_SIZE * " ^ (string_of_int minor) ^ "]"
 )
 | Set'(Var'(var), value) ->(match var with
-                            | VarFree(varname) -> (generate_code consts fvars value depth) ^ "mov qword [fvar_tbl + WORD_SIZE * " ^ 
-                                                  (string_of_int (get_fvar fvars v)) ^ "], rax mov rax, SOB_VOID_ADDRESS"
+                            | VarFree(varname) -> "\n" ^ (generate_code consts fvars value depth) ^ "\n mov qword [fvar_tbl + WORD_SIZE * " ^ 
+                                                  (string_of_int (get_fvar fvars v)) ^ "], rax
+                                                   mov rax, SOB_VOID_ADDRESS"
 
-                            | VarParam(varname, minor) -> (generate_code consts fvars value depth) ^
-                                                          "mov qword [rbp + WORD_SIZE * (4 + " ^ (string_of_int minor) ^ ")], rax
+                            | VarParam(varname, minor) -> "\n" ^ (generate_code consts fvars value depth) ^
+                                                          "\n mov qword [rbp + WORD_SIZE * (4 + " ^ (string_of_int minor) ^ ")], rax
                                                            mov rax, SOB_VOID_ADDRESS"
-                            | VarBound(varname, major, minor) -> (generate_code consts fvars value depth) ^ 
-                                                                  "mov rbx, qword [rbp + WORD_SIZE * 2]
+                            | VarBound(varname, major, minor) -> "\n" ^ (generate_code consts fvars value depth) ^ 
+                                                                  "\n mov rbx, qword [rbp + WORD_SIZE * 2]
                                                                   mov rbx, qword [rbx + WORD_SIZE * " ^ (string_of_int major) ^ "]
                                                                   mov qword[rbx + WORD_SIZE * " ^ (string_of_int minor) ^ "], rax
                                                                   mov rax, SOB_VOID_ADDRESS"
 )
 | Seq'(exprs) -> String.concat "\n" (List.map (fun expr -> (generate_code consts fvars expr depth)) exprs)
-| Or'(exprs) -> let label = label_counter_Gen "" in
-                String.concat ("\n cmp rax, SOB_FALSE_ADDRESS\n jne Lexit"^label^"\n") 
-                (List.map (fun expr -> (generate_code consts fvars expr depth)) exprs)^"Lexit"^label^":"
-| If'(test, dit, dif) -> let label_else = label_counter_Gen "" in
-                        let lable_exit = label_counter_Gen "" in 
-                        (generate_code consts fvars test depth)^"\n cmp rax, SOB_FALSE_ADDRESS\n je Lelse"^label_else^"\n"
-                        ^(generate_code consts fvars dit depth)^"\n jmp Lexit"^lable_exit^"\n Lelse"^label_else^":"
-                        ^(generate_code consts fvars dif depth)^ "\n Lexit"^lable_exit^":" ;;             
-                                  
+| Or'(exprs) -> let label = label_counter_gen "" 
+                String.concat ("\n cmp rax, SOB_FALSE_ADDRESS \n jne Lexit" ^ label ^ "\n") 
+                (List.map (fun expr -> (generate_code consts fvars expr depth)) exprs) ^ "Lexit" ^ label ^ ":"
+| If'(test, dit, dif) -> let label = label_counter_gen "" in
+                        (generate_code consts fvars test depth) ^ "\n cmp rax, SOB_FALSE_ADDRESS\n je Lelse" ^ label^"\n"
+                        ^(generate_code consts fvars dit depth) ^ "\n jmp Lexit" ^ lable ^ "\n Lelse" ^ label^":"
+                        ^(generate_code consts fvars dif depth) ^ "\n Lexit" ^ lable ^ ":" 
+| BoxGet'(var) -> (generate_code consts fvars Var'(var) depth) ^ "\n mov rax, qword [rax]"  
+| BoxSet'(var, value) -> (generate_code consts fvars value depth) ^ "\n push rax \n" ^ 
+                         (generate_code consts fvars Var'(var) depth) ^ "\n pop qword [rax] \n mov rax, SOB_VOID_ADDRESS"                                       
+| LambdaSimple'(args, body) -> (*TODO*)                                  
+| Applic'(rator, rands) -> let label = label_counter_gen "" in
+                          List.rev (List.map (fun rand -> (generate_code consts fvars rand depth) ^ "\n push rax") rands) ^
+                          "\n push qword" ^ string_of_int (List.length rands) ^ "\n" ^
+                          (generate_code consts fvars rator depth) ^
+                          "\n cmp byte [rax], T_CLOSER
+                          je closure" ^ label ^
+                          "erorr !!!!"(*TODO error !*)
+                          "\n closure"^label^":"
+                          "\n mov rbx, qword [rax + 1]              ;; pointer of the first rand
+                          mov rcx, qword [rax + 1 + 1 * WORD_SIZE]  ;; pointer of rator
+                          push rbx                                  ;; push parameters of rator
+                          call rcx                                  ;; call rator.
                           
+                          add rsp, WORD_SIZE
+                          pop rbx
+                          shl rbx, 3
+                          add rsp, rbx"
+| LambdaOpt'(args,optArg, body) -> (*TODO*) 
+| ApplicTP'(rator, rands) -> (*TODO*)
+| _-> ""                      
 
 
 
