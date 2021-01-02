@@ -137,14 +137,14 @@ match fvar_list with
 
 let make_fvars_tbl asts = let fvar_list = List.flatten (List.map (fun ast -> create_fvar_list ast []) asts) in
                           let fvar_list = remove_duplicates fvar_list in
-                          let fvar_list = ["boolean?"; "float?"; "integer?"; "pair?";
-                                          "null?"; "char?"; "string?";
-                                          "procedure?"; "symbol?"; "string-length";
+                          let fvar_list = ["boolean?"; "flonum?"; "integer?"; "pair?";
+                                          "null?"; "char?"; "rational?"; "string?"; "denominator";
+                                          "procedure?"; "symbol?"; "string-length"; 
                                           "string-ref"; "string-set!"; "make-string";
-                                          "symbol->string"; 
+                                          "symbol->string"; "exact->inexact"; 
                                           "char->integer"; "integer->char"; "eq?";
-                                          "+"; "*"; "-"; "/"; "<"; "=";
-                                          "cons"; "car"; "cdr"; "set-car!"; "set-cdr!"; "apply"] @ fvar_list in  
+                                          "+"; "*"; "/"; "<"; "=";
+                                          "cons"; "car"; "cdr"; "set-car!"; "set-cdr!"; "apply"; "gcd";] @ fvar_list in  
                           let fvar_table = create_fvar_table fvar_list [] 0 in
                           fvar_table ;;
 
@@ -209,7 +209,61 @@ match e with
 | BoxGet'(var) -> (generate_code consts fvars Var'(var) depth) ^ "\n mov rax, qword [rax]"  
 | BoxSet'(var, value) -> (generate_code consts fvars value depth) ^ "\n push rax \n" ^ 
                          (generate_code consts fvars Var'(var) depth) ^ "\n pop qword [rax] \n mov rax, SOB_VOID_ADDRESS"                                       
-| LambdaSimple'(args, body) -> (*TODO*)                                  
+| LambdaSimple'(args, body) -> let label = label_counter_gen "" in
+                                "\n mov r13, " ^ string_of_int (depth + 1) ^ 
+                                "\n shl r13, 3
+                                MALLOC r13, r13                                  ; ExtEnv pointer
+                                cmp 0, " ^ (string_of_int depth) ^
+                                "\n jne start_env_copy" ^ (string_of_int label) ^
+                                "\n mov r13, SOB_NIL_ADDRESS
+                                jmp make_closure " ^ (string_of_int label) ^ 
+                                "\n start_env_copy" ^ (string_of_int label) ^ ":
+                                mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+                                mov r8, 0
+                                mov rbx, 0                                       ; i
+                                mov rcx, 1                                       ; j
+                                shl rcx, 3
+                                env_pointer_loop " ^ (string_of_int label) ^ ":  ;Start copying env pointers                              
+                                cmp r8, " ^ string_of_int (depth + 1) ^
+                                "\n je end_copy_env" ^ (string_of_int label) ^
+                                "\n mov r11, qword [r12 + rbx]
+                                mov [r13 + rcx], r11
+                                add rbx, 8
+                                add rcx, 8
+                                jmp env_pointer_loop " ^ (string_of_int label) ^
+
+                                "\n end_copy_env" ^ (string_of_int label) ^ ":
+                                mov rcx, [rbp + WORD_SIZE * 3]                   ; n
+                                add rcx, 1
+                                shl rcx, 3 
+                                MALLOC rcx, rcx
+                                mov qword [r13], rcx
+                                mov r9, 0                                        ; ExtEnv[0][i]
+                                mov r11, 0                                        
+                                params_copy_loop " ^ (string_of_int label) ^ ":  ;Start copying params
+                                cmp r9, qword [rbp + WORD_SIZE * 3]  ; loop condition
+                                je env_pointer_loop " ^ (string_of_int label) ^
+                                "\n mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+                                mov qword [rcx + r11], rdx
+                                add r9, 1
+                                add r11, 8
+                                jmp params_copy_loop " ^ (string_of_int label) ^ 
+                                "\n mov qword [rcx + r11] 
+                                   
+                                make_closure"^(string_of_int label)^": 
+                                MAKE_CLOSURE(rax, r13, lcode"^(string_of_int label)^")
+
+                                lcode"^(string_of_int label)^":
+                                push rbp
+                                mov rbp, rsp \n"
+                                ^ (generate_code consts fvars body (depth + 1)) ^ 
+                                "\n leave
+                                ret"
+                                
+                                
+
+
+
 | Applic'(rator, rands) -> let label = label_counter_gen "" in
                           List.rev (List.map (fun rand -> (generate_code consts fvars rand depth) ^ "\n push rax") rands) ^
                           "\n push qword" ^ string_of_int (List.length rands) ^ "\n" ^
