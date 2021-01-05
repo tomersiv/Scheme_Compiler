@@ -82,8 +82,12 @@
 	mov qword [%1+TYPE_SIZE], %2
 %endmacro
 
+%define MAKE_NIL db T_NIL
+%define MAKE_VOID db T_VOID
+%define MAKE_BOOL(val) MAKE_LITERAL T_BOOL, db val
 %define MAKE_FLOAT(r,val) MAKE_LONG_VALUE r, val, T_FLOAT
 %define MAKE_CHAR(r,val) MAKE_CHAR_VALUE r, val
+
 
 ; Create a string of length %2
 ; from char %3.
@@ -122,6 +126,28 @@
         dq %2
         dq %3
 %endmacro
+
+%macro MAKE_LITERAL 2 
+	db %1
+	%2
+%endmacro
+
+%define MAKE_LITERAL_CHAR(val)
+	MAKE_LITERAL T_CHAR, db val
+
+%define MAKE_LITERAL_FLOAT(val)
+	MAKE_LITERAL T_FLOAT, dq val
+
+%macro MAKE_LITERAL_STRING 1
+	db T_STRING
+	dq (%%end_str - %%str)
+%%str:
+	db %1
+%%end_str:
+%endmacro	
+
+%define MAKE_LITERAL_SYMBOL(val) 
+	MAKE_LITERAL T_SYMBOL, dq val
 
 %define MAKE_RATIONAL(r, num, den) \
 	MAKE_TWO_WORDS r, T_RATIONAL, num, den
