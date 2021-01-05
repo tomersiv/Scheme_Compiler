@@ -19,25 +19,36 @@
       (map-many f args)))))
 
 
-(define fold-left 
+(define fold-left
+(let ((null? null?)
+(car car)
+(cdr cdr)) 
  (lambda (f init lst)
    (if (null? lst) 
    	 init
-   (fold-left f (f init (car lst)) (cdr lst)))))
+   (fold-left f (f init (car lst)) (cdr lst))))))
   
 
 (define fold-right
+(let ((null? null?)
+(car car)
+(cdr cdr))
    (lambda (f init lst)
     (if (null? lst) 
    	 init
-	(f (car lst) (fold-right f init (cdr lst))))))	
+	(f (car lst) (fold-right f init (cdr lst)))))))	
 
 
-(define cons*  
+(define cons*
+(let ((null? null?)
+(car car)
+(cdr cdr)
+(cons cons)
+(apply apply))  
   (lambda lst
   	(if (null? (cdr lst))
 	  	(car lst)
-		(cons (car lst) (apply cons* (cdr lst))))))
+		(cons (car lst) (apply cons* (cdr lst)))))))
 
 
 (define append
