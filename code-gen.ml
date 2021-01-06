@@ -56,12 +56,11 @@ match const_list with
                   | Sexpr(Char(ch)) -> (create_const_tbl rest (const_table @ [(Sexpr(Char(ch)), (offset, "MAKE_LITERAL_CHAR("^(string_of_int (Char.code ch))^")"))]) (offset + 2))                                                         
                   | Sexpr(Number(Fraction(x, y))) -> (create_const_tbl rest (const_table @ [(Sexpr(Number(Fraction(x, y))), (offset, "MAKE_LITERAL_RATIONAL(" ^ (string_of_int x) ^ "," ^ (string_of_int y) ^ ")"))]) (offset + 17))                                           
                   | Sexpr(Number(Float(x))) -> (create_const_tbl rest (const_table @ [(Sexpr(Number(Float(x))), (offset, "MAKE_LITERAL_FLOAT(" ^ (string_of_float x) ^ ")"))]) (offset + 9))
-                  | Sexpr(String(str)) -> (create_const_tbl rest (const_table @ [(Sexpr(String(str)), (offset, "MAKE_LITERAL_STRING(" ^ str ^ ")"))]) (offset + 9 + (String.length str)))
+                  | Sexpr(String(str)) -> (create_const_tbl rest (const_table @ [(Sexpr(String(str)), (offset, "MAKE_LITERAL_STRING \"" ^ str ^ "\"\n" ))]) (offset + 9 + (String.length str)))
                   | Sexpr(Symbol(str)) -> (create_const_tbl rest (const_table @ [(Sexpr(Symbol(str)), (offset, "MAKE_LITERAL_SYMBOL(const_tbl+"^(string_of_int (find_offset const_table (String(str))))^")"))]) (offset + 9))
                   | Sexpr(Pair(car, cdr)) -> (create_const_tbl rest (const_table @ [(Sexpr(Pair(car, cdr)) , (offset , "MAKE_LITERAL_PAIR(const_tbl+"^(string_of_int (find_offset const_table car))^", const_tbl+"^(string_of_int (find_offset const_table car))^")"))]) (offset + 17))
 )
 | [] -> const_table ;; 
-
 
 
 let rec remove_duplicates lst = match lst with
@@ -164,13 +163,13 @@ match fvar_table with
 | [] -> raise X_syntax_error
                            
 
-let label_counter_gen label =
+let label_counter_gen =
   let counter = ref (-1) 
   in
-  fun ToIncrease ->
-    if ToIncrease
+  fun toIncrease ->
+    if toIncrease
     then incr counter;
-    label ^ string_of_int !counter
+    "" ^ string_of_int !counter
 ;;
 
 let rec generate_code consts fvars e depth = 
@@ -179,14 +178,14 @@ match e with
 | Var'(var) -> (match var with 
                 | VarFree(varname) -> "\n mov rax, qword [fvar_tbl + WORD_SIZE * " ^ (string_of_int (find_fvar_offset fvars varname)) ^ "]"
                 | VarParam(varname, minor) -> "\n mov rax, qword [rbp + WORD_SIZE * (4 + " ^ (string_of_int minor) ^ ")]"
-                | VarBound(varname, major, minor) -> "\n mov rax, qword [rbp + WORD_SIZE * (4 + " ^ (string_of_int minor) ^ ")]""
+                | VarBound(varname, major, minor) -> "\n mov rax, qword [rbp + WORD_SIZE * (4 + " ^ (string_of_int minor) ^ ")]"^"
                                                       mov rax, qword [rbp + WORD_SIZE * 2]
                                                       mov rax, qword [rax + WORD_SIZE * " ^ (string_of_int major) ^ "]
                                                       mov rax, qword [rax + WORD_SIZE * " ^ (string_of_int minor) ^ "]"
 )
-| Set'(Var'(var), value) ->(match var with
-                            | VarFree(varname) -> "\n" ^ (generate_code consts fvars value depth) ^ "\n mov qword [fvar_tbl + WORD_SIZE * " ^ 
-                                                  (string_of_int (get_fvar fvars v)) ^ "], rax
+| Set'(var, value) ->(match var with
+                            | VarFree(varname) -> "\n" ^ (generate_code consts fvars value depth) ^ 
+                                                  "\n mov qword [fvar_tbl + WORD_SIZE * " ^ (string_of_int (find_fvar_offset fvars varname)) ^ "], rax
                                                    mov rax, SOB_VOID_ADDRESS"
 
                             | VarParam(varname, minor) -> "\n" ^ (generate_code consts fvars value depth) ^
@@ -199,40 +198,45 @@ match e with
                                                                   mov rax, SOB_VOID_ADDRESS"
 )
 | Seq'(exprs) -> String.concat "\n" (List.map (fun expr -> (generate_code consts fvars expr depth)) exprs)
-| Or'(exprs) -> let label = label_counter_gen "" 
-                String.concat ("\n cmp rax, SOB_FALSE_ADDRESS \n jne Lexit" ^ label ^ "\n") 
-                (List.map (fun expr -> (generate_code consts fvars expr depth)) exprs) ^ "Lexit" ^ label ^ ":"
-| If'(test, dit, dif) -> let label = label_counter_gen "" in
-                        (generate_code consts fvars test depth) ^ "\n cmp rax, SOB_FALSE_ADDRESS\n je Lelse" ^ label^"\n"
-                        ^(generate_code consts fvars dit depth) ^ "\n jmp Lexit" ^ lable ^ "\n Lelse" ^ label^":"
-                        ^(generate_code consts fvars dif depth) ^ "\n Lexit" ^ lable ^ ":" 
-| BoxGet'(var) -> (generate_code consts fvars Var'(var) depth) ^ "\n mov rax, qword [rax]"  
+| Or'(exprs) -> let label = label_counter_gen  in
+                let label = (label true) in 
+                let str = (String.concat ("\n cmp rax, SOB_FALSE_ADDRESS \n jne Lexit" ^ label ^ "\n") 
+                (List.map (fun expr -> (generate_code consts fvars expr depth)) exprs)) in
+                str ^ "\n Lexit" ^ label ^ ":"
+| If'(test, dit, dif) -> let label = label_counter_gen in
+                         let label = (label true) in 
+                        (generate_code consts fvars test depth) ^ "\n cmp rax, SOB_FALSE_ADDRESS\n je Lelse" ^ label ^ "\n"
+                        ^ (generate_code consts fvars dit depth) ^ "\n jmp Lexit" ^ label ^ "\n Lelse" ^ label ^ ":"
+                        ^ (generate_code consts fvars dif depth) ^ "\n Lexit" ^ label ^ ":" 
+| BoxGet'(var) -> (generate_code consts fvars (Var'(var)) depth) ^ "\n mov rax, qword [rax]"  
 | BoxSet'(var, value) -> (generate_code consts fvars value depth) ^ "\n push rax \n" ^ 
-                         (generate_code consts fvars Var'(var) depth) ^ "\n pop qword [rax] \n mov rax, SOB_VOID_ADDRESS"                                       
-| LambdaSimple'(args, body) -> let label = label_counter_gen "" in
+                         (generate_code consts fvars (Var'(var)) depth) ^ "\n pop qword [rax] \n mov rax, SOB_VOID_ADDRESS"                                       
+| LambdaSimple'(args, body) -> let label = label_counter_gen in
+                                let label = (label true) in
                                 "\n mov r13, " ^ string_of_int (depth + 1) ^ 
                                 "\n shl r13, 3
                                 MALLOC r13, r13                                  ; ExtEnv pointer
-                                cmp 0, " ^ (string_of_int depth) ^
-                                "\n jne start_env_copy" ^ (string_of_int label) ^
+                                mov r11, 0                                 
+                                cmp r11, " ^ (string_of_int depth) ^
+                                "\n jne start_env_copy" ^ label ^
                                 "\n mov r13, SOB_NIL_ADDRESS
-                                jmp make_closure " ^ (string_of_int label) ^ 
-                                "\n start_env_copy" ^ (string_of_int label) ^ ":
+                                jmp make_closure" ^ label ^ 
+                                "\n start_env_copy" ^ label ^ ":
                                 mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
                                 mov r8, 0
                                 mov rbx, 0                                       ; i
                                 mov rcx, 1                                       ; j
                                 shl rcx, 3
-                                env_pointer_loop " ^ (string_of_int label) ^ ":  ;Start copying env pointers                              
+                                env_pointer_loop" ^ label ^ ":  ;Start copying env pointers                              
                                 cmp r8, " ^ string_of_int (depth + 1) ^
-                                "\n je end_copy_env" ^ (string_of_int label) ^
+                                "\n je end_copy_env" ^ label ^
                                 "\n mov r11, qword [r12 + rbx]
                                 mov [r13 + rcx], r11
                                 add rbx, 8
                                 add rcx, 8
-                                jmp env_pointer_loop " ^ (string_of_int label) ^
+                                jmp env_pointer_loop" ^ label ^
 
-                                "\n end_copy_env" ^ (string_of_int label) ^ ":
+                                "\n end_copy_env" ^ label ^ ":
                                 mov rcx, [rbp + WORD_SIZE * 3]                   ; n
                                 add rcx, 1
                                 shl rcx, 3 
@@ -240,38 +244,121 @@ match e with
                                 mov qword [r13], rcx
                                 mov r9, 0                                        ; ExtEnv[0][i]
                                 mov r11, 0                                        
-                                params_copy_loop " ^ (string_of_int label) ^ ":  ;Start copying params
+                                params_copy_loop" ^ label ^ ":  ;Start copying params
                                 cmp r9, qword [rbp + WORD_SIZE * 3]  ; loop condition
-                                je env_pointer_loop " ^ (string_of_int label) ^
+                                je env_pointer_loop" ^ label ^
                                 "\n mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
                                 mov qword [rcx + r11], rdx
                                 add r9, 1
                                 add r11, 8
-                                jmp params_copy_loop " ^ (string_of_int label) ^ 
-                                "\n mov qword [rcx + r11] 
+                                jmp params_copy_loop" ^ label ^ 
+                                "\n mov qword [rcx + r11], SOB_NIL_ADDRESS
                                    
-                                make_closure"^(string_of_int label)^": 
-                                MAKE_CLOSURE(rax, r13, lcode"^(string_of_int label)^")
+                                make_closure"^ label ^ ": 
+                                MAKE_CLOSURE(rax, r13, lcode" ^ label ^ ")
+                                jmp lcont" ^ label ^
 
-                                lcode"^(string_of_int label)^":
+                                "\n lcode" ^ label ^ ":
                                 push rbp
                                 mov rbp, rsp \n"
                                 ^ (generate_code consts fvars body (depth + 1)) ^ 
                                 "\n leave
-                                ret"
+                                ret" ^
+
+                                "\n lcont" ^ label ^ ":
+                                "
                                 
+| LambdaOpt'(args, optArg, body) -> let label = label_counter_gen in
+                                    let label = (label true) in
+                                "\n mov r13, " ^ string_of_int (depth + 1) ^ 
+                                "\n shl r13, 3
+                                MALLOC r13, r13                                  ; ExtEnv pointer
+                                mov r11, 0                                 
+                                cmp r11, " ^ (string_of_int depth) ^
+                                "\n jne start_env_copy" ^ label ^
+                                "\n mov r13, SOB_NIL_ADDRESS
+                                jmp make_closure" ^ label ^ 
+                                "\n start_env_copy" ^ label ^ ":
+                                mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+                                mov r8, 0
+                                mov rbx, 0                                       ; i
+                                mov rcx, 1                                       ; j
+                                shl rcx, 3
+                                env_pointer_loop" ^ label ^ ":  ;Start copying env pointers                              
+                                cmp r8, " ^ string_of_int (depth + 1) ^
+                                "\n je end_copy_env" ^ label ^
+                                "\n mov r11, qword [r12 + rbx]
+                                mov [r13 + rcx], r11
+                                add rbx, 8
+                                add rcx, 8
+                                jmp env_pointer_loop" ^ label ^
+
+                                "\n end_copy_env" ^ label ^ ":
+                                mov rcx, [rbp + WORD_SIZE * 3]                   ; n
+                                add rcx, 1
+                                shl rcx, 3 
+                                MALLOC rcx, rcx
+                                mov qword [r13], rcx
+                                mov r9, 0                                        ; ExtEnv[0][i]
+                                mov r11, 0                                        
+                                params_copy_loop" ^ label ^ ":  ;Start copying params
+                                cmp r9, qword [rbp + WORD_SIZE * 3]  ; loop condition
+                                je env_pointer_loop" ^ label ^
+                                "\n mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+                                mov qword [rcx + r11], rdx
+                                add r9, 1
+                                add r11, 8
+                                jmp params_copy_loop" ^ label ^ 
+                                "\n mov qword [rcx + r11] 
+                                   
+                                make_closure" ^ label ^ ": 
+                                MAKE_CLOSURE(rax, r13, lcode" ^ label ^ ")
+                                jmp lcont" ^ label ^
+
+                                "\n lcode" ^ label ^ ":
+                                mov rbx, qword [rbp + 3 * WORD_SIZE]             ;num of total args
+                                sub r10, " ^ (string_of_int (List.length args)) ^ "  ;num of opt args
+                                mov r8, qword [rbp + 3 * WORD_SIZE]
+                                add r8, 3
+                                shl r8, 3
+                                add r8, rbp                                          ;first opt arg
+                                mov r9, SOB_NIL_ADDRESS
+                                cmp r10, 0
+                                je doneLambda" ^ label ^ 
+                                "\n createOptList" ^ label ^ ":
+                                cmp r10, 0
+                                je doneOptList" ^ label ^
+                                "\n mov r11, [r8]
+                                MAKE_PAIR (r12, r11, r9)
+                                mov r9, 12                                           ; holds the opt list 
+                                sub r10, 1
+                                sub r8, 8
+                                jmp createOptList" ^ label ^
+                                "\n doneOptList" ^ label ^ ":
+                                mov r11, " ^ (string_of_int (List.length args)) ^ "
+                                add r11, 4
+                                shl r11, 3
+                                add r12, rbp
+                                mov [r12], r9
+                                mov r10, " ^ (string_of_int (List.length args)) ^ "
+                                add r10, 1
+                                mov [rbp + 3 * WORD_SIZE], r10" ^
                                 
+                                "\n doneLambda" ^ label ^ ":
+                                push rbp
+                                mov rbp, rsp \n"
+                                ^ (generate_code consts fvars body (depth + 1)) ^ 
+                                "\n leave
+                                ret" ^
 
-
-
-| Applic'(rator, rands) -> let label = label_counter_gen "" in
-                          List.rev (List.map (fun rand -> (generate_code consts fvars rand depth) ^ "\n push rax") rands) ^
-                          "\n push qword" ^ string_of_int (List.length rands) ^ "\n" ^
+                                "\n lcont"^ label ^ ":"                               
+| Applic'(rator, rands) -> let label = (label_counter_gen) in
+                          let label = (label true) in
+                          (String.concat ""
+                          (List.rev (List.map (fun rand -> (generate_code consts fvars rand depth) ^ "\n push rax") rands))) ^
+                          "\n push qword " ^ string_of_int (List.length rands) ^ "\n" ^
                           (generate_code consts fvars rator depth) ^
-                          "\n cmp byte [rax], T_CLOSER
-                          je closure" ^ label ^
-                          "erorr !!!!"(*TODO error !*)
-                          "\n closure"^label^":"
+                          "\n closure" ^ label ^ ":" ^
                           "\n mov rbx, qword [rax + 1]              ;; pointer of the first rand
                           mov rcx, qword [rax + 1 + 1 * WORD_SIZE]  ;; pointer of rator
                           push rbx                                  ;; push parameters of rator
@@ -280,9 +367,10 @@ match e with
                           add rsp, WORD_SIZE
                           pop rbx
                           shl rbx, 3
-                          add rsp, rbx"
-| LambdaOpt'(args,optArg, body) -> (*TODO*) 
-| ApplicTP'(rator, rands) -> (*TODO*)
+                          add rsp, rbx
+                          
+                          lcont" ^ label ^ ":" 
+| ApplicTP'(rator, rands) -> ""
 | _-> ""                      
 
 
@@ -295,7 +383,7 @@ let func str = (Semantics.run_semantics (List.hd(Tag_Parser.tag_parse_expression
 
 
 
-let generate consts fvars e = raise X_syntax_error;;(*generate_code consts fvars e 0 ;;
-*)
+let generate consts fvars e = generate_code consts fvars e 0 ;;
+
 end;;
 
