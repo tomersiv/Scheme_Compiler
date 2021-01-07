@@ -304,9 +304,31 @@ module Prims : PRIMS = struct
 	 jmp .loop	
        .end_loop:
 	 mov rdx, rax
-         MAKE_RATIONAL(rax, rdx, 1)", make_binary, "gcd";  
+         MAKE_RATIONAL(rax, rdx, 1)", make_binary, "gcd";
+
+      (*car*)
+      "\t\tmov rax, qword [rsi + TYPE_SIZE]", make_unary, "car";
+
+      (*cdr*)
+      "\t\tmov rax, qword [rsi + TYPE_SIZE + WORD_SIZE]", make_unary, "cdr";
+
+      (*set_car!*)
+      "\t\tmov qword [rsi + TYPE_SIZE], rdi
+      \t\tmov rax, SOB_VOID_ADDRESS", make_binary, "set_car";
+
+      (*set_cdr!*)
+      "\t\tmov qword [rsi + TYPE_SIZE + WORD_SIZE], rdi
+      \t\tmov rax, SOB_VOID_ADDRESS", make_binary, "set_cdr";
+
+      (*cons*)
+      "\t\tMAKE_PAIR(rax, rsi, rdi)", make_binary, "cons"
+
       ] in
+
     String.concat "\n\n" (List.map (fun (a, b, c) -> (b c a)) misc_parts);;
+
+  
+
 
   (* This is the interface of the module. It constructs a large x86 64-bit string using the routines
      defined above. The main compiler pipline code (in compiler.ml) calls into this module to get the
