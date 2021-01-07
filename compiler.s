@@ -17,7 +17,6 @@
 %define MB(n) 1024*KB(n)
 %define GB(n) 1024*MB(n)
 
-
 %macro SKIP_TYPE_TAG 2
 	mov %1, qword [%2+TYPE_SIZE]	
 %endmacro	
