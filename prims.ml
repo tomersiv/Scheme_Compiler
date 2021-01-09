@@ -307,21 +307,26 @@ module Prims : PRIMS = struct
          MAKE_RATIONAL(rax, rdx, 1)", make_binary, "gcd";
 
       (*car*)
-      "\t\tmov rax, qword [rsi + TYPE_SIZE]", make_unary, "car";
+      "mov rax, qword [rsi + TYPE_SIZE]", make_unary, "car";
 
       (*cdr*)
-      "\t\tmov rax, qword [rsi + TYPE_SIZE + WORD_SIZE]", make_unary, "cdr";
+      "mov rax, qword [rsi + TYPE_SIZE + WORD_SIZE]", make_unary, "cdr";
 
       (*set_car!*)
-      "\t\tmov qword [rsi + TYPE_SIZE], rdi
-      \t\tmov rax, SOB_VOID_ADDRESS", make_binary, "set_car";
+      "mov qword [rsi + TYPE_SIZE], rdi
+       mov rax, SOB_VOID_ADDRESS", make_binary, "set_car";
 
       (*set_cdr!*)
-      "\t\tmov qword [rsi + TYPE_SIZE + WORD_SIZE], rdi
-      \t\tmov rax, SOB_VOID_ADDRESS", make_binary, "set_cdr";
+      "mov qword [rsi + TYPE_SIZE + WORD_SIZE], rdi
+       mov rax, SOB_VOID_ADDRESS", make_binary, "set_cdr";
 
       (*cons*)
-      "\t\tMAKE_PAIR(rax, rsi, rdi)", make_binary, "cons"
+      "MAKE_PAIR(rax, rsi, rdi)", make_binary, "cons"
+
+      (*apply*)
+      (* let body =
+      "mov rsi, PVAR(1)
+      " *)
 
       ] in
 

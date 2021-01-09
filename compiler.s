@@ -17,7 +17,21 @@
 %define MB(n) 1024*KB(n)
 %define GB(n) 1024*MB(n)
 
-
+%macro SHIFT_FRAME 1
+	push rax
+	push rbx
+	mov rax, qword [rbp + 3 * WORD_SIZE]
+	add rax, 5
+%assign i 1
+%rep %1
+	dec rax
+	mov rbx, qword [rbp - i * WORD_SIZE]
+	mov qword [rbp + rax * WORD_SIZE], rbx
+%assign i i+1
+%endrep
+	pop rbx
+	pop rax
+%endmacro
 
 %macro SKIP_TYPE_TAG 2
 	mov %1, qword [%2+TYPE_SIZE]	

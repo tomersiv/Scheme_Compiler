@@ -44,7 +44,14 @@ let rec find_offset const_table exp =
       | (Sexpr(expr),(offset,tag)) :: rest -> if sexpr_eq exp expr then offset else find_offset rest exp
       | (Void, (offset, tag)) :: rest -> find_offset rest exp
       | [] -> 0 ;;    
- 
+
+(*TODO remove*)
+let rec listToString lst =
+      match lst with 
+      | [] -> ""
+      | first :: rest -> first ^ (listToString rest);;
+
+
 let rec create_const_tbl const_list const_table offset = 
 match const_list with
 | curr :: rest -> (match curr with
@@ -380,7 +387,7 @@ match e with
                                    "\n mov rbx, qword [rax + 1]                    ;pointer of the first rand" ^
                                    "\n mov rcx, qword [rax + 1 + WORD_SIZE]        ;pointer of rator" ^
                                    "\n push rbx                                    ;push parameters of rator" ^
-                                   "\n call rcx                                    ;call rator." ^
+                                   "\n call rcx                                    ;call rator" ^
                                    
                                    "\n add rsp, WORD_SIZE" ^
                                    "\n pop rbx" ^
@@ -389,33 +396,33 @@ match e with
                                    
                                    "\n\n lcont" ^ label ^ ":"
  
-| ApplicTP' (proc,args) -> 
-      let calcArgs = (listToString (List.rev (List.map (fun(x) -> (generate_code consts fvars x depth )^"\n push rax") args))) in
-      let pushN = "\n push qword "^ (string_of_int (List.length args) )in
-      let procString =  (generate_code consts fvars proc depth ) in
-      let numOfShifts =  (string_of_int (5+ (List.length args))) in  
-      let verifyClo = "
-      CLOSURE_ENV r10, rax 
-      push r10 ; push closure env
-      push qword [rbp + 8 * 1] ; old ret addr
-      ;fix the stack
-      mov r10 , [rbp]         ;save the old rbp for later
-      mov r11 , [rbp+3*8]      ;get the num of args
-      SHIFT_FRAME "^ numOfShifts ^ " 
-      add r11,5
-      shl r11,3 
-      add rsp,r11
-      mov rbp , r10
-      ;end fix the stack
-      CLOSURE_CODE r10, rax
-      jmp r10                 ;jmp rax code 
-      " in
+| ApplicTP' (rator,rands) -> 
+      let label = (label_counter_gen) in
+                                    let label = (label true) in
+                                   "\n push SOB_NIL_ADDRESS" ^ 
+                                   (String.concat ""
+                                   (List.rev (List.map (fun rand -> (generate_code consts fvars rand depth) ^ "\n push rax") rands))) ^
+                                   "\n push qword " ^ string_of_int (List.length rands) ^ "\n" ^
+                                   (generate_code consts fvars rator depth) ^
 
+                                   "\n CAR r13, rax" ^ 
+                                   "\n push r13 ; env" ^
+                                   "\n push qword [rbp + 8 * 1]        ; old ret addr" ^
 
-      "
-      push SOB_NIL_ADDRESS
-      " ^
-      calcArgs ^ pushN ^ procString ^ verifyClo 
+                                   "\n ;fix the stack" ^
+                                   "\n mov rcx , [rbp + 3 * WORD_SIZE] ; old rbp" ^
+                                   "\n mov rbx , rbp" ^
+                                   "\n SHIFT_FRAME " ^ string_of_int (5 + List.length (rands)) ^  
+                                   "\n add rcx,5" ^
+                                   "\n shl rcx,3" ^  
+                                   "\n add rsp,rcx" ^
+                                   "\n mov rbp , [rbx]" ^
+                                   "\n ;finished fixing the stack" ^
+                                   
+                                   "\n CDR rdx, rax" ^
+                                   "\n jmp rdx                         ;jmp code" ^ 
+                                    
+                                   "\n\n lcont" ^ label ^ ":"
 
 | _ -> "" ;;
 
