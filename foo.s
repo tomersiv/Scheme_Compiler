@@ -10,7 +10,7 @@ malloc_pointer:
 ;;; here we REServe enough Quad-words (64-bit "cells") for the free variables
 ;;; each free variable has 8 bytes reserved for a 64-bit pointer to its value
 fvar_tbl:
-    resq 72
+    resq 73
 
 section .data
 const_tbl:
@@ -22,9 +22,13 @@ MAKE_LITERAL_CHAR(0)
 MAKE_LITERAL_RATIONAL(-1,1)
 MAKE_LITERAL_RATIONAL(0,1)
 MAKE_LITERAL_STRING "whatever"
-
 MAKE_LITERAL_SYMBOL(const_tbl+42)
 MAKE_LITERAL_RATIONAL(1,1)
+MAKE_LITERAL_RATIONAL(2,1)
+MAKE_LITERAL_RATIONAL(3,1)
+MAKE_LITERAL_PAIR(const_tbl+102, const_tbl+1)
+MAKE_LITERAL_PAIR(const_tbl+85, const_tbl+119)
+MAKE_LITERAL_PAIR(const_tbl+68, const_tbl+136)
 
 ;;; These macro definitions are required for the primitive
 ;;; definitions in the epilogue to work properly
@@ -115,155 +119,8348 @@ user_code_fragment:
 ;;; It will be executed immediately after the closures for 
 ;;; the primitive procedures are set up.
 
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [fvar_tbl + 43]
+
+ push rax
+ mov rax, qword [fvar_tbl + 59]
+
+ push rax
+ mov rax, qword [fvar_tbl + 69]
+
+ push rax
+ mov rax, qword [fvar_tbl + 68]
+
+ push rax
+ mov rax, qword [fvar_tbl + 46]
+
+ push rax
+ push qword 5
+
+ mov r13, 1
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 0
+ jne start_env_copy1
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure1
+
+ start_env_copy1:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop1:                   ;Start copying env pointers
+ cmp r8, 0
+ je end_copy_env1
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop1
+
+ end_copy_env1:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop1:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop1
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop1
+
+ end_param_loop1:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure1:
+ MAKE_CLOSURE(rax, r13, lcode1)
+ jmp lcont1
+
+ lcode1:
+ push rbp
+ mov rbp, rsp
+ push SOB_NIL_ADDRESS
+ mov rax, const_tbl + 59
+ push rax
+ mov rax, const_tbl + 59
+ push rax
+ push qword 2
+
+ mov r13, 2
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 1
+ jne start_env_copy3
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure3
+
+ start_env_copy3:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop3:                   ;Start copying env pointers
+ cmp r8, 1
+ je end_copy_env3
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop3
+
+ end_copy_env3:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop3:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop3
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop3
+
+ end_param_loop3:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure3:
+ MAKE_CLOSURE(rax, r13, lcode3)
+ jmp lcont3
+
+ lcode3:
+ push rbp
+ mov rbp, rsp
+
+
+ MALLOC r11, 8
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ mov qword [r11] , rax
+ mov rax , r11
+ mov qword [rbp + WORD_SIZE * (4 + 0)], rax
+ mov rax, SOB_VOID_ADDRESS
+
+
+
+ MALLOC r11, 8
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ mov qword [r11] , rax
+ mov rax , r11
+ mov qword [rbp + WORD_SIZE * (4 + 1)], rax
+ mov rax, SOB_VOID_ADDRESS
+
+
+ mov r13, 3
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 2
+ jne start_env_copy4
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure4
+
+ start_env_copy4:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop4:                   ;Start copying env pointers
+ cmp r8, 2
+ je end_copy_env4
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop4
+
+ end_copy_env4:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop4:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop4
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop4
+
+ end_param_loop4:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure4:
+ MAKE_CLOSURE(rax, r13, lcode4)
+ jmp lcont4
+
+ lcode4:
+ push rbp
+ mov rbp, rsp
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 1]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont12:
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont11:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse5
+
+ mov rax, const_tbl + 1
+ jmp Lexit5
+
+ Lelse5:
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 2]
+
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 1]
+
+ mov rax, qword [rax]
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont10:
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ mov rax, qword [rax]
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont9:
+ push rax
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 1]
+
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 1]
+
+ mov rax, qword [rax]
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont8:
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 4]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont7:
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 3]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont6:
+
+ Lexit5:
+ leave 
+ ret
+
+ lcont4:
+ push rax 
+
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ pop qword [rax] 
+ mov rax, SOB_VOID_ADDRESS
+
+ mov r13, 3
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 2
+ jne start_env_copy13
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure13
+
+ start_env_copy13:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop13:                   ;Start copying env pointers
+ cmp r8, 2
+ je end_copy_env13
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop13
+
+ end_copy_env13:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop13:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop13
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop13
+
+ end_param_loop13:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure13:
+ MAKE_CLOSURE(rax, r13, lcode13)
+ jmp lcont13
+
+ lcode13:
+ push rbp
+ mov rbp, rsp
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont20:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse14
+
+ mov rax, const_tbl + 1
+ jmp Lexit14
+
+ Lelse14:
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 2]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont19:
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 1]
+
+ mov rax, qword [rax]
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont18:
+ push rax
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 1]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont17:
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont16:
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 3]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont15:
+
+ Lexit14:
+ leave 
+ ret
+
+ lcont13:
+ push rax 
+
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ pop qword [rax] 
+ mov rax, SOB_VOID_ADDRESS
+
+ mov r13, 3
+ shl r13, 3
+ MALLOC r13, r13                      ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 2
+ jne start_env_copy21
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure21
+
+ start_env_copy21:
+ mov r12, qword [rbp + WORD_SIZE * 2] ; env pointer
+ mov r8, 0
+ mov rbx, 0                           ; i
+ mov rcx, 1                           ; j
+ shl rcx, 3
+
+ env_pointer_loop21:     ;Start copying env pointers
+ cmp r8, 2
+ je end_copy_env21
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop21
+
+ end_copy_env21:
+ mov rcx, PARAM_COUNT                 ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                            ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop21:     ;Start copying params
+ cmp r9, PARAM_COUNT                  ;loop condition
+ je end_param_loop21
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop21
+
+ end_param_loop21:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure21:
+ MAKE_CLOSURE(rax, r13, lcode21)
+ jmp lcont21
+
+ lcode21:
+ push rbp
+ mov rbp, rsp 
+
+ mov rcx, PARAM_COUNT                                ;num of total args
+ sub rcx, 1 ;num of opt args
+ mov r8, PARAM_COUNT
+ add r8, 3
+ shl r8, 3
+ add r8, rbp                                         ;first opt arg
+ mov r9, SOB_NIL_ADDRESS
+ cmp rcx, 0
+ je doneLambda21
+
+ createOptList21:
+ cmp rcx, 0
+ je doneOptList21
+ mov r11, [r8]
+ MAKE_PAIR (r12, r11, r9)
+ mov r9, r12                                          ;holds the opt list
+ sub rcx, 1
+ sub r8, 8
+ jmp createOptList21
+
+ doneOptList21:
+ mov r11, 1
+ add r11, 4
+ shl r11, 3
+ mov [rbp + r11], r9
+ mov r10, 1
+ add r10, 1
+
+ doneLambda21:
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ mov rax, qword [rax]
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont22:
+ leave 
+ ret
+
+ lcont21:
+ leave 
+ ret
+
+ lcont3:
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont2:
+ leave 
+ ret
+
+ lcont1:
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont0:
+ mov qword [fvar_tbl + 40], rax
+ mov rax, SOB_VOID_ADDRESS
+
 	call write_sob_if_not_void
 
 
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [fvar_tbl + 69]
+
+ push rax
+ mov rax, qword [fvar_tbl + 68]
+
+ push rax
+ mov rax, qword [fvar_tbl + 46]
+
+ push rax
+ push qword 3
+
+ mov r13, 1
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 0
+ jne start_env_copy24
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure24
+
+ start_env_copy24:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop24:                   ;Start copying env pointers
+ cmp r8, 0
+ je end_copy_env24
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop24
+
+ end_copy_env24:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop24:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop24
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop24
+
+ end_param_loop24:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure24:
+ MAKE_CLOSURE(rax, r13, lcode24)
+ jmp lcont24
+
+ lcode24:
+ push rbp
+ mov rbp, rsp
+ mov r13, 2
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 1
+ jne start_env_copy25
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure25
+
+ start_env_copy25:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop25:                   ;Start copying env pointers
+ cmp r8, 1
+ je end_copy_env25
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop25
+
+ end_copy_env25:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop25:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop25
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop25
+
+ end_param_loop25:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure25:
+ MAKE_CLOSURE(rax, r13, lcode25)
+ jmp lcont25
+
+ lcode25:
+ push rbp
+ mov rbp, rsp
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 2)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont31:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse26
+
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ jmp Lexit26
+
+ Lelse26:
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 2)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 2]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont30:
+ push rax
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 2)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 1]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont29:
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont28:
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 3
+
+ mov rax, qword [fvar_tbl + 52]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 8
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont27:
+
+ Lexit26:
+ leave 
+ ret
+
+ lcont25:
+ leave 
+ ret
+
+ lcont24:
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont23:
+ mov qword [fvar_tbl + 52], rax
+ mov rax, SOB_VOID_ADDRESS
+
 	call write_sob_if_not_void
 
 
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [fvar_tbl + 69]
+
+ push rax
+ mov rax, qword [fvar_tbl + 68]
+
+ push rax
+ mov rax, qword [fvar_tbl + 46]
+
+ push rax
+ push qword 3
+
+ mov r13, 1
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 0
+ jne start_env_copy33
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure33
+
+ start_env_copy33:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop33:                   ;Start copying env pointers
+ cmp r8, 0
+ je end_copy_env33
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop33
+
+ end_copy_env33:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop33:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop33
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop33
+
+ end_param_loop33:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure33:
+ MAKE_CLOSURE(rax, r13, lcode33)
+ jmp lcont33
+
+ lcode33:
+ push rbp
+ mov rbp, rsp
+ mov r13, 2
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 1
+ jne start_env_copy34
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure34
+
+ start_env_copy34:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop34:                   ;Start copying env pointers
+ cmp r8, 1
+ je end_copy_env34
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop34
+
+ end_copy_env34:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop34:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop34
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop34
+
+ end_param_loop34:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure34:
+ MAKE_CLOSURE(rax, r13, lcode34)
+ jmp lcont34
+
+ lcode34:
+ push rbp
+ mov rbp, rsp
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 2)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont40:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse35
+
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ jmp Lexit35
+
+ Lelse35:
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 2)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 2]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont39:
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 3
+
+ mov rax, qword [fvar_tbl + 33]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont38:
+ push rax
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 2)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 1]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont37:
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont36:
+
+ Lexit35:
+ leave 
+ ret
+
+ lcont34:
+ leave 
+ ret
+
+ lcont33:
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont32:
+ mov qword [fvar_tbl + 33], rax
+ mov rax, SOB_VOID_ADDRESS
+
 	call write_sob_if_not_void
 
 
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [fvar_tbl + 43]
+
+ push rax
+ mov rax, qword [fvar_tbl + 59]
+
+ push rax
+ mov rax, qword [fvar_tbl + 69]
+
+ push rax
+ mov rax, qword [fvar_tbl + 68]
+
+ push rax
+ mov rax, qword [fvar_tbl + 46]
+
+ push rax
+ push qword 5
+
+ mov r13, 1
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 0
+ jne start_env_copy42
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure42
+
+ start_env_copy42:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop42:                   ;Start copying env pointers
+ cmp r8, 0
+ je end_copy_env42
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop42
+
+ end_copy_env42:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop42:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop42
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop42
+
+ end_param_loop42:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure42:
+ MAKE_CLOSURE(rax, r13, lcode42)
+ jmp lcont42
+
+ lcode42:
+ push rbp
+ mov rbp, rsp
+ mov r13, 2
+ shl r13, 3
+ MALLOC r13, r13                      ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 1
+ jne start_env_copy43
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure43
+
+ start_env_copy43:
+ mov r12, qword [rbp + WORD_SIZE * 2] ; env pointer
+ mov r8, 0
+ mov rbx, 0                           ; i
+ mov rcx, 1                           ; j
+ shl rcx, 3
+
+ env_pointer_loop43:     ;Start copying env pointers
+ cmp r8, 1
+ je end_copy_env43
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop43
+
+ end_copy_env43:
+ mov rcx, PARAM_COUNT                 ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                            ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop43:     ;Start copying params
+ cmp r9, PARAM_COUNT                  ;loop condition
+ je end_param_loop43
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop43
+
+ end_param_loop43:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure43:
+ MAKE_CLOSURE(rax, r13, lcode43)
+ jmp lcont43
+
+ lcode43:
+ push rbp
+ mov rbp, rsp 
+
+ mov rcx, PARAM_COUNT                                ;num of total args
+ sub rcx, 0 ;num of opt args
+ mov r8, PARAM_COUNT
+ add r8, 3
+ shl r8, 3
+ add r8, rbp                                         ;first opt arg
+ mov r9, SOB_NIL_ADDRESS
+ cmp rcx, 0
+ je doneLambda43
+
+ createOptList43:
+ cmp rcx, 0
+ je doneOptList43
+ mov r11, [r8]
+ MAKE_PAIR (r12, r11, r9)
+ mov r9, r12                                          ;holds the opt list
+ sub rcx, 1
+ sub r8, 8
+ jmp createOptList43
+
+ doneOptList43:
+ mov r11, 0
+ add r11, 4
+ shl r11, 3
+ mov [rbp + r11], r9
+ mov r10, 0
+ add r10, 1
+
+ doneLambda43:
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 2]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont51:
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont50:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse44
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 1]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 6
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont49:
+ jmp Lexit44
+
+ Lelse44:
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 2]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont48:
+ push rax
+ mov rax, qword [fvar_tbl + 32]
+
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 4]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont47:
+ push rax
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 1]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont46:
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 3]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont45:
+
+ Lexit44:
+ leave 
+ ret
+
+ lcont43:
+ leave 
+ ret
+
+ lcont42:
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont41:
+ mov qword [fvar_tbl + 32], rax
+ mov rax, SOB_VOID_ADDRESS
+
 	call write_sob_if_not_void
 
 
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [fvar_tbl + 59]
+
+ push rax
+ mov rax, qword [fvar_tbl + 33]
+
+ push rax
+ mov rax, qword [fvar_tbl + 46]
+
+ push rax
+ push qword 3
+
+ mov r13, 1
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 0
+ jne start_env_copy53
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure53
+
+ start_env_copy53:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop53:                   ;Start copying env pointers
+ cmp r8, 0
+ je end_copy_env53
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop53
+
+ end_copy_env53:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop53:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop53
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop53
+
+ end_param_loop53:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure53:
+ MAKE_CLOSURE(rax, r13, lcode53)
+ jmp lcont53
+
+ lcode53:
+ push rbp
+ mov rbp, rsp
+ mov r13, 2
+ shl r13, 3
+ MALLOC r13, r13                      ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 1
+ jne start_env_copy54
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure54
+
+ start_env_copy54:
+ mov r12, qword [rbp + WORD_SIZE * 2] ; env pointer
+ mov r8, 0
+ mov rbx, 0                           ; i
+ mov rcx, 1                           ; j
+ shl rcx, 3
+
+ env_pointer_loop54:     ;Start copying env pointers
+ cmp r8, 1
+ je end_copy_env54
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop54
+
+ end_copy_env54:
+ mov rcx, PARAM_COUNT                 ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                            ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop54:     ;Start copying params
+ cmp r9, PARAM_COUNT                  ;loop condition
+ je end_param_loop54
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop54
+
+ end_param_loop54:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure54:
+ MAKE_CLOSURE(rax, r13, lcode54)
+ jmp lcont54
+
+ lcode54:
+ push rbp
+ mov rbp, rsp 
+
+ mov rcx, PARAM_COUNT                                ;num of total args
+ sub rcx, 0 ;num of opt args
+ mov r8, PARAM_COUNT
+ add r8, 3
+ shl r8, 3
+ add r8, rbp                                         ;first opt arg
+ mov r9, SOB_NIL_ADDRESS
+ cmp rcx, 0
+ je doneLambda54
+
+ createOptList54:
+ cmp rcx, 0
+ je doneOptList54
+ mov r11, [r8]
+ MAKE_PAIR (r12, r11, r9)
+ mov r9, r12                                          ;holds the opt list
+ sub rcx, 1
+ sub r8, 8
+ jmp createOptList54
+
+ doneOptList54:
+ mov r11, 0
+ add r11, 4
+ shl r11, 3
+ mov [rbp + r11], r9
+ mov r10, 0
+ add r10, 1
+
+ doneLambda54:
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ mov rax, const_tbl + 1
+ push rax
+ mov r13, 3
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 2
+ jne start_env_copy56
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure56
+
+ start_env_copy56:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop56:                   ;Start copying env pointers
+ cmp r8, 2
+ je end_copy_env56
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop56
+
+ end_copy_env56:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop56:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop56
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop56
+
+ end_param_loop56:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure56:
+ MAKE_CLOSURE(rax, r13, lcode56)
+ jmp lcont56
+
+ lcode56:
+ push rbp
+ mov rbp, rsp
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont59:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse57
+
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ jmp Lexit57
+
+ Lelse57:
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 2]
+
+ push rax
+ push qword 3
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 1]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 8
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont58:
+
+ Lexit57:
+ leave 
+ ret
+
+ lcont56:
+ push rax
+ push qword 3
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 1]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 8
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont55:
+ leave 
+ ret
+
+ lcont54:
+ leave 
+ ret
+
+ lcont53:
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont52:
+ mov qword [fvar_tbl + 34], rax
+ mov rax, SOB_VOID_ADDRESS
+
 	call write_sob_if_not_void
 
 
+
+ mov r13, 1
+ shl r13, 3
+ MALLOC r13, r13                      ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 0
+ jne start_env_copy60
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure60
+
+ start_env_copy60:
+ mov r12, qword [rbp + WORD_SIZE * 2] ; env pointer
+ mov r8, 0
+ mov rbx, 0                           ; i
+ mov rcx, 1                           ; j
+ shl rcx, 3
+
+ env_pointer_loop60:     ;Start copying env pointers
+ cmp r8, 0
+ je end_copy_env60
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop60
+
+ end_copy_env60:
+ mov rcx, PARAM_COUNT                 ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                            ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop60:     ;Start copying params
+ cmp r9, PARAM_COUNT                  ;loop condition
+ je end_param_loop60
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop60
+
+ end_param_loop60:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure60:
+ MAKE_CLOSURE(rax, r13, lcode60)
+ jmp lcont60
+
+ lcode60:
+ push rbp
+ mov rbp, rsp 
+
+ mov rcx, PARAM_COUNT                                ;num of total args
+ sub rcx, 0 ;num of opt args
+ mov r8, PARAM_COUNT
+ add r8, 3
+ shl r8, 3
+ add r8, rbp                                         ;first opt arg
+ mov r9, SOB_NIL_ADDRESS
+ cmp rcx, 0
+ je doneLambda60
+
+ createOptList60:
+ cmp rcx, 0
+ je doneOptList60
+ mov r11, [r8]
+ MAKE_PAIR (r12, r11, r9)
+ mov r9, r12                                          ;holds the opt list
+ sub rcx, 1
+ sub r8, 8
+ jmp createOptList60
+
+ doneOptList60:
+ mov r11, 0
+ add r11, 4
+ shl r11, 3
+ mov [rbp + r11], r9
+ mov r10, 0
+ add r10, 1
+
+ doneLambda60:
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ leave 
+ ret
+
+ lcont60:
+ mov qword [fvar_tbl + 35], rax
+ mov rax, SOB_VOID_ADDRESS
+
 	call write_sob_if_not_void
 
 
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [fvar_tbl + 69]
+
+ push rax
+ mov rax, qword [fvar_tbl + 64]
+
+ push rax
+ mov rax, qword [fvar_tbl + 46]
+
+ push rax
+ push qword 3
+
+ mov r13, 1
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 0
+ jne start_env_copy62
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure62
+
+ start_env_copy62:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop62:                   ;Start copying env pointers
+ cmp r8, 0
+ je end_copy_env62
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop62
+
+ end_copy_env62:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop62:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop62
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop62
+
+ end_param_loop62:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure62:
+ MAKE_CLOSURE(rax, r13, lcode62)
+ jmp lcont62
+
+ lcode62:
+ push rbp
+ mov rbp, rsp
+ push SOB_NIL_ADDRESS
+ mov rax, const_tbl + 59
+ push rax
+ push qword 1
+
+ mov r13, 2
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 1
+ jne start_env_copy64
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure64
+
+ start_env_copy64:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop64:                   ;Start copying env pointers
+ cmp r8, 1
+ je end_copy_env64
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop64
+
+ end_copy_env64:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop64:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop64
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop64
+
+ end_param_loop64:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure64:
+ MAKE_CLOSURE(rax, r13, lcode64)
+ jmp lcont64
+
+ lcode64:
+ push rbp
+ mov rbp, rsp
+
+
+ mov r13, 3
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 2
+ jne start_env_copy65
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure65
+
+ start_env_copy65:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop65:                   ;Start copying env pointers
+ cmp r8, 2
+ je end_copy_env65
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop65
+
+ end_copy_env65:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop65:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop65
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop65
+
+ end_param_loop65:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure65:
+ MAKE_CLOSURE(rax, r13, lcode65)
+ jmp lcont65
+
+ lcode65:
+ push rbp
+ mov rbp, rsp
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont67:
+ cmp rax, SOB_FALSE_ADDRESS 
+ jne Lexit66
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 1]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont71:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse68
+
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 2]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont70:
+ push rax
+ push qword 1
+
+ mov rax, qword [fvar_tbl + 36]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 6
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont69:
+ jmp Lexit68
+
+ Lelse68:
+ mov rax, const_tbl + 2
+
+ Lexit68:
+
+ Lexit66:
+ leave 
+ ret
+
+ lcont65:
+ mov qword [rbp + WORD_SIZE * (4 + 0)], rax
+ mov rax, SOB_VOID_ADDRESS
+
+
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ leave 
+ ret
+
+ lcont64:
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 6
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont63:
+ leave 
+ ret
+
+ lcont62:
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont61:
+ mov qword [fvar_tbl + 36], rax
+ mov rax, SOB_VOID_ADDRESS
+
 	call write_sob_if_not_void
 
 
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [fvar_tbl + 37]
+
+ push rax
+ mov rax, qword [fvar_tbl + 68]
+
+ push rax
+ mov rax, qword [fvar_tbl + 46]
+
+ push rax
+ push qword 3
+
+ mov r13, 1
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 0
+ jne start_env_copy73
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure73
+
+ start_env_copy73:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop73:                   ;Start copying env pointers
+ cmp r8, 0
+ je end_copy_env73
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop73
+
+ end_copy_env73:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop73:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop73
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop73
+
+ end_param_loop73:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure73:
+ MAKE_CLOSURE(rax, r13, lcode73)
+ jmp lcont73
+
+ lcode73:
+ push rbp
+ mov rbp, rsp
+ mov r13, 2
+ shl r13, 3
+ MALLOC r13, r13                      ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 1
+ jne start_env_copy74
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure74
+
+ start_env_copy74:
+ mov r12, qword [rbp + WORD_SIZE * 2] ; env pointer
+ mov r8, 0
+ mov rbx, 0                           ; i
+ mov rcx, 1                           ; j
+ shl rcx, 3
+
+ env_pointer_loop74:     ;Start copying env pointers
+ cmp r8, 1
+ je end_copy_env74
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop74
+
+ end_copy_env74:
+ mov rcx, PARAM_COUNT                 ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                            ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop74:     ;Start copying params
+ cmp r9, PARAM_COUNT                  ;loop condition
+ je end_param_loop74
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop74
+
+ end_param_loop74:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure74:
+ MAKE_CLOSURE(rax, r13, lcode74)
+ jmp lcont74
+
+ lcode74:
+ push rbp
+ mov rbp, rsp 
+
+ mov rcx, PARAM_COUNT                                ;num of total args
+ sub rcx, 1 ;num of opt args
+ mov r8, PARAM_COUNT
+ add r8, 3
+ shl r8, 3
+ add r8, rbp                                         ;first opt arg
+ mov r9, SOB_NIL_ADDRESS
+ cmp rcx, 0
+ je doneLambda74
+
+ createOptList74:
+ cmp rcx, 0
+ je doneOptList74
+ mov r11, [r8]
+ MAKE_PAIR (r12, r11, r9)
+ mov r9, r12                                          ;holds the opt list
+ sub rcx, 1
+ sub r8, 8
+ jmp createOptList74
+
+ doneOptList74:
+ mov r11, 1
+ add r11, 4
+ shl r11, 3
+ mov [rbp + r11], r9
+ mov r10, 1
+ add r10, 1
+
+ doneLambda74:
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont79:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse75
+
+ push SOB_NIL_ADDRESS
+ mov rax, const_tbl + 6
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 2]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont78:
+ jmp Lexit75
+
+ Lelse75:
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 1]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont77:
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 2]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont76:
+
+ Lexit75:
+ leave 
+ ret
+
+ lcont74:
+ leave 
+ ret
+
+ lcont73:
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont72:
+ mov qword [fvar_tbl + 37], rax
+ mov rax, SOB_VOID_ADDRESS
+
 	call write_sob_if_not_void
 
 
+
+ mov r13, 1
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 0
+ jne start_env_copy80
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure80
+
+ start_env_copy80:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop80:                   ;Start copying env pointers
+ cmp r8, 0
+ je end_copy_env80
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop80
+
+ end_copy_env80:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop80:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop80
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop80
+
+ end_param_loop80:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure80:
+ MAKE_CLOSURE(rax, r13, lcode80)
+ jmp lcont80
+
+ lcode80:
+ push rbp
+ mov rbp, rsp
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse81
+
+ mov rax, const_tbl + 2
+ jmp Lexit81
+
+ Lelse81:
+ mov rax, const_tbl + 4
+
+ Lexit81:
+ leave 
+ ret
+
+ lcont80:
+ mov qword [fvar_tbl + 44], rax
+ mov rax, SOB_VOID_ADDRESS
+
 	call write_sob_if_not_void
 
 
- mov rax, qword [fvar_tbl + WORD_SIZE * 46]
+ push SOB_NIL_ADDRESS
+ mov rax, qword [fvar_tbl + 46]
+
  push rax
- mov rax, qword [fvar_tbl + WORD_SIZE * 69]
+ mov rax, qword [fvar_tbl + 69]
+
  push rax
- mov rax, qword [fvar_tbl + WORD_SIZE * 68]
+ mov rax, qword [fvar_tbl + 68]
+
  push rax
- mov rax, qword [fvar_tbl + WORD_SIZE * 57]
+ mov rax, qword [fvar_tbl + 57]
+
  push rax
- mov rax, qword [fvar_tbl + WORD_SIZE * 60]
+ mov rax, qword [fvar_tbl + 60]
+
  push rax
- mov rax, qword [fvar_tbl + WORD_SIZE * 41]
+ mov rax, qword [fvar_tbl + 41]
+
  push rax
- mov rax, qword [fvar_tbl + WORD_SIZE * 42]
+ mov rax, qword [fvar_tbl + 42]
+
  push rax
- mov rax, qword [fvar_tbl + WORD_SIZE * 54]
+ mov rax, qword [fvar_tbl + 54]
+
  push rax
- mov rax, qword [fvar_tbl + WORD_SIZE * 40]
+ mov rax, qword [fvar_tbl + 40]
+
  push rax
- mov rax, qword [fvar_tbl + WORD_SIZE * 52]
+ mov rax, qword [fvar_tbl + 52]
+
  push rax
- mov rax, qword [fvar_tbl + WORD_SIZE * 39]
+ mov rax, qword [fvar_tbl + 39]
+
  push rax
- mov rax, qword [fvar_tbl + WORD_SIZE * 62]
+ mov rax, qword [fvar_tbl + 62]
+
  push rax
- mov rax, qword [fvar_tbl + WORD_SIZE * 63]
+ mov rax, qword [fvar_tbl + 63]
+
  push rax
  push qword 13
 
  mov r13, 1
  shl r13, 3
-                                MALLOC r13, r13                                  ; ExtEnv pointer
-                                mov r11, 0                                 
-                                cmp r11, 0
- jne start_env_copy1
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 0
+ jne start_env_copy83
  mov r13, SOB_NIL_ADDRESS
-                                jmp make_closure1
- start_env_copy1:
-                                mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
-                                mov r8, 0
-                                mov rbx, 0                                       ; i
-                                mov rcx, 1                                       ; j
-                                shl rcx, 3
-                                env_pointer_loop1:  ;Start copying env pointers                              
-                                cmp r8, 1
- je end_copy_env1
+ jmp make_closure83
+
+ start_env_copy83:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop83:                   ;Start copying env pointers
+ cmp r8, 0
+ je end_copy_env83
  mov r11, qword [r12 + rbx]
-                                mov [r13 + rcx], r11
-                                add rbx, 8
-                                add rcx, 8
-                                jmp env_pointer_loop1
- end_copy_env1:
-                                mov rcx, [rbp + WORD_SIZE * 3]                   ; n
-                                add rcx, 1
-                                shl rcx, 3 
-                                MALLOC rcx, rcx
-                                mov qword [r13], rcx
-                                mov r9, 0                                        ; ExtEnv[0][i]
-                                mov r11, 0                                        
-                                params_copy_loop1:  ;Start copying params
-                                cmp r9, qword [rbp + WORD_SIZE * 3]  ; loop condition
-                                je env_pointer_loop1
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop83
+
+ end_copy_env83:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop83:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop83
  mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
-                                mov qword [rcx + r11], rdx
-                                add r9, 1
-                                add r11, 8
-                                jmp params_copy_loop1
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop83
+
+ end_param_loop83:
  mov qword [rcx + r11], SOB_NIL_ADDRESS
-                                   
-                                make_closure1: 
-                                MAKE_CLOSURE(rax, r13, lcode1)
-                                jmp lcont1
- lcode1:
-                                push rbp
-                                mov rbp, rsp 
 
- leave
-                                ret
- lcont1:
-                                
- closure0:
- mov rbx, qword [rax + 1]              ;; pointer of the first rand
-                          mov rcx, qword [rax + 1 + 1 * WORD_SIZE]  ;; pointer of rator
-                          push rbx                                  ;; push parameters of rator
-                          call rcx                                  ;; call rator.
-                          
-                          add rsp, WORD_SIZE
-                          pop rbx
-                          shl rbx, 3
-                          add rsp, rbx
-                          
-                          lcont0:
-	call write_sob_if_not_void
+ make_closure83:
+ MAKE_CLOSURE(rax, r13, lcode83)
+ jmp lcont83
+
+ lcode83:
+ push rbp
+ mov rbp, rsp
+ push SOB_NIL_ADDRESS
+ mov r13, 2
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 1
+ jne start_env_copy132
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure132
+
+ start_env_copy132:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop132:                   ;Start copying env pointers
+ cmp r8, 1
+ je end_copy_env132
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop132
+
+ end_copy_env132:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop132:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop132
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop132
+
+ end_param_loop132:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure132:
+ MAKE_CLOSURE(rax, r13, lcode132)
+ jmp lcont132
+
+ lcode132:
+ push rbp
+ mov rbp, rsp
+ mov r13, 3
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 2
+ jne start_env_copy133
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure133
+
+ start_env_copy133:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop133:                   ;Start copying env pointers
+ cmp r8, 2
+ je end_copy_env133
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop133
+
+ end_copy_env133:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop133:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop133
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop133
+
+ end_param_loop133:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure133:
+ MAKE_CLOSURE(rax, r13, lcode133)
+ jmp lcont133
+
+ lcode133:
+ push rbp
+ mov rbp, rsp
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont146:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse144
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 1]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont145:
+ jmp Lexit144
+
+ Lelse144:
+ mov rax, const_tbl + 2
+
+ Lexit144:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse134
+
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 2]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont143:
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont142:
+ jmp Lexit134
+
+ Lelse134:
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 1]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont141:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse139
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont140:
+ jmp Lexit139
+
+ Lelse139:
+ mov rax, const_tbl + 2
+
+ Lexit139:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse135
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 2]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont138:
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont137:
+ jmp Lexit135
+
+ Lelse135:
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont136:
+
+ Lexit135:
+
+ Lexit134:
+ leave 
+ ret
+
+ lcont133:
+ leave 
+ ret
+
+ lcont132:
+ push rax
+ push qword 1
+
+ mov r13, 2
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 1
+ jne start_env_copy85
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure85
+
+ start_env_copy85:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop85:                   ;Start copying env pointers
+ cmp r8, 1
+ je end_copy_env85
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop85
+
+ end_copy_env85:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop85:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop85
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop85
+
+ end_param_loop85:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure85:
+ MAKE_CLOSURE(rax, r13, lcode85)
+ jmp lcont85
+
+ lcode85:
+ push rbp
+ mov rbp, rsp
+
+ push SOB_NIL_ADDRESS
+ mov r13, 3
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 2
+ jne start_env_copy105
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure105
+
+ start_env_copy105:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop105:                   ;Start copying env pointers
+ cmp r8, 2
+ je end_copy_env105
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop105
+
+ end_copy_env105:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop105:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop105
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop105
+
+ end_param_loop105:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure105:
+ MAKE_CLOSURE(rax, r13, lcode105)
+ jmp lcont105
+
+ lcode105:
+ push rbp
+ mov rbp, rsp
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont117:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse106
+
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ jmp Lexit106
+
+ Lelse106:
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [fvar_tbl + 50]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont116:
+ push rax
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [fvar_tbl + 38]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont115:
+ push rax
+ push qword 2
+
+ mov rax, qword [fvar_tbl + 47]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont114:
+ push rax
+ push qword 1
+
+ mov r13, 4
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 3
+ jne start_env_copy108
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure108
+
+ start_env_copy108:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop108:                   ;Start copying env pointers
+ cmp r8, 3
+ je end_copy_env108
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop108
+
+ end_copy_env108:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop108:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop108
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop108
+
+ end_param_loop108:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure108:
+ MAKE_CLOSURE(rax, r13, lcode108)
+ jmp lcont108
+
+ lcode108:
+ push rbp
+ mov rbp, rsp
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [fvar_tbl + 50]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont113:
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 2]
+ mov rax, qword [rax + WORD_SIZE * 7]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont112:
+ push rax
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [fvar_tbl + 38]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont111:
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 2]
+ mov rax, qword [rax + WORD_SIZE * 7]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont110:
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 2]
+ mov rax, qword [rax + WORD_SIZE * 7]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont109:
+ leave 
+ ret
+
+ lcont108:
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 6
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont107:
+
+ Lexit106:
+ leave 
+ ret
+
+ lcont105:
+ push rax
+ push qword 1
+
+ mov r13, 3
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 2
+ jne start_env_copy87
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure87
+
+ start_env_copy87:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop87:                   ;Start copying env pointers
+ cmp r8, 2
+ je end_copy_env87
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop87
+
+ end_copy_env87:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop87:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop87
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop87
+
+ end_param_loop87:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure87:
+ MAKE_CLOSURE(rax, r13, lcode87)
+ jmp lcont87
+
+ lcode87:
+ push rbp
+ mov rbp, rsp
 
 
-	call write_sob_if_not_void
+ mov r13, 4
+ shl r13, 3
+ MALLOC r13, r13                      ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 3
+ jne start_env_copy88
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure88
+
+ start_env_copy88:
+ mov r12, qword [rbp + WORD_SIZE * 2] ; env pointer
+ mov r8, 0
+ mov rbx, 0                           ; i
+ mov rcx, 1                           ; j
+ shl rcx, 3
+
+ env_pointer_loop88:     ;Start copying env pointers
+ cmp r8, 3
+ je end_copy_env88
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop88
+
+ end_copy_env88:
+ mov rcx, PARAM_COUNT                 ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                            ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop88:     ;Start copying params
+ cmp r9, PARAM_COUNT                  ;loop condition
+ je end_param_loop88
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop88
+
+ end_param_loop88:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure88:
+ MAKE_CLOSURE(rax, r13, lcode88)
+ jmp lcont88
+
+ lcode88:
+ push rbp
+ mov rbp, rsp 
+
+ mov rcx, PARAM_COUNT                                ;num of total args
+ sub rcx, 0 ;num of opt args
+ mov r8, PARAM_COUNT
+ add r8, 3
+ shl r8, 3
+ add r8, rbp                                         ;first opt arg
+ mov r9, SOB_NIL_ADDRESS
+ cmp rcx, 0
+ je doneLambda88
+
+ createOptList88:
+ cmp rcx, 0
+ je doneOptList88
+ mov r11, [r8]
+ MAKE_PAIR (r12, r11, r9)
+ mov r9, r12                                          ;holds the opt list
+ sub rcx, 1
+ sub r8, 8
+ jmp createOptList88
+
+ doneOptList88:
+ mov r11, 0
+ add r11, 4
+ shl r11, 3
+ mov [rbp + r11], r9
+ mov r10, 0
+ add r10, 1
+
+ doneLambda88:
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ mov rax, const_tbl + 25
+ push rax
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 2]
+ mov rax, qword [rax + WORD_SIZE * 5]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont91:
+ push rax
+ push qword 3
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 2]
+ mov rax, qword [rax + WORD_SIZE * 3]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont90:
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 6
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont89:
+ leave 
+ ret
+
+ lcont88:
+ mov qword [fvar_tbl + 54], rax
+ mov rax, SOB_VOID_ADDRESS
 
 
-	call write_sob_if_not_void
 
+ mov r13, 4
+ shl r13, 3
+ MALLOC r13, r13                      ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 3
+ jne start_env_copy92
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure92
 
-	call write_sob_if_not_void
+ start_env_copy92:
+ mov r12, qword [rbp + WORD_SIZE * 2] ; env pointer
+ mov r8, 0
+ mov rbx, 0                           ; i
+ mov rcx, 1                           ; j
+ shl rcx, 3
 
+ env_pointer_loop92:     ;Start copying env pointers
+ cmp r8, 3
+ je end_copy_env92
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop92
 
-	call write_sob_if_not_void
+ end_copy_env92:
+ mov rcx, PARAM_COUNT                 ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                            ; ExtEnv[0][i]
+ mov r11, 0
 
+ params_copy_loop92:     ;Start copying params
+ cmp r9, PARAM_COUNT                  ;loop condition
+ je end_param_loop92
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop92
 
-	call write_sob_if_not_void
+ end_param_loop92:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
 
+ make_closure92:
+ MAKE_CLOSURE(rax, r13, lcode92)
+ jmp lcont92
 
-	call write_sob_if_not_void
+ lcode92:
+ push rbp
+ mov rbp, rsp 
 
+ mov rcx, PARAM_COUNT                                ;num of total args
+ sub rcx, 0 ;num of opt args
+ mov r8, PARAM_COUNT
+ add r8, 3
+ shl r8, 3
+ add r8, rbp                                         ;first opt arg
+ mov r9, SOB_NIL_ADDRESS
+ cmp rcx, 0
+ je doneLambda92
 
-	call write_sob_if_not_void
+ createOptList92:
+ cmp rcx, 0
+ je doneOptList92
+ mov r11, [r8]
+ MAKE_PAIR (r12, r11, r9)
+ mov r9, r12                                          ;holds the opt list
+ sub rcx, 1
+ sub r8, 8
+ jmp createOptList92
 
+ doneOptList92:
+ mov r11, 0
+ add r11, 4
+ shl r11, 3
+ mov [rbp + r11], r9
+ mov r10, 0
+ add r10, 1
 
-	call write_sob_if_not_void
+ doneLambda92:
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
 
-
-	call write_sob_if_not_void
-
-
+ push rax
  mov rax, const_tbl + 68
+ push rax
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 2]
+ mov rax, qword [rax + WORD_SIZE * 6]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont95:
+ push rax
+ push qword 3
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 2]
+ mov rax, qword [rax + WORD_SIZE * 3]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont94:
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 6
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont93:
+ leave 
+ ret
+
+ lcont92:
+ mov qword [fvar_tbl + 42], rax
+ mov rax, SOB_VOID_ADDRESS
+
+
+
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 7]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont104:
+ push rax
+ push qword 1
+
+ mov r13, 4
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 3
+ jne start_env_copy97
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure97
+
+ start_env_copy97:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop97:                   ;Start copying env pointers
+ cmp r8, 3
+ je end_copy_env97
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop97
+
+ end_copy_env97:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop97:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop97
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop97
+
+ end_param_loop97:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure97:
+ MAKE_CLOSURE(rax, r13, lcode97)
+ jmp lcont97
+
+ lcode97:
+ push rbp
+ mov rbp, rsp
+ mov r13, 5
+ shl r13, 3
+ MALLOC r13, r13                      ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 4
+ jne start_env_copy98
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure98
+
+ start_env_copy98:
+ mov r12, qword [rbp + WORD_SIZE * 2] ; env pointer
+ mov r8, 0
+ mov rbx, 0                           ; i
+ mov rcx, 1                           ; j
+ shl rcx, 3
+
+ env_pointer_loop98:     ;Start copying env pointers
+ cmp r8, 4
+ je end_copy_env98
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop98
+
+ end_copy_env98:
+ mov rcx, PARAM_COUNT                 ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                            ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop98:     ;Start copying params
+ cmp r9, PARAM_COUNT                  ;loop condition
+ je end_param_loop98
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop98
+
+ end_param_loop98:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure98:
+ MAKE_CLOSURE(rax, r13, lcode98)
+ jmp lcont98
+
+ lcode98:
+ push rbp
+ mov rbp, rsp 
+
+ mov rcx, PARAM_COUNT                                ;num of total args
+ sub rcx, 1 ;num of opt args
+ mov r8, PARAM_COUNT
+ add r8, 3
+ shl r8, 3
+ add r8, rbp                                         ;first opt arg
+ mov r9, SOB_NIL_ADDRESS
+ cmp rcx, 0
+ je doneLambda98
+
+ createOptList98:
+ cmp rcx, 0
+ je doneOptList98
+ mov r11, [r8]
+ MAKE_PAIR (r12, r11, r9)
+ mov r9, r12                                          ;holds the opt list
+ sub rcx, 1
+ sub r8, 8
+ jmp createOptList98
+
+ doneOptList98:
+ mov r11, 1
+ add r11, 4
+ shl r11, 3
+ mov [rbp + r11], r9
+ mov r10, 1
+ add r10, 1
+
+ doneLambda98:
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 3]
+ mov rax, qword [rax + WORD_SIZE * 12]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont103:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse99
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ mov rax, const_tbl + 68
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont102:
+ jmp Lexit99
+
+ Lelse99:
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ push rax
+ push qword 3
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 3]
+ mov rax, qword [rax + WORD_SIZE * 3]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont101:
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 6
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont100:
+
+ Lexit99:
+ leave 
+ ret
+
+ lcont98:
+ leave 
+ ret
+
+ lcont97:
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont96:
+ mov qword [fvar_tbl + 41], rax
+ mov rax, SOB_VOID_ADDRESS
+
+ leave 
+ ret
+
+ lcont87:
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont86:
+
+ push SOB_NIL_ADDRESS
+ mov r13, 3
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 2
+ jne start_env_copy124
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure124
+
+ start_env_copy124:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop124:                   ;Start copying env pointers
+ cmp r8, 2
+ je end_copy_env124
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop124
+
+ end_copy_env124:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop124:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop124
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop124
+
+ end_param_loop124:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure124:
+ MAKE_CLOSURE(rax, r13, lcode124)
+ jmp lcont124
+
+ lcode124:
+ push rbp
+ mov rbp, rsp
+ mov r13, 4
+ shl r13, 3
+ MALLOC r13, r13                      ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 3
+ jne start_env_copy125
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure125
+
+ start_env_copy125:
+ mov r12, qword [rbp + WORD_SIZE * 2] ; env pointer
+ mov r8, 0
+ mov rbx, 0                           ; i
+ mov rcx, 1                           ; j
+ shl rcx, 3
+
+ env_pointer_loop125:     ;Start copying env pointers
+ cmp r8, 3
+ je end_copy_env125
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop125
+
+ end_copy_env125:
+ mov rcx, PARAM_COUNT                 ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                            ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop125:     ;Start copying params
+ cmp r9, PARAM_COUNT                  ;loop condition
+ je end_param_loop125
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop125
+
+ end_param_loop125:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure125:
+ MAKE_CLOSURE(rax, r13, lcode125)
+ jmp lcont125
+
+ lcode125:
+ push rbp
+ mov rbp, rsp 
+
+ mov rcx, PARAM_COUNT                                ;num of total args
+ sub rcx, 1 ;num of opt args
+ mov r8, PARAM_COUNT
+ add r8, 3
+ shl r8, 3
+ add r8, rbp                                         ;first opt arg
+ mov r9, SOB_NIL_ADDRESS
+ cmp rcx, 0
+ je doneLambda125
+
+ createOptList125:
+ cmp rcx, 0
+ je doneOptList125
+ mov r11, [r8]
+ MAKE_PAIR (r12, r11, r9)
+ mov r9, r12                                          ;holds the opt list
+ sub rcx, 1
+ sub r8, 8
+ jmp createOptList125
+
+ doneOptList125:
+ mov r11, 1
+ add r11, 4
+ shl r11, 3
+ mov [rbp + r11], r9
+ mov r10, 1
+ add r10, 1
+
+ doneLambda125:
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ mov r13, 5
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 4
+ jne start_env_copy130
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure130
+
+ start_env_copy130:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop130:                   ;Start copying env pointers
+ cmp r8, 4
+ je end_copy_env130
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop130
+
+ end_copy_env130:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop130:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop130
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop130
+
+ end_param_loop130:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure130:
+ MAKE_CLOSURE(rax, r13, lcode130)
+ jmp lcont130
+
+ lcode130:
+ push rbp
+ mov rbp, rsp
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont131:
+ leave 
+ ret
+
+ lcont130:
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 2]
+ mov rax, qword [rax + WORD_SIZE * 4]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont129:
+ push rax
+ mov rax, const_tbl + 4
+ push rax
+ mov r13, 5
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 4
+ jne start_env_copy127
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure127
+
+ start_env_copy127:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop127:                   ;Start copying env pointers
+ cmp r8, 4
+ je end_copy_env127
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop127
+
+ end_copy_env127:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop127:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop127
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop127
+
+ end_param_loop127:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure127:
+ MAKE_CLOSURE(rax, r13, lcode127)
+ jmp lcont127
+
+ lcode127:
+ push rbp
+ mov rbp, rsp
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse128
+
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ jmp Lexit128
+
+ Lelse128:
+ mov rax, const_tbl + 2
+
+ Lexit128:
+ leave 
+ ret
+
+ lcont127:
+ push rax
+ push qword 3
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 2]
+ mov rax, qword [rax + WORD_SIZE * 3]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 8
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont126:
+ leave 
+ ret
+
+ lcont125:
+ leave 
+ ret
+
+ lcont124:
+ push rax
+ push qword 1
+
+ mov r13, 3
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 2
+ jne start_env_copy119
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure119
+
+ start_env_copy119:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop119:                   ;Start copying env pointers
+ cmp r8, 2
+ je end_copy_env119
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop119
+
+ end_copy_env119:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop119:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop119
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop119
+
+ end_param_loop119:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure119:
+ MAKE_CLOSURE(rax, r13, lcode119)
+ jmp lcont119
+
+ lcode119:
+ push rbp
+ mov rbp, rsp
+
+
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 8]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont121:
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont120:
+ mov qword [fvar_tbl + 60], rax
+ mov rax, SOB_VOID_ADDRESS
+
+
+
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 9]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont123:
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont122:
+ mov qword [fvar_tbl + 57], rax
+ mov rax, SOB_VOID_ADDRESS
+
+ leave 
+ ret
+
+ lcont119:
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 6
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont118:
+ leave 
+ ret
+
+ lcont85:
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 6
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont84:
+ leave 
+ ret
+
+ lcont83:
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont82:
+	call write_sob_if_not_void
+
+
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [fvar_tbl + 46]
+
+ push rax
+ mov rax, qword [fvar_tbl + 54]
+
+ push rax
+ mov rax, qword [fvar_tbl + 43]
+
+ push rax
+ push qword 3
+
+ mov r13, 1
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 0
+ jne start_env_copy148
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure148
+
+ start_env_copy148:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop148:                   ;Start copying env pointers
+ cmp r8, 0
+ je end_copy_env148
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop148
+
+ end_copy_env148:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop148:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop148
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop148
+
+ end_param_loop148:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure148:
+ MAKE_CLOSURE(rax, r13, lcode148)
+ jmp lcont148
+
+ lcode148:
+ push rbp
+ mov rbp, rsp
+ mov r13, 2
+ shl r13, 3
+ MALLOC r13, r13                      ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 1
+ jne start_env_copy149
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure149
+
+ start_env_copy149:
+ mov r12, qword [rbp + WORD_SIZE * 2] ; env pointer
+ mov r8, 0
+ mov rbx, 0                           ; i
+ mov rcx, 1                           ; j
+ shl rcx, 3
+
+ env_pointer_loop149:     ;Start copying env pointers
+ cmp r8, 1
+ je end_copy_env149
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop149
+
+ end_copy_env149:
+ mov rcx, PARAM_COUNT                 ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                            ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop149:     ;Start copying params
+ cmp r9, PARAM_COUNT                  ;loop condition
+ je end_param_loop149
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop149
+
+ end_param_loop149:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure149:
+ MAKE_CLOSURE(rax, r13, lcode149)
+ jmp lcont149
+
+ lcode149:
+ push rbp
+ mov rbp, rsp 
+
+ mov rcx, PARAM_COUNT                                ;num of total args
+ sub rcx, 1 ;num of opt args
+ mov r8, PARAM_COUNT
+ add r8, 3
+ shl r8, 3
+ add r8, rbp                                         ;first opt arg
+ mov r9, SOB_NIL_ADDRESS
+ cmp rcx, 0
+ je doneLambda149
+
+ createOptList149:
+ cmp rcx, 0
+ je doneOptList149
+ mov r11, [r8]
+ MAKE_PAIR (r12, r11, r9)
+ mov r9, r12                                          ;holds the opt list
+ sub rcx, 1
+ sub r8, 8
+ jmp createOptList149
+
+ doneOptList149:
+ mov r11, 1
+ add r11, 4
+ shl r11, 3
+ mov [rbp + r11], r9
+ mov r10, 1
+ add r10, 1
+
+ doneLambda149:
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 2]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont156:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse150
+
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ mov rax, const_tbl + 8
+ push rax
+ push qword 2
+
+ mov rax, qword [fvar_tbl + 42]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont155:
+ push rax
+ mov rax, const_tbl + 25
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 1]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont154:
+ jmp Lexit150
+
+ Lelse150:
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 1]
+
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont153:
+ push rax
+ mov rax, const_tbl + 8
+ push rax
+ push qword 2
+
+ mov rax, qword [fvar_tbl + 42]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont152:
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 1]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont151:
+
+ Lexit150:
+ leave 
+ ret
+
+ lcont149:
+ leave 
+ ret
+
+ lcont148:
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont147:
+ mov qword [fvar_tbl + 58], rax
+ mov rax, SOB_VOID_ADDRESS
+
+	call write_sob_if_not_void
+
+
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [fvar_tbl + 52]
+
+ push rax
+ mov rax, qword [fvar_tbl + 60]
+
+ push rax
+ mov rax, qword [fvar_tbl + 57]
+
+ push rax
+ mov rax, qword [fvar_tbl + 44]
+
+ push rax
+ mov rax, qword [fvar_tbl + 46]
+
+ push rax
+ push qword 5
+
+ mov r13, 1
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 0
+ jne start_env_copy158
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure158
+
+ start_env_copy158:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop158:                   ;Start copying env pointers
+ cmp r8, 0
+ je end_copy_env158
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop158
+
+ end_copy_env158:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop158:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop158
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop158
+
+ end_param_loop158:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure158:
+ MAKE_CLOSURE(rax, r13, lcode158)
+ jmp lcont158
+
+ lcode158:
+ push rbp
+ mov rbp, rsp
+ mov r13, 2
+ shl r13, 3
+ MALLOC r13, r13                      ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 1
+ jne start_env_copy159
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure159
+
+ start_env_copy159:
+ mov r12, qword [rbp + WORD_SIZE * 2] ; env pointer
+ mov r8, 0
+ mov rbx, 0                           ; i
+ mov rcx, 1                           ; j
+ shl rcx, 3
+
+ env_pointer_loop159:     ;Start copying env pointers
+ cmp r8, 1
+ je end_copy_env159
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop159
+
+ end_copy_env159:
+ mov rcx, PARAM_COUNT                 ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                            ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop159:     ;Start copying params
+ cmp r9, PARAM_COUNT                  ;loop condition
+ je end_param_loop159
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop159
+
+ end_param_loop159:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure159:
+ MAKE_CLOSURE(rax, r13, lcode159)
+ jmp lcont159
+
+ lcode159:
+ push rbp
+ mov rbp, rsp 
+
+ mov rcx, PARAM_COUNT                                ;num of total args
+ sub rcx, 1 ;num of opt args
+ mov r8, PARAM_COUNT
+ add r8, 3
+ shl r8, 3
+ add r8, rbp                                         ;first opt arg
+ mov r9, SOB_NIL_ADDRESS
+ cmp rcx, 0
+ je doneLambda159
+
+ createOptList159:
+ cmp rcx, 0
+ je doneOptList159
+ mov r11, [r8]
+ MAKE_PAIR (r12, r11, r9)
+ mov r9, r12                                          ;holds the opt list
+ sub rcx, 1
+ sub r8, 8
+ jmp createOptList159
+
+ doneOptList159:
+ mov r11, 1
+ add r11, 4
+ shl r11, 3
+ mov [rbp + r11], r9
+ mov r10, 1
+ add r10, 1
+
+ doneLambda159:
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ mov rax, const_tbl + 4
+ push rax
+ mov r13, 3
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 2
+ jne start_env_copy161
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure161
+
+ start_env_copy161:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop161:                   ;Start copying env pointers
+ cmp r8, 2
+ je end_copy_env161
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop161
+
+ end_copy_env161:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop161:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop161
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop161
+
+ end_param_loop161:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure161:
+ MAKE_CLOSURE(rax, r13, lcode161)
+ jmp lcont161
+
+ lcode161:
+ push rbp
+ mov rbp, rsp
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse162
+
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 2]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont165:
+ cmp rax, SOB_FALSE_ADDRESS 
+ jne Lexit164
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 3]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont166:
+
+ Lexit164:
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 1]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 6
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont163:
+ jmp Lexit162
+
+ Lelse162:
+ mov rax, const_tbl + 2
+
+ Lexit162:
+ leave 
+ ret
+
+ lcont161:
+ push rax
+ push qword 3
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 4]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 8
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont160:
+ leave 
+ ret
+
+ lcont159:
+ leave 
+ ret
+
+ lcont158:
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont157:
+ mov qword [fvar_tbl + 45], rax
+ mov rax, SOB_VOID_ADDRESS
+
+	call write_sob_if_not_void
+
+
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [fvar_tbl + 69]
+
+ push rax
+ mov rax, qword [fvar_tbl + 68]
+
+ push rax
+ mov rax, qword [fvar_tbl + 46]
+
+ push rax
+ mov rax, qword [fvar_tbl + 47]
+
+ push rax
+ push qword 4
+
+ mov r13, 1
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 0
+ jne start_env_copy168
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure168
+
+ start_env_copy168:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop168:                   ;Start copying env pointers
+ cmp r8, 0
+ je end_copy_env168
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop168
+
+ end_copy_env168:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop168:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop168
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop168
+
+ end_param_loop168:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure168:
+ MAKE_CLOSURE(rax, r13, lcode168)
+ jmp lcont168
+
+ lcode168:
+ push rbp
+ mov rbp, rsp
+ push SOB_NIL_ADDRESS
+ mov rax, const_tbl + 59
+ push rax
+ push qword 1
+
+ mov r13, 2
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 1
+ jne start_env_copy170
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure170
+
+ start_env_copy170:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop170:                   ;Start copying env pointers
+ cmp r8, 1
+ je end_copy_env170
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop170
+
+ end_copy_env170:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop170:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop170
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop170
+
+ end_param_loop170:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure170:
+ MAKE_CLOSURE(rax, r13, lcode170)
+ jmp lcont170
+
+ lcode170:
+ push rbp
+ mov rbp, rsp
+
+
+ MALLOC r11, 8
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ mov qword [r11] , rax
+ mov rax , r11
+ mov qword [rbp + WORD_SIZE * (4 + 0)], rax
+ mov rax, SOB_VOID_ADDRESS
+
+
+ mov r13, 3
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 2
+ jne start_env_copy171
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure171
+
+ start_env_copy171:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop171:                   ;Start copying env pointers
+ cmp r8, 2
+ je end_copy_env171
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop171
+
+ end_copy_env171:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop171:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop171
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop171
+
+ end_param_loop171:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure171:
+ MAKE_CLOSURE(rax, r13, lcode171)
+ jmp lcont171
+
+ lcode171:
+ push rbp
+ mov rbp, rsp
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 1]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont177:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse172
+
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ jmp Lexit172
+
+ Lelse172:
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 3]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont176:
+ push rax
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 2]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont175:
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont174:
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ mov rax, qword [rax]
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont173:
+
+ Lexit172:
+ leave 
+ ret
+
+ lcont171:
+ push rax 
+
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ pop qword [rax] 
+ mov rax, SOB_VOID_ADDRESS
+
+ mov r13, 3
+ shl r13, 3
+ MALLOC r13, r13                      ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 2
+ jne start_env_copy178
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure178
+
+ start_env_copy178:
+ mov r12, qword [rbp + WORD_SIZE * 2] ; env pointer
+ mov r8, 0
+ mov rbx, 0                           ; i
+ mov rcx, 1                           ; j
+ shl rcx, 3
+
+ env_pointer_loop178:     ;Start copying env pointers
+ cmp r8, 2
+ je end_copy_env178
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop178
+
+ end_copy_env178:
+ mov rcx, PARAM_COUNT                 ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                            ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop178:     ;Start copying params
+ cmp r9, PARAM_COUNT                  ;loop condition
+ je end_param_loop178
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop178
+
+ end_param_loop178:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure178:
+ MAKE_CLOSURE(rax, r13, lcode178)
+ jmp lcont178
+
+ lcode178:
+ push rbp
+ mov rbp, rsp 
+
+ mov rcx, PARAM_COUNT                                ;num of total args
+ sub rcx, 0 ;num of opt args
+ mov r8, PARAM_COUNT
+ add r8, 3
+ shl r8, 3
+ add r8, rbp                                         ;first opt arg
+ mov r9, SOB_NIL_ADDRESS
+ cmp rcx, 0
+ je doneLambda178
+
+ createOptList178:
+ cmp rcx, 0
+ je doneOptList178
+ mov r11, [r8]
+ MAKE_PAIR (r12, r11, r9)
+ mov r9, r12                                          ;holds the opt list
+ sub rcx, 1
+ sub r8, 8
+ jmp createOptList178
+
+ doneOptList178:
+ mov r11, 0
+ add r11, 4
+ shl r11, 3
+ mov [rbp + r11], r9
+ mov r10, 0
+ add r10, 1
+
+ doneLambda178:
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 1]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont183:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse179
+
+ mov rax, const_tbl + 25
+ jmp Lexit179
+
+ Lelse179:
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 3]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont182:
+ push rax
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 2]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont181:
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ mov rax, qword [rax]
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont180:
+
+ Lexit179:
+ leave 
+ ret
+
+ lcont178:
+ leave 
+ ret
+
+ lcont170:
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 6
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont169:
+ leave 
+ ret
+
+ lcont168:
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont167:
+ mov qword [fvar_tbl + 47], rax
+ mov rax, SOB_VOID_ADDRESS
+
+	call write_sob_if_not_void
+
+
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [fvar_tbl + 60]
+
+ push rax
+ push qword 1
+
+ mov r13, 1
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 0
+ jne start_env_copy185
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure185
+
+ start_env_copy185:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop185:                   ;Start copying env pointers
+ cmp r8, 0
+ je end_copy_env185
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop185
+
+ end_copy_env185:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop185:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop185
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop185
+
+ end_param_loop185:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure185:
+ MAKE_CLOSURE(rax, r13, lcode185)
+ jmp lcont185
+
+ lcode185:
+ push rbp
+ mov rbp, rsp
+ mov r13, 2
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 1
+ jne start_env_copy186
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure186
+
+ start_env_copy186:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop186:                   ;Start copying env pointers
+ cmp r8, 1
+ je end_copy_env186
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop186
+
+ end_copy_env186:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop186:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop186
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop186
+
+ end_param_loop186:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure186:
+ MAKE_CLOSURE(rax, r13, lcode186)
+ jmp lcont186
+
+ lcode186:
+ push rbp
+ mov rbp, rsp
+ push SOB_NIL_ADDRESS
+ mov rax, const_tbl + 25
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont187:
+ leave 
+ ret
+
+ lcont186:
+ leave 
+ ret
+
+ lcont185:
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont184:
+ mov qword [fvar_tbl + 48], rax
+ mov rax, SOB_VOID_ADDRESS
+
+	call write_sob_if_not_void
+
+
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [fvar_tbl + 50]
+
+ push rax
+ mov rax, qword [fvar_tbl + 60]
+
+ push rax
+ mov rax, qword [fvar_tbl + 62]
+
+ push rax
+ push qword 3
+
+ mov r13, 1
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 0
+ jne start_env_copy189
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure189
+
+ start_env_copy189:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop189:                   ;Start copying env pointers
+ cmp r8, 0
+ je end_copy_env189
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop189
+
+ end_copy_env189:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop189:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop189
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop189
+
+ end_param_loop189:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure189:
+ MAKE_CLOSURE(rax, r13, lcode189)
+ jmp lcont189
+
+ lcode189:
+ push rbp
+ mov rbp, rsp
+ mov r13, 2
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 1
+ jne start_env_copy190
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure190
+
+ start_env_copy190:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop190:                   ;Start copying env pointers
+ cmp r8, 1
+ je end_copy_env190
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop190
+
+ end_copy_env190:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop190:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop190
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop190
+
+ end_param_loop190:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure190:
+ MAKE_CLOSURE(rax, r13, lcode190)
+ jmp lcont190
+
+ lcode190:
+ push rbp
+ mov rbp, rsp
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont194:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse191
+
+ push SOB_NIL_ADDRESS
+ mov rax, const_tbl + 68
+ push rax
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 2]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont193:
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 1]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont192:
+ jmp Lexit191
+
+ Lelse191:
+ mov rax, const_tbl + 2
+
+ Lexit191:
+ leave 
+ ret
+
+ lcont190:
+ leave 
+ ret
+
+ lcont189:
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont188:
+ mov qword [fvar_tbl + 49], rax
+ mov rax, SOB_VOID_ADDRESS
+
+	call write_sob_if_not_void
+
+
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [fvar_tbl + 62]
+
+ push rax
+ mov rax, qword [fvar_tbl + 63]
+
+ push rax
+ push qword 2
+
+ mov r13, 1
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 0
+ jne start_env_copy196
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure196
+
+ start_env_copy196:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop196:                   ;Start copying env pointers
+ cmp r8, 0
+ je end_copy_env196
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop196
+
+ end_copy_env196:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop196:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop196
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop196
+
+ end_param_loop196:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure196:
+ MAKE_CLOSURE(rax, r13, lcode196)
+ jmp lcont196
+
+ lcode196:
+ push rbp
+ mov rbp, rsp
+ mov r13, 2
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 1
+ jne start_env_copy197
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure197
+
+ start_env_copy197:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop197:                   ;Start copying env pointers
+ cmp r8, 1
+ je end_copy_env197
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop197
+
+ end_copy_env197:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop197:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop197
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop197
+
+ end_param_loop197:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure197:
+ MAKE_CLOSURE(rax, r13, lcode197)
+ jmp lcont197
+
+ lcode197:
+ push rbp
+ mov rbp, rsp
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont199:
+ cmp rax, SOB_FALSE_ADDRESS 
+ jne Lexit198
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 1]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 6
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont200:
+
+ Lexit198:
+ leave 
+ ret
+
+ lcont197:
+ leave 
+ ret
+
+ lcont196:
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont195:
+ mov qword [fvar_tbl + 51], rax
+ mov rax, SOB_VOID_ADDRESS
+
+	call write_sob_if_not_void
+
+
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [fvar_tbl + 54]
+
+ push rax
+ mov rax, qword [fvar_tbl + 52]
+
+ push rax
+ push qword 2
+
+ mov r13, 1
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 0
+ jne start_env_copy202
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure202
+
+ start_env_copy202:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop202:                   ;Start copying env pointers
+ cmp r8, 0
+ je end_copy_env202
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop202
+
+ end_copy_env202:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop202:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop202
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop202
+
+ end_param_loop202:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure202:
+ MAKE_CLOSURE(rax, r13, lcode202)
+ jmp lcont202
+
+ lcode202:
+ push rbp
+ mov rbp, rsp
+ mov r13, 2
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 1
+ jne start_env_copy203
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure203
+
+ start_env_copy203:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop203:                   ;Start copying env pointers
+ cmp r8, 1
+ je end_copy_env203
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop203
+
+ end_copy_env203:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop203:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop203
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop203
+
+ end_param_loop203:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure203:
+ MAKE_CLOSURE(rax, r13, lcode203)
+ jmp lcont203
+
+ lcode203:
+ push rbp
+ mov rbp, rsp
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ mov rax, const_tbl + 25
+ push rax
+ mov r13, 3
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 2
+ jne start_env_copy205
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure205
+
+ start_env_copy205:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop205:                   ;Start copying env pointers
+ cmp r8, 2
+ je end_copy_env205
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop205
+
+ end_copy_env205:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop205:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop205
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop205
+
+ end_param_loop205:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure205:
+ MAKE_CLOSURE(rax, r13, lcode205)
+ jmp lcont205
+
+ lcode205:
+ push rbp
+ mov rbp, rsp
+ push SOB_NIL_ADDRESS
+ mov rax, const_tbl + 68
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 1]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont206:
+ leave 
+ ret
+
+ lcont205:
+ push rax
+ push qword 3
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 8
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont204:
+ leave 
+ ret
+
+ lcont203:
+ leave 
+ ret
+
+ lcont202:
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont201:
+ mov qword [fvar_tbl + 53], rax
+ mov rax, SOB_VOID_ADDRESS
+
+	call write_sob_if_not_void
+
+
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [fvar_tbl + 59]
+
+ push rax
+ mov rax, qword [fvar_tbl + 58]
+
+ push rax
+ mov rax, qword [fvar_tbl + 57]
+
+ push rax
+ mov rax, qword [fvar_tbl + 56]
+
+ push rax
+ mov rax, qword [fvar_tbl + 55]
+
+ push rax
+ push qword 5
+
+ mov r13, 1
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 0
+ jne start_env_copy208
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure208
+
+ start_env_copy208:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop208:                   ;Start copying env pointers
+ cmp r8, 0
+ je end_copy_env208
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop208
+
+ end_copy_env208:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop208:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop208
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop208
+
+ end_param_loop208:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure208:
+ MAKE_CLOSURE(rax, r13, lcode208)
+ jmp lcont208
+
+ lcode208:
+ push rbp
+ mov rbp, rsp
+ mov r13, 2
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 1
+ jne start_env_copy209
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure209
+
+ start_env_copy209:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop209:                   ;Start copying env pointers
+ cmp r8, 1
+ je end_copy_env209
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop209
+
+ end_copy_env209:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop209:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop209
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop209
+
+ end_param_loop209:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure209:
+ MAKE_CLOSURE(rax, r13, lcode209)
+ jmp lcont209
+
+ lcode209:
+ push rbp
+ mov rbp, rsp
+ push SOB_NIL_ADDRESS
+ mov rax, const_tbl + 59
+ push rax
+ push qword 1
+
+ mov r13, 3
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 2
+ jne start_env_copy211
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure211
+
+ start_env_copy211:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop211:                   ;Start copying env pointers
+ cmp r8, 2
+ je end_copy_env211
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop211
+
+ end_copy_env211:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop211:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop211
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop211
+
+ end_param_loop211:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure211:
+ MAKE_CLOSURE(rax, r13, lcode211)
+ jmp lcont211
+
+ lcode211:
+ push rbp
+ mov rbp, rsp
+
+
+ mov r13, 4
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 3
+ jne start_env_copy212
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure212
+
+ start_env_copy212:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop212:                   ;Start copying env pointers
+ cmp r8, 3
+ je end_copy_env212
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop212
+
+ end_copy_env212:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop212:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop212
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop212
+
+ end_param_loop212:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure212:
+ MAKE_CLOSURE(rax, r13, lcode212)
+ jmp lcont212
+
+ lcode212:
+ push rbp
+ mov rbp, rsp
+ push SOB_NIL_ADDRESS
+ mov rax, const_tbl + 25
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 2]
+ mov rax, qword [rax + WORD_SIZE * 2]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont218:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse213
+
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ jmp Lexit213
+
+ Lelse213:
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 2]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont217:
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 2]
+ mov rax, qword [rax + WORD_SIZE * 4]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont216:
+ push rax
+ push SOB_NIL_ADDRESS
+ mov rax, const_tbl + 68
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 2]
+ mov rax, qword [rax + WORD_SIZE * 3]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont215:
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont214:
+
+ Lexit213:
+ leave 
+ ret
+
+ lcont212:
+ mov qword [rbp + WORD_SIZE * (4 + 0)], rax
+ mov rax, SOB_VOID_ADDRESS
+
+
+ push SOB_NIL_ADDRESS
+ mov rax, const_tbl + 1
+ push rax
+ push SOB_NIL_ADDRESS
+ mov rax, const_tbl + 68
+ push rax
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 1]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont221:
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 3]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont220:
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont219:
+ leave 
+ ret
+
+ lcont211:
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 6
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont210:
+ leave 
+ ret
+
+ lcont209:
+ leave 
+ ret
+
+ lcont208:
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont207:
+ mov qword [fvar_tbl + 61], rax
+ mov rax, SOB_VOID_ADDRESS
+
+	call write_sob_if_not_void
+
+
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [fvar_tbl + 71]
+
+ push rax
+ mov rax, qword [fvar_tbl + 69]
+
+ push rax
+ mov rax, qword [fvar_tbl + 68]
+
+ push rax
+ mov rax, qword [fvar_tbl + 67]
+
+ push rax
+ mov rax, qword [fvar_tbl + 66]
+
+ push rax
+ mov rax, qword [fvar_tbl + 65]
+
+ push rax
+ mov rax, qword [fvar_tbl + 64]
+
+ push rax
+ mov rax, qword [fvar_tbl + 63]
+
+ push rax
+ mov rax, qword [fvar_tbl + 62]
+
+ push rax
+ mov rax, qword [fvar_tbl + 61]
+
+ push rax
+ mov rax, qword [fvar_tbl + 60]
+
+ push rax
+ push qword 11
+
+ mov r13, 1
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 0
+ jne start_env_copy223
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure223
+
+ start_env_copy223:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop223:                   ;Start copying env pointers
+ cmp r8, 0
+ je end_copy_env223
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop223
+
+ end_copy_env223:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop223:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop223
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop223
+
+ end_param_loop223:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure223:
+ MAKE_CLOSURE(rax, r13, lcode223)
+ jmp lcont223
+
+ lcode223:
+ push rbp
+ mov rbp, rsp
+ push SOB_NIL_ADDRESS
+ mov rax, const_tbl + 59
+ push rax
+ push qword 1
+
+ mov r13, 2
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 1
+ jne start_env_copy225
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure225
+
+ start_env_copy225:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop225:                   ;Start copying env pointers
+ cmp r8, 1
+ je end_copy_env225
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop225
+
+ end_copy_env225:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop225:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop225
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop225
+
+ end_param_loop225:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure225:
+ MAKE_CLOSURE(rax, r13, lcode225)
+ jmp lcont225
+
+ lcode225:
+ push rbp
+ mov rbp, rsp
+
+
+ MALLOC r11, 8
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ mov qword [r11] , rax
+ mov rax , r11
+ mov qword [rbp + WORD_SIZE * (4 + 0)], rax
+ mov rax, SOB_VOID_ADDRESS
+
+
+ mov r13, 3
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 2
+ jne start_env_copy226
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure226
+
+ start_env_copy226:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop226:                   ;Start copying env pointers
+ cmp r8, 2
+ je end_copy_env226
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop226
+
+ end_copy_env226:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop226:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop226
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop226
+
+ end_param_loop226:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure226:
+ MAKE_CLOSURE(rax, r13, lcode226)
+ jmp lcont226
+
+ lcode226:
+ push rbp
+ mov rbp, rsp
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 2]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont262:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse260
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 2]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont261:
+ jmp Lexit260
+
+ Lelse260:
+ mov rax, const_tbl + 2
+
+ Lexit260:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse227
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont259:
+ jmp Lexit227
+
+ Lelse227:
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 3]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont258:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse256
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 3]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont257:
+ jmp Lexit256
+
+ Lelse256:
+ mov rax, const_tbl + 2
+
+ Lexit256:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse228
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont255:
+ jmp Lexit228
+
+ Lelse228:
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 5]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont254:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse252
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 5]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont253:
+ jmp Lexit252
+
+ Lelse252:
+ mov rax, const_tbl + 2
+
+ Lexit252:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse229
+
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 10]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont251:
+ push rax
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 10]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont250:
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont249:
+ jmp Lexit229
+
+ Lelse229:
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 4]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont248:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse246
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 4]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont247:
+ jmp Lexit246
+
+ Lelse246:
+ mov rax, const_tbl + 2
+
+ Lexit246:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse230
+
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 8]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont245:
+ push rax
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 8]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont244:
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ mov rax, qword [rax]
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont243:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse239
+
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 9]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont242:
+ push rax
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 9]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont241:
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ mov rax, qword [rax]
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont240:
+ jmp Lexit239
+
+ Lelse239:
+ mov rax, const_tbl + 2
+
+ Lexit239:
+ jmp Lexit230
+
+ Lelse230:
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 6]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont238:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse236
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 6]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont237:
+ jmp Lexit236
+
+ Lelse236:
+ mov rax, const_tbl + 2
+
+ Lexit236:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse231
+
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 1]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont235:
+ push rax
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 1]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont234:
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ mov rax, qword [rax]
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont233:
+ jmp Lexit231
+
+ Lelse231:
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 7]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont232:
+
+ Lexit231:
+
+ Lexit230:
+
+ Lexit229:
+
+ Lexit228:
+
+ Lexit227:
+ leave 
+ ret
+
+ lcont226:
+ push rax 
+
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ pop qword [rax] 
+ mov rax, SOB_VOID_ADDRESS
+
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ mov rax, qword [rax]
+ leave 
+ ret
+
+ lcont225:
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 6
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont224:
+ leave 
+ ret
+
+ lcont223:
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont222:
+ mov qword [fvar_tbl + 70], rax
+ mov rax, SOB_VOID_ADDRESS
+
+	call write_sob_if_not_void
+
+
+
+ mov r13, 1
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 0
+ jne start_env_copy263
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure263
+
+ start_env_copy263:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop263:                   ;Start copying env pointers
+ cmp r8, 0
+ je end_copy_env263
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop263
+
+ end_copy_env263:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop263:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop263
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop263
+
+ end_param_loop263:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure263:
+ MAKE_CLOSURE(rax, r13, lcode263)
+ jmp lcont263
+
+ lcode263:
+ push rbp
+ mov rbp, rsp
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ leave 
+ ret
+
+ lcont263:
+ mov qword [fvar_tbl + 72], rax
+ mov rax, SOB_VOID_ADDRESS
+
+	call write_sob_if_not_void
+
+
+ push SOB_NIL_ADDRESS
+ mov rax, const_tbl + 153
+ push rax
+ push qword 1
+
+ mov rax, qword [fvar_tbl + 72]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont264:
 	call write_sob_if_not_void;;; Clean up the dummy frame, set the exit status to 0 ("success"), 
    ;;; and return from main
    pop rbp
@@ -537,7 +8734,9 @@ lt:
 	 movq xmm0, rsi
 	 FLOAT_VAL rdi, rdi
 	 movq xmm1, rdi
-	 ucomisd xmm0, xmm1
+	 cmpltpd xmm0, xmm1
+	 movq rsi, xmm0
+	 cmp rsi, 0
              jmp .op_return
           .lt_rat:
              DENOMINATOR rcx, rsi
@@ -727,5 +8926,107 @@ gcd:
        .end_loop:
 	 mov rdx, rax
          MAKE_RATIONAL(rax, rdx, 1)
+         pop rbp
+         ret
+
+car:
+       push rbp
+       mov rbp, rsp 
+       mov rsi, PVAR(0)
+	mov rax, qword [rsi + TYPE_SIZE]
+         pop rbp
+         ret
+
+cdr:
+       push rbp
+       mov rbp, rsp 
+       mov rsi, PVAR(0)
+	mov rax, qword [rsi + TYPE_SIZE + WORD_SIZE]
+         pop rbp
+         ret
+
+set_car:
+       push rbp
+       mov rbp, rsp 
+       mov rsi, PVAR(0)
+	mov rdi, PVAR(1)
+	mov qword [rsi + TYPE_SIZE], rdi
+       mov rax, SOB_VOID_ADDRESS
+         pop rbp
+         ret
+
+set_cdr:
+       push rbp
+       mov rbp, rsp 
+       mov rsi, PVAR(0)
+	mov rdi, PVAR(1)
+	mov qword [rsi + TYPE_SIZE + WORD_SIZE], rdi
+       mov rax, SOB_VOID_ADDRESS
+         pop rbp
+         ret
+
+cons:
+       push rbp
+       mov rbp, rsp 
+       mov rsi, PVAR(0)
+	mov rdi, PVAR(1)
+	MAKE_PAIR(rax, rsi, rdi)
+         pop rbp
+         ret
+
+apply:
+       push rbp
+       mov rbp, rsp 
+       mov rax, [rbp + 8 * 3]      ; rax = argc
+      dec rax
+      mov rax, PVAR(rax)          ; rax = last arg = list
+      mov rdx, 0                  ; rdx = list_size
+      
+      push_args:
+        cmp byte[rax], T_NIL
+        je end_push_args
+        CAR rbx, rax              ; rbx = car
+        push rbx
+        CDR rax, rax              ; rax = cdr
+        inc rdx
+        jmp push_args
+      end_push_args:
+      mov rsi,rdx                   ; rsi = list_size backup
+      mov rcx, 0                    ; i = 0 
+      mov rbx, rdx                  ; rbx = list_size
+      shr rbx, 1                    ; rbx = list_size/2
+      dec rdx                       ; rdx = list_size -1
+      _revert_args:
+        cmp rcx, rbx
+        jae end_revert_args
+        mov rax, [rsp + 8 * (rdx)]          ; rax = [rsp + 8*(list_size - i -1)]
+        mov rdi,[rsp+8*rcx]               
+        mov [rsp + 8 * rdx], rdi
+        mov [rsp + 8 * rcx],  rax
+        dec rdx
+        inc rcx
+        jmp _revert_args
+      end_revert_args:
+        mov rax, [rbp + 8 * 3]      ;rax = argc
+        mov rdi, rax                ;rdi = index
+        add rdi,2
+        push_objs:
+          cmp rdi, 4
+          jbe end_push_objs
+          push qword [rbp + 8 * rdi]
+          inc rsi
+          dec rdi
+          jmp push_objs
+        end_push_objs:
+        push rsi                    ;push number of args
+        mov rax, PVAR(0)            ; rax = closure of the procedure
+        CLOSURE_ENV rbx, rax
+        push rbx
+        CLOSURE_CODE rbx, rax
+        call rbx
+        add rsp, 8 * 1
+        pop rbx
+        shl rbx, 3
+        add rsp, rbx
          pop rbp
          ret

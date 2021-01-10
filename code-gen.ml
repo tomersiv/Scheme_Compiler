@@ -57,7 +57,7 @@ match const_list with
                   | Sexpr(Number(Float(x))) -> (create_const_tbl rest (const_table @ [(Sexpr(Number(Float(x))), (offset, "MAKE_LITERAL_FLOAT(" ^ (string_of_float x) ^ ")"))]) (offset + 9))
                   | Sexpr(String(str)) -> (create_const_tbl rest (const_table @ [(Sexpr(String(str)), (offset, "MAKE_LITERAL_STRING \"" ^ str ^ "\"" ))]) (offset + 9 + (String.length str)))
                   | Sexpr(Symbol(str)) -> (create_const_tbl rest (const_table @ [(Sexpr(Symbol(str)), (offset, "MAKE_LITERAL_SYMBOL(const_tbl+"^(string_of_int (find_offset const_table (String(str))))^")"))]) (offset + 9))
-                  | Sexpr(Pair(car, cdr)) -> (create_const_tbl rest (const_table @ [(Sexpr(Pair(car, cdr)) , (offset , "MAKE_LITERAL_PAIR(const_tbl+"^(string_of_int (find_offset const_table car))^", const_tbl+"^(string_of_int (find_offset const_table car))^")"))]) (offset + 17))
+                  | Sexpr(Pair(car, cdr)) -> (create_const_tbl rest (const_table @ [(Sexpr(Pair(car, cdr)) , (offset , "MAKE_LITERAL_PAIR(const_tbl+"^(string_of_int (find_offset const_table car))^", const_tbl+"^(string_of_int (find_offset const_table cdr))^")"))]) (offset + 17))
 )
 | [] -> const_table ;; 
 
@@ -203,7 +203,7 @@ match e with
                                                   "\n mov qword [fvar_tbl + " ^ (string_of_int (find_fvar_offset fvars varname)) ^ "], rax" ^
                                                   "\n mov rax, SOB_VOID_ADDRESS\n"
  
-| Seq'(exprs) -> String.concat "\n" (List.map (fun expr -> (generate_code consts fvars expr depth)) exprs)
+| Seq'(exprs) -> "\n" ^ String.concat "\n" (List.map (fun expr -> (generate_code consts fvars expr depth)) exprs)
 
 | Or'(exprs) -> let label = label_counter_gen  in
                 let label = (label true) in 
@@ -228,62 +228,62 @@ match e with
               "\n mov rax , r11"
 
 | LambdaSimple'(args, body) -> let label = label_counter_gen in
-              let label = (label true) in
-              "\n mov r13, " ^ string_of_int (depth + 1) ^ 
-              "\n shl r13, 3" ^
-              "\n MALLOC r13, r13                                  ; ExtEnv pointer" ^
-              "\n mov r11, 0" ^                                 
-              "\n cmp r11, " ^ (string_of_int depth) ^
-              "\n jne start_env_copy" ^ label ^
-              "\n mov r13, SOB_NIL_ADDRESS"^
-              "\n jmp make_closure" ^ label ^ 
-              "\n\n start_env_copy" ^ label ^ ":"^
-              "\n mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer"^
-              "\n mov r8, 0" ^
-              "\n mov rbx, 0                                       ; i" ^
-              "\n mov rcx, 1                                       ; j" ^
-              "\n shl rcx, 3" ^
-              "\n\n env_pointer_loop" ^ label ^ ":                   ;Start copying env pointers" ^                             
-              "\n cmp r8, " ^ (string_of_int depth) ^
-              "\n je end_copy_env" ^ label ^
-              "\n mov r11, qword [r12 + rbx]" ^ 
-              "\n mov [r13 + rcx], r11" ^
-              "\n add rbx, 8" ^
-              "\n add rcx, 8" ^
-              "\n add r8, 1" ^
-              "\n jmp env_pointer_loop" ^ label ^
+                              let label = (label true) in
+                              "\n mov r13, " ^ string_of_int (depth + 1) ^ 
+                              "\n shl r13, 3" ^
+                              "\n MALLOC r13, r13                                  ; ExtEnv pointer" ^
+                              "\n mov r11, 0" ^                                 
+                              "\n cmp r11, " ^ (string_of_int depth) ^
+                              "\n jne start_env_copy" ^ label ^
+                              "\n mov r13, SOB_NIL_ADDRESS"^
+                              "\n jmp make_closure" ^ label ^ 
+                              "\n\n start_env_copy" ^ label ^ ":"^
+                              "\n mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer"^
+                              "\n mov r8, 0" ^
+                              "\n mov rbx, 0                                       ; i" ^
+                              "\n mov rcx, 1                                       ; j" ^
+                              "\n shl rcx, 3" ^
+                              "\n\n env_pointer_loop" ^ label ^ ":                   ;Start copying env pointers" ^                             
+                              "\n cmp r8, " ^ (string_of_int depth) ^
+                              "\n je end_copy_env" ^ label ^
+                              "\n mov r11, qword [r12 + rbx]" ^ 
+                              "\n mov [r13 + rcx], r11" ^
+                              "\n add rbx, 8" ^
+                              "\n add rcx, 8" ^
+                              "\n add r8, 1" ^
+                              "\n jmp env_pointer_loop" ^ label ^
 
-              "\n\n end_copy_env" ^ label ^ ":" ^
-              "\n mov rcx, PARAM_COUNT                                ; n" ^
-              "\n add rcx, 1" ^
-              "\n shl rcx, 3" ^ 
-              "\n MALLOC rcx, rcx" ^
-              "\n mov qword [r13], rcx" ^
-              "\n mov r9, 0                                           ; ExtEnv[0][i]" ^
-              "\n mov r11, 0" ^                                        
-              "\n\n params_copy_loop" ^ label ^ ":                    ;Start copying params" ^
-              "\n cmp r9, PARAM_COUNT                                 ; loop condition" ^
-              "\n je end_param_loop" ^ label ^
-              "\n mov rdx, qword [rbp + WORD_SIZE * 4 + r11]" ^
-              "\n mov qword [rcx + r11], rdx" ^
-              "\n add r9, 1" ^
-              "\n add r11, 8" ^
-              "\n jmp params_copy_loop" ^ label ^
-              
-              "\n\n end_param_loop" ^ label ^ ":" ^ 
-              "\n mov qword [rcx + r11], SOB_NIL_ADDRESS" ^
-                 
-              "\n\n make_closure"^ label ^ ":" ^ 
-              "\n MAKE_CLOSURE(rax, r13, lcode" ^ label ^ ")" ^
-              "\n jmp lcont" ^ label ^
+                              "\n\n end_copy_env" ^ label ^ ":" ^
+                              "\n mov rcx, PARAM_COUNT                                ; n" ^
+                              "\n add rcx, 1" ^
+                              "\n shl rcx, 3" ^ 
+                              "\n MALLOC rcx, rcx" ^
+                              "\n mov qword [r13], rcx" ^
+                              "\n mov r9, 0                                           ; ExtEnv[0][i]" ^
+                              "\n mov r11, 0" ^                                        
+                              "\n\n params_copy_loop" ^ label ^ ":                    ;Start copying params" ^
+                              "\n cmp r9, PARAM_COUNT                                 ; loop condition" ^
+                              "\n je end_param_loop" ^ label ^
+                              "\n mov rdx, qword [rbp + WORD_SIZE * 4 + r11]" ^
+                              "\n mov qword [rcx + r11], rdx" ^
+                              "\n add r9, 1" ^
+                              "\n add r11, 8" ^
+                              "\n jmp params_copy_loop" ^ label ^
+                              
+                              "\n\n end_param_loop" ^ label ^ ":" ^ 
+                              "\n mov qword [rcx + r11], SOB_NIL_ADDRESS" ^
+                                  
+                              "\n\n make_closure"^ label ^ ":" ^ 
+                              "\n MAKE_CLOSURE(rax, r13, lcode" ^ label ^ ")" ^
+                              "\n jmp lcont" ^ label ^
 
-              "\n\n lcode" ^ label ^ ":" ^
-              "\n push rbp" ^
-              "\n mov rbp, rsp"
-              ^ (generate_code consts fvars body (depth + 1)) ^ 
-              "\n leave \n ret" ^
+                              "\n\n lcode" ^ label ^ ":" ^
+                              "\n push rbp" ^
+                              "\n mov rbp, rsp"
+                              ^ (generate_code consts fvars body (depth + 1)) ^ 
+                              "\n leave \n ret" ^
 
-              "\n\n lcont" ^ label ^ ":"
+                              "\n\n lcont" ^ label ^ ":"
 
 | LambdaOpt'(args, optArg, body) -> let label = label_counter_gen in
                                     let label = (label true) in
@@ -373,52 +373,49 @@ match e with
 
 (*TODO maybe need to use magic here*)   
 | Applic'(rator, rands) -> let label = (label_counter_gen) in
-                                    let label = (label true) in
-                                   "\n push SOB_NIL_ADDRESS" ^ 
-                                   (String.concat ""
-                                   (List.rev (List.map (fun rand -> (generate_code consts fvars rand depth) ^ "\n push rax") rands))) ^
-                                   "\n push qword " ^ string_of_int (List.length rands) ^ "\n" ^
-                                   (generate_code consts fvars rator depth) ^
-                                   "\n CLOSURE_ENV rbx, rax  ;env" ^
-                                   "\n CLOSURE_CODE rcx, rax  ;code" ^
-                                   "\n push rbx" ^
-                                   "\n call rcx" ^
-                                   
-                                   "\n add rsp, WORD_SIZE" ^
-                                   "\n pop rbx" ^
-                                   "\n shl rbx, 3" ^
-                                   "\n add rsp, rbx" ^
-                                   "\n add rsp, WORD_SIZE" ^
+                          let label = (label true) in
+                          "\n push SOB_NIL_ADDRESS" ^ 
+                          (String.concat ""
+                          (List.rev (List.map (fun rand -> (generate_code consts fvars rand depth) ^ "\n push rax") rands))) ^
+                          "\n push qword " ^ string_of_int (List.length rands) ^ "\n" ^
+                          (generate_code consts fvars rator depth) ^
+                          "\n CLOSURE_ENV rbx, rax  ;env" ^
+                          "\n CLOSURE_CODE rcx, rax  ;code" ^
+                          "\n push rbx" ^
+                          "\n call rcx" ^
+                          
+                          "\n add rsp, WORD_SIZE" ^
+                          "\n pop rbx" ^
+                          "\n shl rbx, 3" ^
+                          "\n add rsp, rbx" ^
+                          "\n add rsp, WORD_SIZE" ^
 
-                                   "\n\n lcont" ^ label ^ ":"
+                          "\n\n lcont" ^ label ^ ":"
  
-| ApplicTP' (rator,rands) -> 
-      let label = (label_counter_gen) in
-                                    let label = (label true) in
-                                   "\n push SOB_NIL_ADDRESS" ^ 
-                                   (String.concat ""
-                                   (List.rev (List.map (fun rand -> (generate_code consts fvars rand depth) ^ "\n push rax") rands))) ^
-                                   "\n push qword " ^ string_of_int (List.length rands) ^ "\n" ^
-                                   (generate_code consts fvars rator depth) ^
+| ApplicTP' (rator,rands) -> let label = (label_counter_gen) in
+                            let label = (label true) in
+                            "\n push SOB_NIL_ADDRESS" ^ 
+                            (String.concat ""
+                            (List.rev (List.map (fun rand -> (generate_code consts fvars rand depth) ^ "\n push rax") rands))) ^
+                            "\n push qword " ^ string_of_int (List.length rands) ^ "\n" ^
+                            (generate_code consts fvars rator depth) ^
 
-                                   "\n CAR r13, rax" ^ 
-                                   "\n push r13 ; env" ^
-                                   "\n push qword [rbp + 8 * 1] ; old ret addr" ^
+                            "\n CAR r13, rax" ^ 
+                            "\n push r13 ; env" ^
+                            "\n push qword [rbp + 8 * 1] ; old ret addr" ^
 
-                                   "\n ;fix the stack" ^
-                                   "\n mov rcx, PARAM_COUNT" ^
-                                   "\n mov rbx, rbp             ; old rbp" ^
-                                   "\n SHIFT_FRAME " ^ string_of_int (5 + List.length (rands)) ^  
-                                   "\n add rcx, 5" ^
-                                   "\n shl rcx, 3" ^  
-                                   "\n add rsp, rcx" ^
-                                   "\n mov rbp, [rbx]" ^
-                                   "\n ;finished fixing the stack" ^
-                                   
-                                   "\n CDR rdx, rax" ^
-                                   "\n jmp rdx                 ;jmp code" ^ 
-                                    
-                                   "\n\n lcont" ^ label ^ ":"
+                            "\n mov rcx, PARAM_COUNT" ^
+                            "\n mov rbx, rbp             ; old rbp" ^
+                            "\n SHIFT_FRAME " ^ string_of_int (5 + List.length (rands)) ^  
+                            "\n add rcx, 5" ^
+                            "\n shl rcx, 3" ^  
+                            "\n add rsp, rcx" ^
+                            "\n mov rbp, [rbx]" ^
+                            
+                            "\n CDR rdx, rax" ^
+                            "\n jmp rdx                 ;jmp code" ^ 
+                            
+                            "\n\n lcont" ^ label ^ ":"
 
 | _ -> "" ;;                      
 
