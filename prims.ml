@@ -321,22 +321,73 @@ module Prims : PRIMS = struct
        mov rax, SOB_VOID_ADDRESS", make_binary, "set_cdr";
 
       (*cons*)
-      "MAKE_PAIR(rax, rsi, rdi)", make_binary, "cons"
-
-      (*apply*)
-      (* let body =
-      "mov rsi, PVAR(1)
-      " *)
+      "MAKE_PAIR(rax, rsi, rdi)", make_binary, "cons";
 
       ] in
 
     String.concat "\n\n" (List.map (fun (a, b, c) -> (b c a)) misc_parts);;
 
+    (*apply*)
+    let apply =
+    let apply_body = 
+      "mov rcx, PARAM_COUNT
+       mov rax, PVAR (rcx - 1)   ; rax holds the last argument which is a list 
+       xor rcx, rcx              ; will hold the list's length
+   push_list_args:
+       cmp rax, SOB_NIL_ADDRESS
+       je finish_push_args
+       CAR rbx, rax
+       push rbx
+       CDR rax, rax
+       inc rcx
+       jmp push_list_args
+   finish_push_args:
+       mov rdx, rcx            
+       mov rdi, rcx              ; rdi holds list's length
+       dec rdi
+       shl rdi, 3             
+       xor rsi, rsi
+       shr rcx, 1                ; list.length / 2
+   reverse_args_loop:
+       cmp rcx, 0
+       mov rax, qword [rsp + rdi]  
+       mov rbx, qword [rsp + rsi]
+       mov qword [rsp + rdi], rbx
+       mov qword [rsp + rsi], rax
+       dec rcx
+       sub rdi, 8
+       add rsi, 8
+       jmp reverse_args_loop
+   end_reverse_args:
+       mov rcx, PARAM_COUNT
+       add rcx, 2
+       shl rcx, 3                ; rcx holds the number of cells to the first object
+   push_objects:
+       cmp rcx, 4 * WORD_SIZE
+       je finish_push_objects
+       push qword [rbp + rcx]
+       inc rdx
+       sub rcx, 8
+       jmp push_objects
+   finish_push_objects:
+       push rdx                  ; rdx is the total args number (including list)
+       mov rax, PVAR(0)          ; rax holds the closure     
+       CLOSURE_ENV rdx, rax
+       push rdx
+       CLOSURE_CODE rdx, rax
+       call rdx
+       add rsp, 8               
+       pop rdx
+       shl rdx, 3
+       add rsp, rdx              ; restore stack pointer"
+       
+       in
+       make_routine "apply" apply_body
   
 
 
   (* This is the interface of the module. It constructs a large x86 64-bit string using the routines
      defined above. The main compiler pipline code (in compiler.ml) calls into this module to get the
      string of primitive procedures. *)
-  let procs = String.concat "\n\n" [type_queries ; numeric_ops; misc_ops];;
+  let procs = String.concat "\n\n" [type_queries ; numeric_ops; misc_ops; apply];;
 end;;

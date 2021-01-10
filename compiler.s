@@ -17,6 +17,9 @@
 %define MB(n) 1024*KB(n)
 %define GB(n) 1024*MB(n)
 
+%define PARAM_COUNT qword [rbp+3*WORD_SIZE]
+
+
 %macro SHIFT_FRAME 1
 	push rax
 	push rbx
