@@ -128,7 +128,7 @@ module Prims : PRIMS = struct
        and not 64 bits.
      - `lt.flt` does not handle NaN, +inf and -inf correctly. This allows us to use `return_boolean jl` for both the
        floating-point and the fraction cases. For a fully correct implementation, `lt.flt` should make use of
-       `return_boolean jb` instead (see https://www.felixcloutier.com/x86/ucomisd for more information).
+       the `ucomisd` opcode and `return_boolean jb` instead (see https://www.felixcloutier.com/x86/ucomisd for more information).
    *)
   let numeric_ops =
     let numeric_op name flt_body rat_body body_wrapper =      
@@ -199,7 +199,9 @@ module Prims : PRIMS = struct
 	 movq xmm0, rsi
 	 FLOAT_VAL rdi, rdi
 	 movq xmm1, rdi
-	 ucomisd xmm0, xmm1", "lt";
+	 cmpltpd xmm0, xmm1
+	 movq rsi, xmm0
+	 cmp rsi, 0", "lt";
       ] in
     let comparator comp_wrapper name flt_body rat_body = numeric_op name flt_body rat_body comp_wrapper in
     (String.concat "\n\n" (List.map (fun (a, b, c) -> arith c b a (fun x -> x)) arith_map)) ^
@@ -304,9 +306,10 @@ module Prims : PRIMS = struct
 	 jmp .loop	
        .end_loop:
 	 mov rdx, rax
-         MAKE_RATIONAL(rax, rdx, 1)", make_binary, "gcd";
-
-      (*car*)
+         MAKE_RATIONAL(rax, rdx, 1)", make_binary, "gcd"; 
+         
+          
+       (*car*)
       "mov rax, qword [rsi + TYPE_SIZE]", make_unary, "car";
 
       (*cdr*)
@@ -330,56 +333,57 @@ module Prims : PRIMS = struct
     (*apply*)
     let apply =
     let apply_body = 
-      "mov rcx, PARAM_COUNT
-       mov rax, PVAR (rcx - 1)   ; rax holds the last argument which is a list 
-       xor rcx, rcx              ; will hold the list's length
-   push_list_args:
-       cmp rax, SOB_NIL_ADDRESS
-       je finish_push_args
-       CAR rbx, rax
-       push rbx
-       CDR rax, rax
-       inc rcx
-       jmp push_list_args
-   finish_push_args:
-       mov rdx, rcx            
-       mov rdi, rcx              ; rdi holds list's length
-       dec rdi
-       shl rdi, 3             
-       xor rsi, rsi
-       shr rcx, 1                ; list.length / 2
-   reverse_args_loop:
-       cmp rcx, 0
-       mov rax, qword [rsp + rdi]  
-       mov rbx, qword [rsp + rsi]
-       mov qword [rsp + rdi], rbx
-       mov qword [rsp + rsi], rax
-       dec rcx
-       sub rdi, 8
-       add rsi, 8
-       jmp reverse_args_loop
-   end_reverse_args:
-       mov rcx, PARAM_COUNT
-       add rcx, 2
-       shl rcx, 3                ; rcx holds the number of cells to the first object
-   push_objects:
-       cmp rcx, 4 * WORD_SIZE
-       je finish_push_objects
-       push qword [rbp + rcx]
-       inc rdx
-       sub rcx, 8
-       jmp push_objects
-   finish_push_objects:
-       push rdx                  ; rdx is the total args number (including list)
-       mov rax, PVAR(0)          ; rax holds the closure     
-       CLOSURE_ENV rdx, rax
-       push rdx
-       CLOSURE_CODE rdx, rax
-       call rdx
-       add rsp, 8               
-       pop rdx
-       shl rdx, 3
-       add rsp, rdx              ; restore stack pointer"
+      "mov rax, [rbp + 8 * 3]      ; rax = argc
+      dec rax
+      mov rax, PVAR(rax)          ; rax = last arg = list
+      mov rdx, 0                  ; rdx = list_size
+      
+      push_args:
+        cmp byte[rax], T_NIL
+        je end_push_args
+        CAR rbx, rax              ; rbx = car
+        push rbx
+        CDR rax, rax              ; rax = cdr
+        inc rdx
+        jmp push_args
+      end_push_args:
+      mov rsi,rdx                   ; rsi = list_size backup
+      mov rcx, 0                    ; i = 0 
+      mov rbx, rdx                  ; rbx = list_size
+      shr rbx, 1                    ; rbx = list_size/2
+      dec rdx                       ; rdx = list_size -1
+      _revert_args:
+        cmp rcx, rbx
+        jae end_revert_args
+        mov rax, [rsp + 8 * (rdx)]          ; rax = [rsp + 8*(list_size - i -1)]
+        mov rdi,[rsp+8*rcx]               
+        mov [rsp + 8 * rdx], rdi
+        mov [rsp + 8 * rcx],  rax
+        dec rdx
+        inc rcx
+        jmp _revert_args
+      end_revert_args:
+        mov rax, [rbp + 8 * 3]      ;rax = argc
+        mov rdi, rax                ;rdi = index
+        add rdi,2
+        push_objs:
+          cmp rdi, 4
+          jbe end_push_objs
+          push qword [rbp + 8 * rdi]
+          inc rsi
+          dec rdi
+          jmp push_objs
+        end_push_objs:
+        push rsi                    ;push number of args
+        mov rax, PVAR(0)            ; rax = closure of the procedure
+        CLOSURE_ENV rbx, rax
+        push rbx
+        CLOSURE_CODE rbx, rax
+        call rbx
+        add rsp, 8 * 1
+        pop rbx
+        shl rbx, 3
+        add rsp, rbx"
        
        in
        make_routine "apply" apply_body
@@ -391,3 +395,4 @@ module Prims : PRIMS = struct
      string of primitive procedures. *)
   let procs = String.concat "\n\n" [type_queries ; numeric_ops; misc_ops; apply];;
 end;;
+

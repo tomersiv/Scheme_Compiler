@@ -374,12 +374,13 @@ match e with
 (*TODO maybe need to use magic here*)   
 | Applic'(rator, rands) -> let label = (label_counter_gen) in
                                     let label = (label true) in
+                                   "\n push SOB_NIL_ADDRESS" ^ 
                                    (String.concat ""
                                    (List.rev (List.map (fun rand -> (generate_code consts fvars rand depth) ^ "\n push rax") rands))) ^
                                    "\n push qword " ^ string_of_int (List.length rands) ^ "\n" ^
                                    (generate_code consts fvars rator depth) ^
-                                   "\n CAR rbx, rax  ;env" ^
-                                   "\n CDR rcx, rax  ;code" ^
+                                   "\n CLOSURE_ENV rbx, rax  ;env" ^
+                                   "\n CLOSURE_CODE rcx, rax  ;code" ^
                                    "\n push rbx" ^
                                    "\n call rcx" ^
                                    
@@ -387,7 +388,8 @@ match e with
                                    "\n pop rbx" ^
                                    "\n shl rbx, 3" ^
                                    "\n add rsp, rbx" ^
-                                   
+                                   "\n add rsp, WORD_SIZE" ^
+
                                    "\n\n lcont" ^ label ^ ":"
  
 | ApplicTP' (rator,rands) -> 
