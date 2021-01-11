@@ -203,7 +203,7 @@ match e with
                                                   "\n mov qword [fvar_tbl + " ^ (string_of_int (find_fvar_offset fvars varname)) ^ "], rax" ^
                                                   "\n mov rax, SOB_VOID_ADDRESS\n"
  
-| Seq'(exprs) -> String.concat "\n" (List.map (fun expr -> (generate_code consts fvars expr depth)) exprs)
+| Seq'(exprs) -> "\n" ^ String.concat "\n" (List.map (fun expr -> (generate_code consts fvars expr depth)) exprs)
 
 | Or'(exprs) -> let label = label_counter_gen  in
                 let label = (label true) in 
@@ -228,62 +228,62 @@ match e with
               "\n mov rax , r11"
 
 | LambdaSimple'(args, body) -> let label = label_counter_gen in
-              let label = (label true) in
-              "\n mov r13, " ^ string_of_int (depth + 1) ^ 
-              "\n shl r13, 3" ^
-              "\n MALLOC r13, r13                                  ; ExtEnv pointer" ^
-              "\n mov r11, 0" ^                                 
-              "\n cmp r11, " ^ (string_of_int depth) ^
-              "\n jne start_env_copy" ^ label ^
-              "\n mov r13, SOB_NIL_ADDRESS"^
-              "\n jmp make_closure" ^ label ^ 
-              "\n\n start_env_copy" ^ label ^ ":"^
-              "\n mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer"^
-              "\n mov r8, 0" ^
-              "\n mov rbx, 0                                       ; i" ^
-              "\n mov rcx, 1                                       ; j" ^
-              "\n shl rcx, 3" ^
-              "\n\n env_pointer_loop" ^ label ^ ":                   ;Start copying env pointers" ^                             
-              "\n cmp r8, " ^ (string_of_int depth) ^
-              "\n je end_copy_env" ^ label ^
-              "\n mov r11, qword [r12 + rbx]" ^ 
-              "\n mov [r13 + rcx], r11" ^
-              "\n add rbx, 8" ^
-              "\n add rcx, 8" ^
-              "\n add r8, 1" ^
-              "\n jmp env_pointer_loop" ^ label ^
+                              let label = (label true) in
+                              "\n mov r13, " ^ string_of_int (depth + 1) ^ 
+                              "\n shl r13, 3" ^
+                              "\n MALLOC r13, r13                                  ; ExtEnv pointer" ^
+                              "\n mov r11, 0" ^                                 
+                              "\n cmp r11, " ^ (string_of_int depth) ^
+                              "\n jne start_env_copy" ^ label ^
+                              "\n mov r13, SOB_NIL_ADDRESS"^
+                              "\n jmp make_closure" ^ label ^ 
+                              "\n\n start_env_copy" ^ label ^ ":"^
+                              "\n mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer"^
+                              "\n mov r8, 0" ^
+                              "\n mov rbx, 0                                       ; i" ^
+                              "\n mov rcx, 1                                       ; j" ^
+                              "\n shl rcx, 3" ^
+                              "\n\n env_pointer_loop" ^ label ^ ":                   ;Start copying env pointers" ^                             
+                              "\n cmp r8, " ^ (string_of_int depth) ^
+                              "\n je end_copy_env" ^ label ^
+                              "\n mov r11, qword [r12 + rbx]" ^ 
+                              "\n mov [r13 + rcx], r11" ^
+                              "\n add rbx, 8" ^
+                              "\n add rcx, 8" ^
+                              "\n add r8, 1" ^
+                              "\n jmp env_pointer_loop" ^ label ^
 
-              "\n\n end_copy_env" ^ label ^ ":" ^
-              "\n mov rcx, PARAM_COUNT                                ; n" ^
-              "\n add rcx, 1" ^
-              "\n shl rcx, 3" ^ 
-              "\n MALLOC rcx, rcx" ^
-              "\n mov qword [r13], rcx" ^
-              "\n mov r9, 0                                           ; ExtEnv[0][i]" ^
-              "\n mov r11, 0" ^                                        
-              "\n\n params_copy_loop" ^ label ^ ":                    ;Start copying params" ^
-              "\n cmp r9, PARAM_COUNT                                 ; loop condition" ^
-              "\n je end_param_loop" ^ label ^
-              "\n mov rdx, qword [rbp + WORD_SIZE * 4 + r11]" ^
-              "\n mov qword [rcx + r11], rdx" ^
-              "\n add r9, 1" ^
-              "\n add r11, 8" ^
-              "\n jmp params_copy_loop" ^ label ^
-              
-              "\n\n end_param_loop" ^ label ^ ":" ^ 
-              "\n mov qword [rcx + r11], SOB_NIL_ADDRESS" ^
-                 
-              "\n\n make_closure"^ label ^ ":" ^ 
-              "\n MAKE_CLOSURE(rax, r13, lcode" ^ label ^ ")" ^
-              "\n jmp lcont" ^ label ^
+                              "\n\n end_copy_env" ^ label ^ ":" ^
+                              "\n mov rcx, PARAM_COUNT                                ; n" ^
+                              "\n add rcx, 1" ^
+                              "\n shl rcx, 3" ^ 
+                              "\n MALLOC rcx, rcx" ^
+                              "\n mov qword [r13], rcx" ^
+                              "\n mov r9, 0                                           ; ExtEnv[0][i]" ^
+                              "\n mov r11, 0" ^                                        
+                              "\n\n params_copy_loop" ^ label ^ ":                    ;Start copying params" ^
+                              "\n cmp r9, PARAM_COUNT                                 ; loop condition" ^
+                              "\n je end_param_loop" ^ label ^
+                              "\n mov rdx, qword [rbp + WORD_SIZE * 4 + r11]" ^
+                              "\n mov qword [rcx + r11], rdx" ^
+                              "\n add r9, 1" ^
+                              "\n add r11, 8" ^
+                              "\n jmp params_copy_loop" ^ label ^
+                              
+                              "\n\n end_param_loop" ^ label ^ ":" ^ 
+                              "\n mov qword [rcx + r11], SOB_NIL_ADDRESS" ^
+                                  
+                              "\n\n make_closure"^ label ^ ":" ^ 
+                              "\n MAKE_CLOSURE(rax, r13, lcode" ^ label ^ ")" ^
+                              "\n jmp lcont" ^ label ^
 
-              "\n\n lcode" ^ label ^ ":" ^
-              "\n push rbp" ^
-              "\n mov rbp, rsp"
-              ^ (generate_code consts fvars body (depth + 1)) ^ 
-              "\n leave \n ret" ^
+                              "\n\n lcode" ^ label ^ ":" ^
+                              "\n push rbp" ^
+                              "\n mov rbp, rsp"
+                              ^ (generate_code consts fvars body (depth + 1)) ^ 
+                              "\n leave \n ret" ^
 
-              "\n\n lcont" ^ label ^ ":"
+                              "\n\n lcont" ^ label ^ ":"
 
 | LambdaOpt'(args, optArg, body) -> let label = label_counter_gen in
                                     let label = (label true) in

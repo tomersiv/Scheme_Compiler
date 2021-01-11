@@ -23,9 +23,19 @@ MAKE_LITERAL_RATIONAL(-1,1)
 MAKE_LITERAL_RATIONAL(0,1)
 MAKE_LITERAL_RATIONAL(1,1)
 MAKE_LITERAL_STRING "whatever"
+<<<<<<< HEAD
 MAKE_LITERAL_SYMBOL(const_tbl+59)
 MAKE_LITERAL_RATIONAL(2,1)
 MAKE_LITERAL_RATIONAL(3,1)
+=======
+MAKE_LITERAL_SYMBOL(const_tbl+42)
+MAKE_LITERAL_RATIONAL(1,1)
+MAKE_LITERAL_RATIONAL(2,1)
+MAKE_LITERAL_RATIONAL(3,1)
+MAKE_LITERAL_PAIR(const_tbl+102, const_tbl+1)
+MAKE_LITERAL_PAIR(const_tbl+85, const_tbl+119)
+MAKE_LITERAL_PAIR(const_tbl+68, const_tbl+136)
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
 
 ;;; These macro definitions are required for the primitive
 ;;; definitions in the epilogue to work properly
@@ -61,6 +71,7 @@ main:
 MAKE_CLOSURE(rax, SOB_NIL_ADDRESS, boolean?)
 mov [fvar_tbl+0], rax
 MAKE_CLOSURE(rax, SOB_NIL_ADDRESS, flonum?)
+<<<<<<< HEAD
 mov [fvar_tbl+304], rax
 MAKE_CLOSURE(rax, SOB_NIL_ADDRESS, rational?)
 mov [fvar_tbl+296], rax
@@ -122,6 +133,57 @@ MAKE_CLOSURE(rax, SOB_NIL_ADDRESS, set_car)
 mov [fvar_tbl+48], rax
 MAKE_CLOSURE(rax, SOB_NIL_ADDRESS, set_cdr)
 mov [fvar_tbl+56], rax
+=======
+mov [fvar_tbl+63], rax
+MAKE_CLOSURE(rax, SOB_NIL_ADDRESS, rational?)
+mov [fvar_tbl+62], rax
+MAKE_CLOSURE(rax, SOB_NIL_ADDRESS, pair?)
+mov [fvar_tbl+64], rax
+MAKE_CLOSURE(rax, SOB_NIL_ADDRESS, null?)
+mov [fvar_tbl+46], rax
+MAKE_CLOSURE(rax, SOB_NIL_ADDRESS, char?)
+mov [fvar_tbl+65], rax
+MAKE_CLOSURE(rax, SOB_NIL_ADDRESS, string?)
+mov [fvar_tbl+66], rax
+MAKE_CLOSURE(rax, SOB_NIL_ADDRESS, procedure?)
+mov [fvar_tbl+9], rax
+MAKE_CLOSURE(rax, SOB_NIL_ADDRESS, symbol?)
+mov [fvar_tbl+10], rax
+MAKE_CLOSURE(rax, SOB_NIL_ADDRESS, string_length)
+mov [fvar_tbl+56], rax
+MAKE_CLOSURE(rax, SOB_NIL_ADDRESS, string_ref)
+mov [fvar_tbl+55], rax
+MAKE_CLOSURE(rax, SOB_NIL_ADDRESS, string_set)
+mov [fvar_tbl+13], rax
+MAKE_CLOSURE(rax, SOB_NIL_ADDRESS, make_string)
+mov [fvar_tbl+37], rax
+MAKE_CLOSURE(rax, SOB_NIL_ADDRESS, symbol_to_string)
+mov [fvar_tbl+15], rax
+MAKE_CLOSURE(rax, SOB_NIL_ADDRESS, char_to_integer)
+mov [fvar_tbl+71], rax
+MAKE_CLOSURE(rax, SOB_NIL_ADDRESS, integer_to_char)
+mov [fvar_tbl+18], rax
+MAKE_CLOSURE(rax, SOB_NIL_ADDRESS, exact_to_inexact)
+mov [fvar_tbl+39], rax
+MAKE_CLOSURE(rax, SOB_NIL_ADDRESS, eq?)
+mov [fvar_tbl+67], rax
+MAKE_CLOSURE(rax, SOB_NIL_ADDRESS, add)
+mov [fvar_tbl+54], rax
+MAKE_CLOSURE(rax, SOB_NIL_ADDRESS, mul)
+mov [fvar_tbl+42], rax
+MAKE_CLOSURE(rax, SOB_NIL_ADDRESS, div)
+mov [fvar_tbl+41], rax
+MAKE_CLOSURE(rax, SOB_NIL_ADDRESS, eq)
+mov [fvar_tbl+60], rax
+MAKE_CLOSURE(rax, SOB_NIL_ADDRESS, lt)
+mov [fvar_tbl+57], rax
+MAKE_CLOSURE(rax, SOB_NIL_ADDRESS, numerator)
+mov [fvar_tbl+38], rax
+MAKE_CLOSURE(rax, SOB_NIL_ADDRESS, denominator)
+mov [fvar_tbl+50], rax
+MAKE_CLOSURE(rax, SOB_NIL_ADDRESS, gcd)
+mov [fvar_tbl+47], rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
 
 user_code_fragment:
 ;;; The code you compiled will be added here.
@@ -130,6 +192,7 @@ user_code_fragment:
 
 
  push SOB_NIL_ADDRESS
+<<<<<<< HEAD
  mov rax, qword [fvar_tbl + 152]
 
  push rax
@@ -143,6 +206,21 @@ user_code_fragment:
 
  push rax
  mov rax, qword [fvar_tbl + 176]
+=======
+ mov rax, qword [fvar_tbl + 43]
+
+ push rax
+ mov rax, qword [fvar_tbl + 59]
+
+ push rax
+ mov rax, qword [fvar_tbl + 69]
+
+ push rax
+ mov rax, qword [fvar_tbl + 68]
+
+ push rax
+ mov rax, qword [fvar_tbl + 46]
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
 
  push rax
  push qword 5
@@ -202,9 +280,15 @@ user_code_fragment:
  push rbp
  mov rbp, rsp
  push SOB_NIL_ADDRESS
+<<<<<<< HEAD
  mov rax, const_tbl + 76
  push rax
  mov rax, const_tbl + 76
+=======
+ mov rax, const_tbl + 59
+ push rax
+ mov rax, const_tbl + 59
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  push rax
  push qword 2
 
@@ -263,6 +347,10 @@ user_code_fragment:
  push rbp
  mov rbp, rsp
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  MALLOC r11, 8
  mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
 
@@ -348,8 +436,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 1]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -366,8 +459,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -402,8 +500,13 @@ user_code_fragment:
 
  mov rax, qword [rax]
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -424,8 +527,13 @@ user_code_fragment:
 
  mov rax, qword [rax]
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -453,8 +561,13 @@ user_code_fragment:
 
  mov rax, qword [rax]
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -474,8 +587,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 4]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -491,10 +609,16 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 1]
  mov rax, qword [rax + WORD_SIZE * 3]
 
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 7
@@ -502,8 +626,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont6:
@@ -585,8 +713,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -615,8 +748,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 2]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -637,8 +775,13 @@ user_code_fragment:
 
  mov rax, qword [rax]
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -660,8 +803,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 1]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -676,8 +824,13 @@ user_code_fragment:
  mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -693,10 +846,16 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 1]
  mov rax, qword [rax + WORD_SIZE * 3]
 
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 7
@@ -704,8 +863,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont15:
@@ -820,10 +983,16 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
 
  mov rax, qword [rax]
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 7
@@ -831,8 +1000,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont22:
@@ -844,10 +1017,16 @@ user_code_fragment:
  ret
 
  lcont3:
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 7
@@ -855,8 +1034,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont2:
@@ -865,8 +1048,13 @@ user_code_fragment:
 
  lcont1:
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -875,7 +1063,11 @@ user_code_fragment:
  add rsp, WORD_SIZE
 
  lcont0:
+<<<<<<< HEAD
  mov qword [fvar_tbl + 128], rax
+=======
+ mov qword [fvar_tbl + 40], rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rax, SOB_VOID_ADDRESS
 
 	call write_sob_if_not_void
@@ -883,6 +1075,7 @@ user_code_fragment:
 
 
  push SOB_NIL_ADDRESS
+<<<<<<< HEAD
  mov rax, qword [fvar_tbl + 352]
 
  push rax
@@ -890,6 +1083,15 @@ user_code_fragment:
 
  push rax
  mov rax, qword [fvar_tbl + 176]
+=======
+ mov rax, qword [fvar_tbl + 69]
+
+ push rax
+ mov rax, qword [fvar_tbl + 68]
+
+ push rax
+ mov rax, qword [fvar_tbl + 46]
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
 
  push rax
  push qword 3
@@ -1013,8 +1215,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -1043,8 +1250,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 2]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -1066,8 +1278,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 1]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -1085,8 +1302,13 @@ user_code_fragment:
  mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -1101,12 +1323,20 @@ user_code_fragment:
  push rax
  push qword 3
 
+<<<<<<< HEAD
  mov rax, qword [fvar_tbl + 224]
 
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ mov rax, qword [fvar_tbl + 52]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 8
@@ -1114,8 +1344,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont27:
@@ -1130,8 +1364,13 @@ user_code_fragment:
 
  lcont24:
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -1140,7 +1379,11 @@ user_code_fragment:
  add rsp, WORD_SIZE
 
  lcont23:
+<<<<<<< HEAD
  mov qword [fvar_tbl + 224], rax
+=======
+ mov qword [fvar_tbl + 52], rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rax, SOB_VOID_ADDRESS
 
 	call write_sob_if_not_void
@@ -1148,6 +1391,7 @@ user_code_fragment:
 
 
  push SOB_NIL_ADDRESS
+<<<<<<< HEAD
  mov rax, qword [fvar_tbl + 352]
 
  push rax
@@ -1155,6 +1399,15 @@ user_code_fragment:
 
  push rax
  mov rax, qword [fvar_tbl + 176]
+=======
+ mov rax, qword [fvar_tbl + 69]
+
+ push rax
+ mov rax, qword [fvar_tbl + 68]
+
+ push rax
+ mov rax, qword [fvar_tbl + 46]
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
 
  push rax
  push qword 3
@@ -1278,8 +1531,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -1309,8 +1567,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 2]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -1328,11 +1591,19 @@ user_code_fragment:
  push rax
  push qword 3
 
+<<<<<<< HEAD
  mov rax, qword [fvar_tbl + 72]
 
  CLOSURE_ENV rbx, rax  ;env
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ mov rax, qword [fvar_tbl + 33]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -1353,8 +1624,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 1]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -1368,10 +1644,16 @@ user_code_fragment:
 
  mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
 
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 7
@@ -1379,8 +1661,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont36:
@@ -1395,8 +1681,13 @@ user_code_fragment:
 
  lcont33:
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -1405,7 +1696,11 @@ user_code_fragment:
  add rsp, WORD_SIZE
 
  lcont32:
+<<<<<<< HEAD
  mov qword [fvar_tbl + 72], rax
+=======
+ mov qword [fvar_tbl + 33], rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rax, SOB_VOID_ADDRESS
 
 	call write_sob_if_not_void
@@ -1413,6 +1708,7 @@ user_code_fragment:
 
 
  push SOB_NIL_ADDRESS
+<<<<<<< HEAD
  mov rax, qword [fvar_tbl + 152]
 
  push rax
@@ -1426,6 +1722,21 @@ user_code_fragment:
 
  push rax
  mov rax, qword [fvar_tbl + 176]
+=======
+ mov rax, qword [fvar_tbl + 43]
+
+ push rax
+ mov rax, qword [fvar_tbl + 59]
+
+ push rax
+ mov rax, qword [fvar_tbl + 69]
+
+ push rax
+ mov rax, qword [fvar_tbl + 68]
+
+ push rax
+ mov rax, qword [fvar_tbl + 46]
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
 
  push rax
  push qword 5
@@ -1580,8 +1891,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 2]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -1598,8 +1914,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -1621,10 +1942,16 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
  mov rax, qword [rax + WORD_SIZE * 1]
 
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 6
@@ -1632,8 +1959,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont49:
@@ -1653,8 +1984,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 2]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -1664,7 +2000,11 @@ user_code_fragment:
 
  lcont48:
  push rax
+<<<<<<< HEAD
  mov rax, qword [fvar_tbl + 64]
+=======
+ mov rax, qword [fvar_tbl + 32]
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
 
  push rax
  push qword 2
@@ -1674,8 +2014,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 4]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -1696,8 +2041,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 1]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -1713,10 +2063,16 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
  mov rax, qword [rax + WORD_SIZE * 3]
 
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 7
@@ -1724,8 +2080,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont45:
@@ -1740,8 +2100,13 @@ user_code_fragment:
 
  lcont42:
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -1750,7 +2115,11 @@ user_code_fragment:
  add rsp, WORD_SIZE
 
  lcont41:
+<<<<<<< HEAD
  mov qword [fvar_tbl + 64], rax
+=======
+ mov qword [fvar_tbl + 32], rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rax, SOB_VOID_ADDRESS
 
 	call write_sob_if_not_void
@@ -1758,6 +2127,7 @@ user_code_fragment:
 
 
  push SOB_NIL_ADDRESS
+<<<<<<< HEAD
  mov rax, qword [fvar_tbl + 272]
 
  push rax
@@ -1765,6 +2135,15 @@ user_code_fragment:
 
  push rax
  mov rax, qword [fvar_tbl + 176]
+=======
+ mov rax, qword [fvar_tbl + 59]
+
+ push rax
+ mov rax, qword [fvar_tbl + 33]
+
+ push rax
+ mov rax, qword [fvar_tbl + 46]
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
 
  push rax
  push qword 3
@@ -1978,8 +2357,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -2014,10 +2398,16 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 1]
  mov rax, qword [rax + WORD_SIZE * 1]
 
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 8
@@ -2025,8 +2415,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont58:
@@ -2043,10 +2437,16 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
  mov rax, qword [rax + WORD_SIZE * 1]
 
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 8
@@ -2054,8 +2454,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont55:
@@ -2068,8 +2472,13 @@ user_code_fragment:
 
  lcont53:
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -2078,7 +2487,11 @@ user_code_fragment:
  add rsp, WORD_SIZE
 
  lcont52:
+<<<<<<< HEAD
  mov qword [fvar_tbl + 80], rax
+=======
+ mov qword [fvar_tbl + 34], rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rax, SOB_VOID_ADDRESS
 
 	call write_sob_if_not_void
@@ -2175,7 +2588,11 @@ user_code_fragment:
  ret
 
  lcont60:
+<<<<<<< HEAD
  mov qword [fvar_tbl + 88], rax
+=======
+ mov qword [fvar_tbl + 35], rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rax, SOB_VOID_ADDRESS
 
 	call write_sob_if_not_void
@@ -2183,6 +2600,7 @@ user_code_fragment:
 
 
  push SOB_NIL_ADDRESS
+<<<<<<< HEAD
  mov rax, qword [fvar_tbl + 352]
 
  push rax
@@ -2190,6 +2608,15 @@ user_code_fragment:
 
  push rax
  mov rax, qword [fvar_tbl + 176]
+=======
+ mov rax, qword [fvar_tbl + 69]
+
+ push rax
+ mov rax, qword [fvar_tbl + 64]
+
+ push rax
+ mov rax, qword [fvar_tbl + 46]
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
 
  push rax
  push qword 3
@@ -2249,7 +2676,11 @@ user_code_fragment:
  push rbp
  mov rbp, rsp
  push SOB_NIL_ADDRESS
+<<<<<<< HEAD
  mov rax, const_tbl + 76
+=======
+ mov rax, const_tbl + 59
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  push rax
  push qword 1
 
@@ -2308,6 +2739,10 @@ user_code_fragment:
  push rbp
  mov rbp, rsp
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov r13, 3
  shl r13, 3
  MALLOC r13, r13                                  ; ExtEnv pointer
@@ -2373,8 +2808,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -2397,8 +2837,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 1]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -2422,8 +2867,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 2]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -2435,12 +2885,20 @@ user_code_fragment:
  push rax
  push qword 1
 
+<<<<<<< HEAD
  mov rax, qword [fvar_tbl + 96]
 
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ mov rax, qword [fvar_tbl + 36]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 6
@@ -2448,8 +2906,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont69:
@@ -2475,10 +2937,16 @@ user_code_fragment:
  ret
 
  lcont64:
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 6
@@ -2486,8 +2954,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont63:
@@ -2496,8 +2968,13 @@ user_code_fragment:
 
  lcont62:
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -2506,7 +2983,11 @@ user_code_fragment:
  add rsp, WORD_SIZE
 
  lcont61:
+<<<<<<< HEAD
  mov qword [fvar_tbl + 96], rax
+=======
+ mov qword [fvar_tbl + 36], rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rax, SOB_VOID_ADDRESS
 
 	call write_sob_if_not_void
@@ -2514,6 +2995,7 @@ user_code_fragment:
 
 
  push SOB_NIL_ADDRESS
+<<<<<<< HEAD
  mov rax, qword [fvar_tbl + 104]
 
  push rax
@@ -2521,6 +3003,15 @@ user_code_fragment:
 
  push rax
  mov rax, qword [fvar_tbl + 176]
+=======
+ mov rax, qword [fvar_tbl + 37]
+
+ push rax
+ mov rax, qword [fvar_tbl + 68]
+
+ push rax
+ mov rax, qword [fvar_tbl + 46]
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
 
  push rax
  push qword 3
@@ -2674,8 +3165,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -2699,10 +3195,16 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
  mov rax, qword [rax + WORD_SIZE * 2]
 
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 7
@@ -2710,8 +3212,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont78:
@@ -2730,8 +3236,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 1]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -2750,10 +3261,16 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
  mov rax, qword [rax + WORD_SIZE * 2]
 
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 7
@@ -2761,8 +3278,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont76:
@@ -2777,8 +3298,13 @@ user_code_fragment:
 
  lcont73:
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -2787,7 +3313,11 @@ user_code_fragment:
  add rsp, WORD_SIZE
 
  lcont72:
+<<<<<<< HEAD
  mov qword [fvar_tbl + 104], rax
+=======
+ mov qword [fvar_tbl + 37], rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rax, SOB_VOID_ADDRESS
 
 	call write_sob_if_not_void
@@ -2864,13 +3394,18 @@ user_code_fragment:
  ret
 
  lcont80:
+<<<<<<< HEAD
  mov qword [fvar_tbl + 160], rax
+=======
+ mov qword [fvar_tbl + 44], rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rax, SOB_VOID_ADDRESS
 
 	call write_sob_if_not_void
 
 
  push SOB_NIL_ADDRESS
+<<<<<<< HEAD
  mov rax, qword [fvar_tbl + 176]
 
  push rax
@@ -2908,6 +3443,45 @@ user_code_fragment:
 
  push rax
  mov rax, qword [fvar_tbl + 304]
+=======
+ mov rax, qword [fvar_tbl + 46]
+
+ push rax
+ mov rax, qword [fvar_tbl + 69]
+
+ push rax
+ mov rax, qword [fvar_tbl + 68]
+
+ push rax
+ mov rax, qword [fvar_tbl + 57]
+
+ push rax
+ mov rax, qword [fvar_tbl + 60]
+
+ push rax
+ mov rax, qword [fvar_tbl + 41]
+
+ push rax
+ mov rax, qword [fvar_tbl + 42]
+
+ push rax
+ mov rax, qword [fvar_tbl + 54]
+
+ push rax
+ mov rax, qword [fvar_tbl + 40]
+
+ push rax
+ mov rax, qword [fvar_tbl + 52]
+
+ push rax
+ mov rax, qword [fvar_tbl + 39]
+
+ push rax
+ mov rax, qword [fvar_tbl + 62]
+
+ push rax
+ mov rax, qword [fvar_tbl + 63]
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
 
  push rax
  push qword 13
@@ -3086,8 +3660,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -3110,8 +3689,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 1]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -3141,8 +3725,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 2]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -3161,10 +3750,16 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
  mov rax, qword [rax + WORD_SIZE * 0]
 
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 7
@@ -3172,8 +3767,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont142:
@@ -3191,8 +3790,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 1]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -3215,8 +3819,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -3249,8 +3858,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 2]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -3266,10 +3880,16 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
  mov rax, qword [rax + WORD_SIZE * 0]
 
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 7
@@ -3277,8 +3897,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont137:
@@ -3298,10 +3922,16 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
  mov rax, qword [rax + WORD_SIZE * 0]
 
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 7
@@ -3309,8 +3939,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont136:
@@ -3383,6 +4017,10 @@ user_code_fragment:
  lcode85:
  push rbp
  mov rbp, rsp
+<<<<<<< HEAD
+=======
+
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  push SOB_NIL_ADDRESS
  mov r13, 3
  shl r13, 3
@@ -3449,8 +4087,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -3475,11 +4118,19 @@ user_code_fragment:
  push rax
  push qword 1
 
+<<<<<<< HEAD
  mov rax, qword [fvar_tbl + 208]
 
  CLOSURE_ENV rbx, rax  ;env
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ mov rax, qword [fvar_tbl + 50]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -3495,11 +4146,19 @@ user_code_fragment:
  push rax
  push qword 1
 
+<<<<<<< HEAD
  mov rax, qword [fvar_tbl + 112]
 
  CLOSURE_ENV rbx, rax  ;env
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ mov rax, qword [fvar_tbl + 38]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -3511,11 +4170,19 @@ user_code_fragment:
  push rax
  push qword 2
 
+<<<<<<< HEAD
  mov rax, qword [fvar_tbl + 184]
 
  CLOSURE_ENV rbx, rax  ;env
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ mov rax, qword [fvar_tbl + 47]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -3594,11 +4261,19 @@ user_code_fragment:
  push rax
  push qword 1
 
+<<<<<<< HEAD
  mov rax, qword [fvar_tbl + 208]
 
  CLOSURE_ENV rbx, rax  ;env
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ mov rax, qword [fvar_tbl + 50]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -3615,8 +4290,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 7]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -3638,11 +4318,19 @@ user_code_fragment:
  push rax
  push qword 1
 
+<<<<<<< HEAD
  mov rax, qword [fvar_tbl + 112]
 
  CLOSURE_ENV rbx, rax  ;env
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ mov rax, qword [fvar_tbl + 38]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -3659,8 +4347,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 7]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -3676,10 +4369,16 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 2]
  mov rax, qword [rax + WORD_SIZE * 7]
 
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 7
@@ -3687,8 +4386,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont109:
@@ -3696,10 +4399,16 @@ user_code_fragment:
  ret
 
  lcont108:
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 6
@@ -3707,8 +4416,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont107:
@@ -3776,6 +4489,10 @@ user_code_fragment:
  push rbp
  mov rbp, rsp
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov r13, 4
  shl r13, 3
  MALLOC r13, r13                      ; ExtEnv pointer
@@ -3880,8 +4597,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -3898,8 +4620,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 3]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -3915,10 +4642,16 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
  mov rax, qword [rax + WORD_SIZE * 0]
 
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 6
@@ -3926,8 +4659,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont89:
@@ -3935,7 +4672,11 @@ user_code_fragment:
  ret
 
  lcont88:
+<<<<<<< HEAD
  mov qword [fvar_tbl + 376], rax
+=======
+ mov qword [fvar_tbl + 54], rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rax, SOB_VOID_ADDRESS
 
 
@@ -4029,7 +4770,11 @@ user_code_fragment:
  mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
 
  push rax
+<<<<<<< HEAD
  mov rax, const_tbl + 42
+=======
+ mov rax, const_tbl + 68
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  push rax
  push SOB_NIL_ADDRESS
  mov rax, qword [rbp + WORD_SIZE * 2] 
@@ -4044,8 +4789,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -4062,8 +4812,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 3]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -4079,10 +4834,16 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
  mov rax, qword [rax + WORD_SIZE * 0]
 
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 6
@@ -4090,8 +4851,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont93:
@@ -4099,7 +4864,11 @@ user_code_fragment:
  ret
 
  lcont92:
+<<<<<<< HEAD
  mov qword [fvar_tbl + 144], rax
+=======
+ mov qword [fvar_tbl + 42], rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rax, SOB_VOID_ADDRESS
 
 
@@ -4118,8 +4887,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -4280,8 +5054,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 12]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -4297,7 +5076,11 @@ user_code_fragment:
  mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
 
  push rax
+<<<<<<< HEAD
  mov rax, const_tbl + 42
+=======
+ mov rax, const_tbl + 68
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  push rax
  push qword 2
 
@@ -4305,10 +5088,16 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
  mov rax, qword [rax + WORD_SIZE * 0]
 
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 7
@@ -4316,8 +5105,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont102:
@@ -4344,8 +5137,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 3]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -4361,10 +5159,16 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 1]
  mov rax, qword [rax + WORD_SIZE * 0]
 
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 6
@@ -4372,8 +5176,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont100:
@@ -4388,8 +5196,13 @@ user_code_fragment:
 
  lcont97:
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -4398,7 +5211,11 @@ user_code_fragment:
  add rsp, WORD_SIZE
 
  lcont96:
+<<<<<<< HEAD
  mov qword [fvar_tbl + 136], rax
+=======
+ mov qword [fvar_tbl + 41], rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rax, SOB_VOID_ADDRESS
 
  leave 
@@ -4406,8 +5223,13 @@ user_code_fragment:
 
  lcont87:
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -4630,10 +5452,16 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 1]
  mov rax, qword [rax + WORD_SIZE * 0]
 
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 7
@@ -4641,8 +5469,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont131:
@@ -4658,8 +5490,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 4]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -4749,10 +5586,16 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 2]
  mov rax, qword [rax + WORD_SIZE * 3]
 
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 8
@@ -4760,8 +5603,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont126:
@@ -4831,6 +5678,10 @@ user_code_fragment:
  push rbp
  mov rbp, rsp
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  push SOB_NIL_ADDRESS
  push SOB_NIL_ADDRESS
  mov rax, qword [rbp + WORD_SIZE * 2] 
@@ -4845,8 +5696,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -4861,8 +5717,13 @@ user_code_fragment:
  mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -4871,7 +5732,11 @@ user_code_fragment:
  add rsp, WORD_SIZE
 
  lcont120:
+<<<<<<< HEAD
  mov qword [fvar_tbl + 280], rax
+=======
+ mov qword [fvar_tbl + 60], rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rax, SOB_VOID_ADDRESS
 
 
@@ -4890,8 +5755,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -4906,8 +5776,13 @@ user_code_fragment:
  mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -4916,17 +5791,27 @@ user_code_fragment:
  add rsp, WORD_SIZE
 
  lcont122:
+<<<<<<< HEAD
  mov qword [fvar_tbl + 256], rax
+=======
+ mov qword [fvar_tbl + 57], rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rax, SOB_VOID_ADDRESS
 
  leave 
  ret
 
  lcont119:
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 6
@@ -4934,8 +5819,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont118:
@@ -4943,10 +5832,16 @@ user_code_fragment:
  ret
 
  lcont85:
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 6
@@ -4954,8 +5849,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont84:
@@ -4964,8 +5863,13 @@ user_code_fragment:
 
  lcont83:
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -4979,6 +5883,7 @@ user_code_fragment:
 
 
  push SOB_NIL_ADDRESS
+<<<<<<< HEAD
  mov rax, qword [fvar_tbl + 176]
 
  push rax
@@ -4986,6 +5891,15 @@ user_code_fragment:
 
  push rax
  mov rax, qword [fvar_tbl + 152]
+=======
+ mov rax, qword [fvar_tbl + 46]
+
+ push rax
+ mov rax, qword [fvar_tbl + 54]
+
+ push rax
+ mov rax, qword [fvar_tbl + 43]
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
 
  push rax
  push qword 3
@@ -5139,8 +6053,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 2]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -5161,11 +6080,19 @@ user_code_fragment:
  push rax
  push qword 2
 
+<<<<<<< HEAD
  mov rax, qword [fvar_tbl + 144]
 
  CLOSURE_ENV rbx, rax  ;env
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ mov rax, qword [fvar_tbl + 42]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -5183,10 +6110,16 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
  mov rax, qword [rax + WORD_SIZE * 1]
 
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 7
@@ -5194,8 +6127,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont154:
@@ -5220,8 +6157,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -5235,11 +6177,19 @@ user_code_fragment:
  push rax
  push qword 2
 
+<<<<<<< HEAD
  mov rax, qword [fvar_tbl + 144]
 
  CLOSURE_ENV rbx, rax  ;env
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ mov rax, qword [fvar_tbl + 42]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -5258,10 +6208,16 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
  mov rax, qword [rax + WORD_SIZE * 1]
 
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 7
@@ -5269,8 +6225,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont151:
@@ -5285,8 +6245,13 @@ user_code_fragment:
 
  lcont148:
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -5295,7 +6260,11 @@ user_code_fragment:
  add rsp, WORD_SIZE
 
  lcont147:
+<<<<<<< HEAD
  mov qword [fvar_tbl + 264], rax
+=======
+ mov qword [fvar_tbl + 58], rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rax, SOB_VOID_ADDRESS
 
 	call write_sob_if_not_void
@@ -5303,6 +6272,7 @@ user_code_fragment:
 
 
  push SOB_NIL_ADDRESS
+<<<<<<< HEAD
  mov rax, qword [fvar_tbl + 224]
 
  push rax
@@ -5316,6 +6286,21 @@ user_code_fragment:
 
  push rax
  mov rax, qword [fvar_tbl + 176]
+=======
+ mov rax, qword [fvar_tbl + 52]
+
+ push rax
+ mov rax, qword [fvar_tbl + 60]
+
+ push rax
+ mov rax, qword [fvar_tbl + 57]
+
+ push rax
+ mov rax, qword [fvar_tbl + 44]
+
+ push rax
+ mov rax, qword [fvar_tbl + 46]
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
 
  push rax
  push qword 5
@@ -5540,8 +6525,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 2]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -5569,8 +6559,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 3]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -5588,10 +6583,16 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 1]
  mov rax, qword [rax + WORD_SIZE * 1]
 
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 6
@@ -5599,8 +6600,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont163:
@@ -5621,10 +6626,16 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
  mov rax, qword [rax + WORD_SIZE * 4]
 
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 8
@@ -5632,8 +6643,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont160:
@@ -5646,8 +6661,13 @@ user_code_fragment:
 
  lcont158:
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -5656,7 +6676,11 @@ user_code_fragment:
  add rsp, WORD_SIZE
 
  lcont157:
+<<<<<<< HEAD
  mov qword [fvar_tbl + 168], rax
+=======
+ mov qword [fvar_tbl + 45], rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rax, SOB_VOID_ADDRESS
 
 	call write_sob_if_not_void
@@ -5664,6 +6688,7 @@ user_code_fragment:
 
 
  push SOB_NIL_ADDRESS
+<<<<<<< HEAD
  mov rax, qword [fvar_tbl + 352]
 
  push rax
@@ -5674,6 +6699,18 @@ user_code_fragment:
 
  push rax
  mov rax, qword [fvar_tbl + 184]
+=======
+ mov rax, qword [fvar_tbl + 69]
+
+ push rax
+ mov rax, qword [fvar_tbl + 68]
+
+ push rax
+ mov rax, qword [fvar_tbl + 46]
+
+ push rax
+ mov rax, qword [fvar_tbl + 47]
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
 
  push rax
  push qword 4
@@ -5733,7 +6770,11 @@ user_code_fragment:
  push rbp
  mov rbp, rsp
  push SOB_NIL_ADDRESS
+<<<<<<< HEAD
  mov rax, const_tbl + 76
+=======
+ mov rax, const_tbl + 59
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  push rax
  push qword 1
 
@@ -5792,6 +6833,10 @@ user_code_fragment:
  push rbp
  mov rbp, rsp
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  MALLOC r11, 8
  mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
 
@@ -5866,8 +6911,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 1]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -5896,8 +6946,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 3]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -5919,8 +6974,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 2]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -5940,8 +7000,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -5958,10 +7023,16 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
 
  mov rax, qword [rax]
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 7
@@ -5969,8 +7040,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont173:
@@ -6082,8 +7157,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 1]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -6111,8 +7191,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 3]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -6133,8 +7218,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 2]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -6151,10 +7241,16 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
 
  mov rax, qword [rax]
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 7
@@ -6162,8 +7258,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont180:
@@ -6177,10 +7277,16 @@ user_code_fragment:
  ret
 
  lcont170:
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 6
@@ -6188,8 +7294,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont169:
@@ -6198,8 +7308,13 @@ user_code_fragment:
 
  lcont168:
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -6208,7 +7323,11 @@ user_code_fragment:
  add rsp, WORD_SIZE
 
  lcont167:
+<<<<<<< HEAD
  mov qword [fvar_tbl + 184], rax
+=======
+ mov qword [fvar_tbl + 47], rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rax, SOB_VOID_ADDRESS
 
 	call write_sob_if_not_void
@@ -6216,7 +7335,11 @@ user_code_fragment:
 
 
  push SOB_NIL_ADDRESS
+<<<<<<< HEAD
  mov rax, qword [fvar_tbl + 280]
+=======
+ mov rax, qword [fvar_tbl + 60]
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
 
  push rax
  push qword 1
@@ -6341,10 +7464,16 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
  mov rax, qword [rax + WORD_SIZE * 0]
 
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 7
@@ -6352,8 +7481,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont187:
@@ -6366,8 +7499,13 @@ user_code_fragment:
 
  lcont185:
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -6376,7 +7514,11 @@ user_code_fragment:
  add rsp, WORD_SIZE
 
  lcont184:
+<<<<<<< HEAD
  mov qword [fvar_tbl + 192], rax
+=======
+ mov qword [fvar_tbl + 48], rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rax, SOB_VOID_ADDRESS
 
 	call write_sob_if_not_void
@@ -6384,6 +7526,7 @@ user_code_fragment:
 
 
  push SOB_NIL_ADDRESS
+<<<<<<< HEAD
  mov rax, qword [fvar_tbl + 208]
 
  push rax
@@ -6391,6 +7534,15 @@ user_code_fragment:
 
  push rax
  mov rax, qword [fvar_tbl + 296]
+=======
+ mov rax, qword [fvar_tbl + 50]
+
+ push rax
+ mov rax, qword [fvar_tbl + 60]
+
+ push rax
+ mov rax, qword [fvar_tbl + 62]
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
 
  push rax
  push qword 3
@@ -6514,8 +7666,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -6528,7 +7685,11 @@ user_code_fragment:
  je Lelse191
 
  push SOB_NIL_ADDRESS
+<<<<<<< HEAD
  mov rax, const_tbl + 42
+=======
+ mov rax, const_tbl + 68
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  push rax
  push SOB_NIL_ADDRESS
  mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
@@ -6541,8 +7702,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 2]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -6558,10 +7724,16 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
  mov rax, qword [rax + WORD_SIZE * 1]
 
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 7
@@ -6569,8 +7741,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont192:
@@ -6589,8 +7765,13 @@ user_code_fragment:
 
  lcont189:
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -6599,7 +7780,11 @@ user_code_fragment:
  add rsp, WORD_SIZE
 
  lcont188:
+<<<<<<< HEAD
  mov qword [fvar_tbl + 200], rax
+=======
+ mov qword [fvar_tbl + 49], rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rax, SOB_VOID_ADDRESS
 
 	call write_sob_if_not_void
@@ -6607,10 +7792,17 @@ user_code_fragment:
 
 
  push SOB_NIL_ADDRESS
+<<<<<<< HEAD
  mov rax, qword [fvar_tbl + 296]
 
  push rax
  mov rax, qword [fvar_tbl + 304]
+=======
+ mov rax, qword [fvar_tbl + 62]
+
+ push rax
+ mov rax, qword [fvar_tbl + 63]
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
 
  push rax
  push qword 2
@@ -6734,8 +7926,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -6757,10 +7954,16 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
  mov rax, qword [rax + WORD_SIZE * 1]
 
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 6
@@ -6768,8 +7971,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont200:
@@ -6784,8 +7991,13 @@ user_code_fragment:
 
  lcont196:
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -6794,7 +8006,11 @@ user_code_fragment:
  add rsp, WORD_SIZE
 
  lcont195:
+<<<<<<< HEAD
  mov qword [fvar_tbl + 216], rax
+=======
+ mov qword [fvar_tbl + 51], rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rax, SOB_VOID_ADDRESS
 
 	call write_sob_if_not_void
@@ -6802,10 +8018,17 @@ user_code_fragment:
 
 
  push SOB_NIL_ADDRESS
+<<<<<<< HEAD
  mov rax, qword [fvar_tbl + 376]
 
  push rax
  mov rax, qword [fvar_tbl + 224]
+=======
+ mov rax, qword [fvar_tbl + 54]
+
+ push rax
+ mov rax, qword [fvar_tbl + 52]
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
 
  push rax
  push qword 2
@@ -6979,7 +8202,11 @@ user_code_fragment:
  push rbp
  mov rbp, rsp
  push SOB_NIL_ADDRESS
+<<<<<<< HEAD
  mov rax, const_tbl + 42
+=======
+ mov rax, const_tbl + 68
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  push rax
  mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
 
@@ -6990,10 +8217,16 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 1]
  mov rax, qword [rax + WORD_SIZE * 1]
 
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 7
@@ -7001,8 +8234,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont206:
@@ -7017,10 +8254,16 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
  mov rax, qword [rax + WORD_SIZE * 0]
 
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 8
@@ -7028,8 +8271,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont204:
@@ -7042,8 +8289,13 @@ user_code_fragment:
 
  lcont202:
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -7052,7 +8304,11 @@ user_code_fragment:
  add rsp, WORD_SIZE
 
  lcont201:
+<<<<<<< HEAD
  mov qword [fvar_tbl + 232], rax
+=======
+ mov qword [fvar_tbl + 53], rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rax, SOB_VOID_ADDRESS
 
 	call write_sob_if_not_void
@@ -7060,6 +8316,7 @@ user_code_fragment:
 
 
  push SOB_NIL_ADDRESS
+<<<<<<< HEAD
  mov rax, qword [fvar_tbl + 272]
 
  push rax
@@ -7073,6 +8330,21 @@ user_code_fragment:
 
  push rax
  mov rax, qword [fvar_tbl + 240]
+=======
+ mov rax, qword [fvar_tbl + 59]
+
+ push rax
+ mov rax, qword [fvar_tbl + 58]
+
+ push rax
+ mov rax, qword [fvar_tbl + 57]
+
+ push rax
+ mov rax, qword [fvar_tbl + 56]
+
+ push rax
+ mov rax, qword [fvar_tbl + 55]
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
 
  push rax
  push qword 5
@@ -7186,7 +8458,11 @@ user_code_fragment:
  push rbp
  mov rbp, rsp
  push SOB_NIL_ADDRESS
+<<<<<<< HEAD
  mov rax, const_tbl + 76
+=======
+ mov rax, const_tbl + 59
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  push rax
  push qword 1
 
@@ -7245,6 +8521,10 @@ user_code_fragment:
  push rbp
  mov rbp, rsp
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov r13, 4
  shl r13, 3
  MALLOC r13, r13                                  ; ExtEnv pointer
@@ -7312,8 +8592,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 2]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -7351,8 +8636,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -7369,8 +8659,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 4]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -7381,7 +8676,11 @@ user_code_fragment:
  lcont216:
  push rax
  push SOB_NIL_ADDRESS
+<<<<<<< HEAD
  mov rax, const_tbl + 42
+=======
+ mov rax, const_tbl + 68
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  push rax
  mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
 
@@ -7393,8 +8692,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 3]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -7410,10 +8714,16 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 0]
  mov rax, qword [rax + WORD_SIZE * 0]
 
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 7
@@ -7421,8 +8731,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont214:
@@ -7440,7 +8754,11 @@ user_code_fragment:
  mov rax, const_tbl + 1
  push rax
  push SOB_NIL_ADDRESS
+<<<<<<< HEAD
  mov rax, const_tbl + 42
+=======
+ mov rax, const_tbl + 68
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  push rax
  push SOB_NIL_ADDRESS
  mov rax, qword [rbp + WORD_SIZE * 2] 
@@ -7455,8 +8773,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 1]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -7473,8 +8796,13 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 3]
 
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -7488,10 +8816,16 @@ user_code_fragment:
 
  mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
 
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 7
@@ -7499,8 +8833,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont219:
@@ -7508,10 +8846,16 @@ user_code_fragment:
  ret
 
  lcont211:
+<<<<<<< HEAD
  CLOSURE_ENV r13, rax
  push r13 ; env
  push qword [rbp + 8 * 1] ; old ret addr
  ;fix the stack
+=======
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rcx, PARAM_COUNT
  mov rbx, rbp             ; old rbp
  SHIFT_FRAME 6
@@ -7519,8 +8863,12 @@ user_code_fragment:
  shl rcx, 3
  add rsp, rcx
  mov rbp, [rbx]
+<<<<<<< HEAD
  ;finished fixing the stack
  CLOSURE_CODE rdx, rax
+=======
+ CDR rdx, rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  jmp rdx                 ;jmp code
 
  lcont210:
@@ -7533,8 +8881,13 @@ user_code_fragment:
 
  lcont208:
  CLOSURE_ENV rbx, rax  ;env
+<<<<<<< HEAD
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -7543,7 +8896,11 @@ user_code_fragment:
  add rsp, WORD_SIZE
 
  lcont207:
+<<<<<<< HEAD
  mov qword [fvar_tbl + 288], rax
+=======
+ mov qword [fvar_tbl + 61], rax
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  mov rax, SOB_VOID_ADDRESS
 
 	call write_sob_if_not_void
@@ -7551,6 +8908,7 @@ user_code_fragment:
 
 
  push SOB_NIL_ADDRESS
+<<<<<<< HEAD
  mov rax, qword [fvar_tbl + 368]
 
  push rax
@@ -7582,6 +8940,39 @@ user_code_fragment:
 
  push rax
  mov rax, qword [fvar_tbl + 280]
+=======
+ mov rax, qword [fvar_tbl + 71]
+
+ push rax
+ mov rax, qword [fvar_tbl + 69]
+
+ push rax
+ mov rax, qword [fvar_tbl + 68]
+
+ push rax
+ mov rax, qword [fvar_tbl + 67]
+
+ push rax
+ mov rax, qword [fvar_tbl + 66]
+
+ push rax
+ mov rax, qword [fvar_tbl + 65]
+
+ push rax
+ mov rax, qword [fvar_tbl + 64]
+
+ push rax
+ mov rax, qword [fvar_tbl + 63]
+
+ push rax
+ mov rax, qword [fvar_tbl + 62]
+
+ push rax
+ mov rax, qword [fvar_tbl + 61]
+
+ push rax
+ mov rax, qword [fvar_tbl + 60]
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
 
  push rax
  push qword 11
@@ -7641,7 +9032,11 @@ user_code_fragment:
  push rbp
  mov rbp, rsp
  push SOB_NIL_ADDRESS
+<<<<<<< HEAD
  mov rax, const_tbl + 76
+=======
+ mov rax, const_tbl + 59
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  push rax
  push qword 1
 
@@ -7699,6 +9094,7 @@ user_code_fragment:
  lcode225:
  push rbp
  mov rbp, rsp
+<<<<<<< HEAD
 
  MALLOC r11, 8
  mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
@@ -7875,6 +9271,158 @@ user_code_fragment:
 
  push SOB_NIL_ADDRESS
  mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+=======
+
+
+ MALLOC r11, 8
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ mov qword [r11] , rax
+ mov rax , r11
+ mov qword [rbp + WORD_SIZE * (4 + 0)], rax
+ mov rax, SOB_VOID_ADDRESS
+
+
+ mov r13, 3
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 2
+ jne start_env_copy226
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure226
+
+ start_env_copy226:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop226:                   ;Start copying env pointers
+ cmp r8, 2
+ je end_copy_env226
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop226
+
+ end_copy_env226:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop226:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop226
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop226
+
+ end_param_loop226:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure226:
+ MAKE_CLOSURE(rax, r13, lcode226)
+ jmp lcont226
+
+ lcode226:
+ push rbp
+ mov rbp, rsp
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 2]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont262:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse260
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 2]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont261:
+ jmp Lexit260
+
+ Lelse260:
+ mov rax, const_tbl + 2
+
+ Lexit260:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse227
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont259:
+ jmp Lexit227
+
+ Lelse227:
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
 
  push rax
  push qword 1
@@ -7884,8 +9432,8 @@ user_code_fragment:
  mov rax, qword [rax + WORD_SIZE * 3]
 
  CLOSURE_ENV rbx, rax  ;env
- push rbx
  CLOSURE_CODE rcx, rax  ;code
+ push rbx
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -7893,6 +9441,299 @@ user_code_fragment:
  add rsp, rbx
  add rsp, WORD_SIZE
 
+ lcont258:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse256
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 3]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont257:
+ jmp Lexit256
+
+ Lelse256:
+ mov rax, const_tbl + 2
+
+ Lexit256:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse228
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont255:
+ jmp Lexit228
+
+ Lelse228:
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 5]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont254:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse252
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 5]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont253:
+ jmp Lexit252
+
+ Lelse252:
+ mov rax, const_tbl + 2
+
+ Lexit252:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse229
+
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 10]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont251:
+ push rax
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 10]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont250:
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont249:
+ jmp Lexit229
+
+ Lelse229:
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 4]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont248:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse246
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 4]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont247:
+ jmp Lexit246
+
+ Lelse246:
+ mov rax, const_tbl + 2
+
+ Lexit246:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse230
+
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 8]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont245:
+ push rax
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+<<<<<<< HEAD
+ mov rax, qword [rax + WORD_SIZE * 3]
+
+ CLOSURE_ENV rbx, rax  ;env
+ push rbx
+ CLOSURE_CODE rcx, rax  ;code
+=======
+ mov rax, qword [rax + WORD_SIZE * 8]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+<<<<<<< HEAD
  lcont257:
  jmp Lexit256
 
@@ -7961,17 +9802,19 @@ user_code_fragment:
 
  push SOB_NIL_ADDRESS
  mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
-
+=======
+ lcont244:
  push rax
- push qword 1
+ push qword 2
 
  mov rax, qword [rbp + WORD_SIZE * 2] 
- mov rax, qword [rax + WORD_SIZE * 1]
- mov rax, qword [rax + WORD_SIZE * 5]
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
 
+ mov rax, qword [rax]
  CLOSURE_ENV rbx, rax  ;env
- push rbx
  CLOSURE_CODE rcx, rax  ;code
+ push rbx
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -7979,6 +9822,63 @@ user_code_fragment:
  add rsp, rbx
  add rsp, WORD_SIZE
 
+ lcont243:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse239
+
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 9]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont242:
+ push rax
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+<<<<<<< HEAD
+ mov rax, qword [rax + WORD_SIZE * 5]
+
+ CLOSURE_ENV rbx, rax  ;env
+ push rbx
+ CLOSURE_CODE rcx, rax  ;code
+=======
+ mov rax, qword [rax + WORD_SIZE * 9]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+<<<<<<< HEAD
  lcont253:
  jmp Lexit252
 
@@ -8014,17 +9914,52 @@ user_code_fragment:
  push rax
  push SOB_NIL_ADDRESS
  mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+=======
+ lcont241:
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ mov rax, qword [rax]
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont240:
+ jmp Lexit239
+
+ Lelse239:
+ mov rax, const_tbl + 2
+
+ Lexit239:
+ jmp Lexit230
+
+ Lelse230:
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
 
  push rax
  push qword 1
 
  mov rax, qword [rbp + WORD_SIZE * 2] 
  mov rax, qword [rax + WORD_SIZE * 1]
- mov rax, qword [rax + WORD_SIZE * 10]
+ mov rax, qword [rax + WORD_SIZE * 6]
 
  CLOSURE_ENV rbx, rax  ;env
- push rbx
  CLOSURE_CODE rcx, rax  ;code
+ push rbx
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -8032,6 +9967,40 @@ user_code_fragment:
  add rsp, rbx
  add rsp, WORD_SIZE
 
+ lcont238:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse236
+
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+<<<<<<< HEAD
+ mov rax, qword [rax + WORD_SIZE * 10]
+
+ CLOSURE_ENV rbx, rax  ;env
+ push rbx
+ CLOSURE_CODE rcx, rax  ;code
+=======
+ mov rax, qword [rax + WORD_SIZE * 6]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+<<<<<<< HEAD
  lcont250:
  push rax
  push qword 2
@@ -8085,17 +10054,31 @@ user_code_fragment:
 
  push SOB_NIL_ADDRESS
  mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+=======
+ lcont237:
+ jmp Lexit236
+
+ Lelse236:
+ mov rax, const_tbl + 2
+
+ Lexit236:
+ cmp rax, SOB_FALSE_ADDRESS 
+ je Lelse231
+
+ push SOB_NIL_ADDRESS
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
 
  push rax
  push qword 1
 
  mov rax, qword [rbp + WORD_SIZE * 2] 
  mov rax, qword [rax + WORD_SIZE * 1]
- mov rax, qword [rax + WORD_SIZE * 4]
+ mov rax, qword [rax + WORD_SIZE * 1]
 
  CLOSURE_ENV rbx, rax  ;env
- push rbx
  CLOSURE_CODE rcx, rax  ;code
+ push rbx
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -8103,6 +10086,38 @@ user_code_fragment:
  add rsp, rbx
  add rsp, WORD_SIZE
 
+ lcont235:
+ push rax
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
+
+ push rax
+ push qword 1
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+<<<<<<< HEAD
+ mov rax, qword [rax + WORD_SIZE * 4]
+
+ CLOSURE_ENV rbx, rax  ;env
+ push rbx
+ CLOSURE_CODE rcx, rax  ;code
+=======
+ mov rax, qword [rax + WORD_SIZE * 1]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+<<<<<<< HEAD
  lcont247:
  jmp Lexit246
 
@@ -8178,6 +10193,120 @@ user_code_fragment:
  lcont243:
  cmp rax, SOB_FALSE_ADDRESS 
  je Lelse239
+=======
+ lcont234:
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 0]
+ mov rax, qword [rax + WORD_SIZE * 0]
+
+ mov rax, qword [rax]
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont233:
+ jmp Lexit231
+
+ Lelse231:
+ push SOB_NIL_ADDRESS
+ mov rax, qword [rbp + WORD_SIZE * (4 + 1)]
+
+ push rax
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ push rax
+ push qword 2
+
+ mov rax, qword [rbp + WORD_SIZE * 2] 
+ mov rax, qword [rax + WORD_SIZE * 1]
+ mov rax, qword [rax + WORD_SIZE * 7]
+
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 7
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont232:
+
+ Lexit231:
+
+ Lexit230:
+
+ Lexit229:
+
+ Lexit228:
+
+ Lexit227:
+ leave 
+ ret
+
+ lcont226:
+ push rax 
+
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ pop qword [rax] 
+ mov rax, SOB_VOID_ADDRESS
+
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ mov rax, qword [rax]
+ leave 
+ ret
+
+ lcont225:
+ CAR r13, rax
+ push r13 ; env
+ push qword [rbp + 8 * 1] ; old ret addr
+ mov rcx, PARAM_COUNT
+ mov rbx, rbp             ; old rbp
+ SHIFT_FRAME 6
+ add rcx, 5
+ shl rcx, 3
+ add rsp, rcx
+ mov rbp, [rbx]
+ CDR rdx, rax
+ jmp rdx                 ;jmp code
+
+ lcont224:
+ leave 
+ ret
+
+ lcont223:
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+ call rcx
+ add rsp, WORD_SIZE
+ pop rbx
+ shl rbx, 3
+ add rsp, rbx
+ add rsp, WORD_SIZE
+
+ lcont222:
+ mov qword [fvar_tbl + 70], rax
+ mov rax, SOB_VOID_ADDRESS
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
 
  push SOB_NIL_ADDRESS
  push SOB_NIL_ADDRESS
@@ -8472,10 +10601,75 @@ user_code_fragment:
  mov qword [fvar_tbl + 360], rax
  mov rax, SOB_VOID_ADDRESS
 
+
+ mov r13, 1
+ shl r13, 3
+ MALLOC r13, r13                                  ; ExtEnv pointer
+ mov r11, 0
+ cmp r11, 0
+ jne start_env_copy263
+ mov r13, SOB_NIL_ADDRESS
+ jmp make_closure263
+
+ start_env_copy263:
+ mov r12, qword [rbp + WORD_SIZE * 2]             ; env pointer
+ mov r8, 0
+ mov rbx, 0                                       ; i
+ mov rcx, 1                                       ; j
+ shl rcx, 3
+
+ env_pointer_loop263:                   ;Start copying env pointers
+ cmp r8, 0
+ je end_copy_env263
+ mov r11, qword [r12 + rbx]
+ mov [r13 + rcx], r11
+ add rbx, 8
+ add rcx, 8
+ add r8, 1
+ jmp env_pointer_loop263
+
+ end_copy_env263:
+ mov rcx, PARAM_COUNT                                ; n
+ add rcx, 1
+ shl rcx, 3
+ MALLOC rcx, rcx
+ mov qword [r13], rcx
+ mov r9, 0                                           ; ExtEnv[0][i]
+ mov r11, 0
+
+ params_copy_loop263:                    ;Start copying params
+ cmp r9, PARAM_COUNT                                 ; loop condition
+ je end_param_loop263
+ mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+ mov qword [rcx + r11], rdx
+ add r9, 1
+ add r11, 8
+ jmp params_copy_loop263
+
+ end_param_loop263:
+ mov qword [rcx + r11], SOB_NIL_ADDRESS
+
+ make_closure263:
+ MAKE_CLOSURE(rax, r13, lcode263)
+ jmp lcont263
+
+ lcode263:
+ push rbp
+ mov rbp, rsp
+ mov rax, qword [rbp + WORD_SIZE * (4 + 0)]
+
+ leave 
+ ret
+
+ lcont263:
+ mov qword [fvar_tbl + 72], rax
+ mov rax, SOB_VOID_ADDRESS
+
 	call write_sob_if_not_void
 
 
  push SOB_NIL_ADDRESS
+<<<<<<< HEAD
  mov rax, const_tbl + 102
  push rax
  mov rax, const_tbl + 85
@@ -8487,6 +10681,17 @@ user_code_fragment:
  CLOSURE_ENV rbx, rax  ;env
  push rbx
  CLOSURE_CODE rcx, rax  ;code
+=======
+ mov rax, const_tbl + 153
+ push rax
+ push qword 1
+
+ mov rax, qword [fvar_tbl + 72]
+
+ CLOSURE_ENV rbx, rax  ;env
+ CLOSURE_CODE rcx, rax  ;code
+ push rbx
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
  call rcx
  add rsp, WORD_SIZE
  pop rbx
@@ -8494,7 +10699,11 @@ user_code_fragment:
  add rsp, rbx
  add rsp, WORD_SIZE
 
+<<<<<<< HEAD
  lcont263:
+=======
+ lcont264:
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
 	call write_sob_if_not_void;;; Clean up the dummy frame, set the exit status to 0 ("success"), 
    ;;; and return from main
    pop rbp
@@ -9009,6 +11218,7 @@ cons:
          ret
 
 apply:
+<<<<<<< HEAD
     push rbp
     mov rbp, rsp
     push SOB_NIL_ADDRESS ; push magic 
@@ -9129,3 +11339,60 @@ endShift:
     CLOSURE_CODE r9,r12             ; call closure code macro 
     pop rbp
     jmp r9
+=======
+       push rbp
+       mov rbp, rsp 
+       mov rax, [rbp + 8 * 3]      ; rax = argc
+      dec rax
+      mov rax, PVAR(rax)          ; rax = last arg = list
+      mov rdx, 0                  ; rdx = list_size
+      
+      push_args:
+        cmp byte[rax], T_NIL
+        je end_push_args
+        CAR rbx, rax              ; rbx = car
+        push rbx
+        CDR rax, rax              ; rax = cdr
+        inc rdx
+        jmp push_args
+      end_push_args:
+      mov rsi,rdx                   ; rsi = list_size backup
+      mov rcx, 0                    ; i = 0 
+      mov rbx, rdx                  ; rbx = list_size
+      shr rbx, 1                    ; rbx = list_size/2
+      dec rdx                       ; rdx = list_size -1
+      _revert_args:
+        cmp rcx, rbx
+        jae end_revert_args
+        mov rax, [rsp + 8 * (rdx)]          ; rax = [rsp + 8*(list_size - i -1)]
+        mov rdi,[rsp+8*rcx]               
+        mov [rsp + 8 * rdx], rdi
+        mov [rsp + 8 * rcx],  rax
+        dec rdx
+        inc rcx
+        jmp _revert_args
+      end_revert_args:
+        mov rax, [rbp + 8 * 3]      ;rax = argc
+        mov rdi, rax                ;rdi = index
+        add rdi,2
+        push_objs:
+          cmp rdi, 4
+          jbe end_push_objs
+          push qword [rbp + 8 * rdi]
+          inc rsi
+          dec rdi
+          jmp push_objs
+        end_push_objs:
+        push rsi                    ;push number of args
+        mov rax, PVAR(0)            ; rax = closure of the procedure
+        CLOSURE_ENV rbx, rax
+        push rbx
+        CLOSURE_CODE rbx, rax
+        call rbx
+        add rsp, 8 * 1
+        pop rbx
+        shl rbx, 3
+        add rsp, rbx
+         pop rbp
+         ret
+>>>>>>> 54784a7cd1092b208283bf45ed84466eaf3e93e6
