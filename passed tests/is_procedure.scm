@@ -1,6 +1,6 @@
 (procedure? car)
-(procedure? 'car)
 (procedure? (lambda (x) x))
+(procedure? 'car)
 (procedure? '(lambda (x) x))
 (procedure? '()) 
 (procedure? '(a))

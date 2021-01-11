@@ -10,8 +10,8 @@
 
 (rational? 3) 
 (rational? 1901)
-(rational? -2/3)
 (rational? -3.0)
 (rational? 7.0)
 (rational? -2.345)
 (rational? 3.2)
+(rational? -2/3)
