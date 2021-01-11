@@ -23,7 +23,7 @@
 %macro SHIFT_FRAME 1
 	push rax
 	push rbx
-	mov rax, qword [rbp + 3 * WORD_SIZE]
+	mov rax, PARAM_COUNT
 	add rax, 5
 %assign i 1
 %rep %1

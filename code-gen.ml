@@ -401,18 +401,18 @@ match e with
                                    "\n push qword " ^ string_of_int (List.length rands) ^ "\n" ^
                                    (generate_code consts fvars rator depth) ^
 
-                                   "\n CLOSURE_ENV r13, rax" ^ 
-                                   "\n push r13 ; env" ^
+                                   "\n CLOSURE_ENV rbx, rax" ^ 
+                                   "\n push rbx ; env" ^
                                    "\n push qword [rbp + 8 * 1] ; old ret addr" ^
 
                                    "\n ;fix the stack" ^
                                    "\n mov rcx, PARAM_COUNT" ^
-                                   "\n mov rbx, rbp             ; old rbp" ^
+                                   "\n mov rbx, [rbp]             ; old rbp" ^
                                    "\n SHIFT_FRAME " ^ string_of_int (5 + List.length (rands)) ^  
                                    "\n add rcx, 5" ^
                                    "\n shl rcx, 3" ^  
                                    "\n add rsp, rcx" ^
-                                   "\n mov rbp, [rbx]" ^
+                                   "\n mov rbp, rbx" ^
                                    "\n ;finished fixing the stack" ^
                                    
                                    "\n CLOSURE_CODE rdx, rax" ^
