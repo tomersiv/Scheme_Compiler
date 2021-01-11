@@ -57,7 +57,7 @@ match const_list with
                   | Sexpr(Number(Float(x))) -> (create_const_tbl rest (const_table @ [(Sexpr(Number(Float(x))), (offset, "MAKE_LITERAL_FLOAT(" ^ (string_of_float x) ^ ")"))]) (offset + 9))
                   | Sexpr(String(str)) -> (create_const_tbl rest (const_table @ [(Sexpr(String(str)), (offset, "MAKE_LITERAL_STRING \"" ^ str ^ "\"" ))]) (offset + 9 + (String.length str)))
                   | Sexpr(Symbol(str)) -> (create_const_tbl rest (const_table @ [(Sexpr(Symbol(str)), (offset, "MAKE_LITERAL_SYMBOL(const_tbl+"^(string_of_int (find_offset const_table (String(str))))^")"))]) (offset + 9))
-                  | Sexpr(Pair(car, cdr)) -> (create_const_tbl rest (const_table @ [(Sexpr(Pair(car, cdr)) , (offset , "MAKE_LITERAL_PAIR(const_tbl+"^(string_of_int (find_offset const_table car))^", const_tbl+"^(string_of_int (find_offset const_table car))^")"))]) (offset + 17))
+                  | Sexpr(Pair(car, cdr)) -> (create_const_tbl rest (const_table @ [(Sexpr(Pair(car, cdr)) , (offset , "MAKE_LITERAL_PAIR(const_tbl+"^(string_of_int (find_offset const_table car))^", const_tbl+"^(string_of_int (find_offset const_table cdr))^")"))]) (offset + 17))
 )
 | [] -> const_table ;; 
 
@@ -128,21 +128,21 @@ match ast with
 
 let rec create_fvar_table fvar_list fvar_table offset = 
 match fvar_list with
-| curr :: rest -> create_fvar_table rest ([(curr, offset)] @ fvar_table) (offset + 1)
+| curr :: rest -> create_fvar_table rest ([(curr, offset)] @ fvar_table) (offset + 8)
 | [] -> fvar_table
 ;;
 
 
 let make_fvars_tbl asts = let fvar_list = List.flatten (List.map (fun ast -> create_fvar_list ast []) asts) in
-                          let fvar_list = remove_duplicates fvar_list in
-                          let fvar_list = ["boolean?"; "flonum?"; "integer?"; "pair?";
-                                          "null?"; "char?"; "rational?"; "string?"; "denominator";
-                                          "procedure?"; "symbol?"; "string-length"; 
-                                          "string-ref"; "string-set!"; "make-string";
-                                          "symbol->string"; "exact->inexact"; 
-                                          "char->integer"; "integer->char"; "eq?";
-                                          "+"; "*"; "/"; "<"; "=";
-                                          "cons"; "car"; "cdr"; "set-car!"; "set-cdr!"; "apply"; "gcd";] @ fvar_list in  
+                          let fvar_list = ["boolean?"; "flonum?"; "rational?";
+                                            "pair?"; "null?"; "char?"; "string?";
+                                            "procedure?"; "symbol?";
+                                            "string-length"; "string-ref"; "string-set!";
+                                            "make-string"; "symbol->string";
+                                            "char->integer"; "integer->char"; "exact->inexact";
+                                            "eq?"; "+"; "*"; "/"; "="; "<"; "numerator"; "denominator"; "gcd";
+                                            "car"; "cdr"; "set-car!"; "set-cdr!"; "cons"; "apply";] @ fvar_list in
+                          let fvar_list = remove_duplicates fvar_list in                  
                           let fvar_table = create_fvar_table fvar_list [] 0 in
                           fvar_table ;;
 
@@ -380,8 +380,8 @@ match e with
                                    "\n push qword " ^ string_of_int (List.length rands) ^ "\n" ^
                                    (generate_code consts fvars rator depth) ^
                                    "\n CLOSURE_ENV rbx, rax  ;env" ^
-                                   "\n CLOSURE_CODE rcx, rax  ;code" ^
                                    "\n push rbx" ^
+                                   "\n CLOSURE_CODE rcx, rax  ;code" ^
                                    "\n call rcx" ^
                                    
                                    "\n add rsp, WORD_SIZE" ^
@@ -401,7 +401,7 @@ match e with
                                    "\n push qword " ^ string_of_int (List.length rands) ^ "\n" ^
                                    (generate_code consts fvars rator depth) ^
 
-                                   "\n CAR r13, rax" ^ 
+                                   "\n CLOSURE_ENV r13, rax" ^ 
                                    "\n push r13 ; env" ^
                                    "\n push qword [rbp + 8 * 1] ; old ret addr" ^
 
@@ -415,7 +415,7 @@ match e with
                                    "\n mov rbp, [rbx]" ^
                                    "\n ;finished fixing the stack" ^
                                    
-                                   "\n CDR rdx, rax" ^
+                                   "\n CLOSURE_CODE rdx, rax" ^
                                    "\n jmp rdx                 ;jmp code" ^ 
                                     
                                    "\n\n lcont" ^ label ^ ":"
