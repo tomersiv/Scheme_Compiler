@@ -332,8 +332,11 @@ module Prims : PRIMS = struct
 
     (*apply*)
      let apply = 
-       let apply_body = 
-      "mov rcx, PARAM_COUNT
+      "apply:
+       push rbp
+       mov rbp, rsp
+       push SOB_NIL_ADDRESS ; magic 
+       mov rcx, PARAM_COUNT
        mov rax, PVAR (rcx - 1)   ; rax holds the last argument which is a list 
        xor rcx, rcx              ; will hold the list's length
    push_list_args:
@@ -345,14 +348,15 @@ module Prims : PRIMS = struct
        inc rcx
        jmp push_list_args
    finish_push_args:
-       mov rdx, rcx            
-       mov rdi, rcx              ; rdi holds list's length
+       mov rdx, rcx              ; save list's length in rdx for later
+       mov rdi, rcx              
        dec rdi
        shl rdi, 3             
        xor rsi, rsi
        shr rcx, 1                ; list.length / 2
    reverse_args_loop:
        cmp rcx, 0
+       je end_reverse_args
        mov rax, qword [rsp + rdi]  
        mov rbx, qword [rsp + rsi]
        mov qword [rsp + rdi], rbx
@@ -371,12 +375,54 @@ module Prims : PRIMS = struct
        push qword [rbp + rcx]
        inc rdx
        sub rcx, 8
-  finish_push_objects: "
-       
-       in
-       make_routine "apply" apply_body
+       jmp push_objects
+   finish_push_objects:
+       push rdx                  ; rdx is the total args number (including list)
+       mov r12, PVAR(0)          ; r12 holds the closure     
+       CLOSURE_ENV rbx, r12
+       push rbx
+       push qword [rbp+8]
+    push qword [rbp]
+    mov r11,rdx
+    add r11,5
+    mov r13,qword [rbp+24]               ;paste it down
+;;;;;;;;;;;;;;;;;;;;;;;;;;;shift start (r11)
+	mov r8, 5                             
+	add r8, r13                      
+	mov r10,1                               
+	mov rdx,0                              
+shift_loop:
+	cmp rdx ,r11                           
+    je endShift                   
+	dec r8                               
+	shl r10,3
+    mov rax,0
+    sub rax, r10
+    mov r10,rax
+    mov r9,rbp
+    add r9,r10
+	mov r14, qword[r9]  
+    mov r15,r8
+    shl r15,3    
+    add r15,rbp         
+	mov [r15], r14           
+    mov rax,0
+    sub rax, r10
+    mov r10,rax
+	shr r10, 3 
+    add r10,1                                                 
+	add rdx,1                       
+	jmp shift_loop
+endShift:
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;shift end
+    add r13,5                       ; rsp = rsp + numberof args +40
+    shl r13,3
+    add rsp,r13                   
+    CLOSURE_CODE r9,r12             ; call closure code macro 
+    pop rbp
+    jmp r9" 
 
-;;
+
   (* This is the interface of the module. It constructs a large x86 64-bit string using the routines
      defined above. The main compiler pipline code (in compiler.ml) calls into this module to get the
      string of primitive procedures. *)
