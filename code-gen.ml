@@ -41,7 +41,13 @@ let rec find_offset const_table exp =
       match const_table with
       | (Sexpr(expr),(offset,tag)) :: rest -> if sexpr_eq exp expr then offset else find_offset rest exp
       | (Void, (offset, tag)) :: rest -> find_offset rest exp
-      | [] -> 0 ;;    
+      | [] -> 0 ;; 
+
+(*TODO remove*)
+ let rec listToString lst =
+      match lst with 
+      | [] -> ""
+      | first :: rest -> first ^ (listToString rest);;         
 
 
 
@@ -392,6 +398,7 @@ match e with
 
                                    "\n\n lcont" ^ label ^ ":"
  
+
 | ApplicTP' (rator,rands) -> 
       let label = (label_counter_gen) in
                                     let label = (label true) in

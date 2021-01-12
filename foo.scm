@@ -1,1 +1,1 @@
-(+ 1 2 3)
+(letrec ((func (lambda (n) (if n (func #f) 'moshe)))) (func #t))
