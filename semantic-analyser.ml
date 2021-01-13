@@ -250,8 +250,13 @@ and flatten_sequence lst = List.map (fun lst -> match lst with
     | _, true, true, _, curr_expr :: rest -> calculate_rest_of_expressions1 curr_expr rest
     | _, _, _, _, curr_expr :: rest -> calculate_rest_of_expressions2 curr_expr rest read_occur write_occur expression_with_read_occur expression_with_write_occur
 
+and set_write_param_read_bound body arg = match body with
+  | Seq'(exprs) -> (List.fold_left (fun x y -> x || y) false (List.map (check_set_write_param_read_bound arg) exprs))
+  | _ -> check_set_write_param_read_bound arg body
 
-
+  and check_set_write_param_read_bound var_name expr = match expr with
+  | Set'(VarParam(varname, minor_index), value) -> List.exists (fun x -> x > 0) (calculate_read_occurrences var_name expr)
+  | _ -> false
 
 and needs_boxing arg body =
                     let write_occurrences = calculate_write_occurrences arg body in 
@@ -261,9 +266,14 @@ and needs_boxing arg body =
                     let res1 = List.map (fun x -> compare_read_write x read_occurrences) write_occurrences in
                     let res2 = List.map (fun x -> compare_read_write x write_occurrences) read_occurrences in 
                     if(List.mem true res1 || List.mem true res2)
-                    then match body with
+                    (*without additional criteria*)
+                    (* then true else false *)
+                    (*with additional criteria*)
+                    then ((match body with
                     | Seq'(exprs) ->  not (calculate_additional_criteria false false false false exprs arg)
                     | _ -> true
+                    )
+                    || (set_write_param_read_bound body arg))
                     else false
                           
                      
