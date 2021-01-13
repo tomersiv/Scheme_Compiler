@@ -6,3 +6,5 @@
 
 (let ((fact10  (fact 10)))
     `(fact 10 is: ,fact10))
+
+;(fact 10 is: 3628800)

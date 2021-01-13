@@ -11,3 +11,4 @@
 	((not (equal? ((car (cdr l))) '(beta . beta))) 'wrong!)
 	(else 'ok))
 
+;ok
