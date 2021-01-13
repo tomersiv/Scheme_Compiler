@@ -1,3 +1,3 @@
-(letrec 
-	((sum (lambda (acc n) (if (= n 0) acc (sum (+ acc n) (+ n -1)))))) 
-	(sum 0 10))
+((lambda (x)
+    ((lambda () (set! x 2))) x
+) 1)
