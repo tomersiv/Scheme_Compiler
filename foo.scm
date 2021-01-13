@@ -1,1 +1,3 @@
-(letrec ((func (lambda (n) (if n (func #f) 'moshe)))) (func #t))
+(letrec 
+	((sum (lambda (acc n) (if (= n 0) acc (sum (+ acc n) (+ n -1)))))) 
+	(sum 0 10))

@@ -97,7 +97,9 @@ let rec create_const_list ast const_list = match ast with
 | _ -> const_list
 
 let make_consts_tbl asts = let const_list = List.flatten(List.map (fun ast -> create_const_list ast []) asts) in
+                           let const_list = List.rev const_list in 
                            let const_list = remove_duplicates const_list in
+                           let const_list = List.rev const_list in
                            let const_list = [Void; Sexpr(Nil); Sexpr(Bool(false)); Sexpr(Bool(true))] @ const_list in
                            let const_table = create_const_tbl const_list [] 0 in
                            const_table ;;  
@@ -148,7 +150,9 @@ let make_fvars_tbl asts = let fvar_list = List.flatten (List.map (fun ast -> cre
                                             "char->integer"; "integer->char"; "exact->inexact";
                                             "eq?"; "+"; "*"; "/"; "="; "<"; "numerator"; "denominator"; "gcd";
                                             "car"; "cdr"; "set-car!"; "set-cdr!"; "cons"; "apply";] @ fvar_list in
-                          let fvar_list = remove_duplicates fvar_list in                  
+                          let fvar_list = List.rev fvar_list in
+                          let fvar_list = remove_duplicates fvar_list in  
+                          let fvar_list = List.rev fvar_list in                 
                           let fvar_table = create_fvar_table fvar_list [] 0 in
                           fvar_table ;;
 
