@@ -78,7 +78,7 @@ global main
 section .text
 main:
     ;; set up the heap
-    mov rdi, GB(2)
+    mov rdi, GB(4)
     call malloc
     mov [malloc_pointer], rax
 
