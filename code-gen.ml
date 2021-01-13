@@ -43,13 +43,6 @@ let rec find_offset const_table exp =
       | (Void, (offset, tag)) :: rest -> find_offset rest exp
       | [] -> 0 ;; 
 
-(*TODO remove*)
- let rec listToString lst =
-      match lst with 
-      | [] -> ""
-      | first :: rest -> first ^ (listToString rest);;         
-
-
 
 let rec create_const_tbl const_list const_table offset = 
 match const_list with
@@ -70,7 +63,7 @@ match const_list with
 
 let rec remove_duplicates lst = match lst with
                               | [] -> lst
-                              | curr :: rest -> if(List.mem curr rest) then (remove_duplicates rest) else curr :: (remove_duplicates rest) 
+                              | curr :: rest -> if(List.mem curr rest) then (remove_duplicates rest) else curr :: (remove_duplicates rest) ;;
 
 
 let rec create_const_list ast const_list = match ast with 
@@ -94,7 +87,7 @@ let rec create_const_list ast const_list = match ast with
                                   | _ -> [Sexpr(expr)] @ const_list
                 )
 )
-| _ -> const_list
+| _ -> const_list ;;
 
 let make_consts_tbl asts = let const_list = List.flatten(List.map (fun ast -> create_const_list ast []) asts) in
                            let const_list = List.rev const_list in 
@@ -103,9 +96,6 @@ let make_consts_tbl asts = let const_list = List.flatten(List.map (fun ast -> cr
                            let const_list = [Void; Sexpr(Nil); Sexpr(Bool(false)); Sexpr(Bool(true))] @ const_list in
                            let const_table = create_const_tbl const_list [] 0 in
                            const_table ;;  
-
-
-
 
 
 let rec create_fvar_list ast fvar_list =
@@ -170,7 +160,7 @@ let rec find_fvar_offset fvar_table expr =
 match fvar_table with
 | (str, offset) :: rest -> if (str = expr) then offset else find_fvar_offset rest expr
 | [] -> raise X_syntax_error
-                           
+;;                           
 
 let label_counter_gen =
   let counter = ref (-1) 
@@ -178,14 +168,12 @@ let label_counter_gen =
   fun toIncrease ->
     if toIncrease
     then incr counter;
-    "" ^ string_of_int !counter
-;;
+    "" ^ string_of_int !counter 
+  ;;
 
 let rec generate_code consts fvars e depth = 
 match e with
-
 | Const'(x) -> "\n mov rax, const_tbl + " ^ (string_of_int (find_const_offset consts x))
-
 | Var'(var) -> (match var with 
                 | VarFree(varname) -> "\n mov rax, qword [fvar_tbl + " ^ (string_of_int (find_fvar_offset fvars varname)) ^ "]\n"
                 | VarParam(varname, minor) -> "\n mov rax, qword [rbp + WORD_SIZE * (4 + " ^ (string_of_int minor) ^ ")]\n"
@@ -193,7 +181,6 @@ match e with
                                                       "\n mov rax, qword [rax + WORD_SIZE * " ^ (string_of_int major) ^ "]" ^
                                                       "\n mov rax, qword [rax + WORD_SIZE * " ^ (string_of_int minor) ^ "]\n"
 )
-
 | Set'(var, value) -> (match var with
                             | VarFree(varname) -> "\n" ^ (generate_code consts fvars value depth) ^ 
                                                   "\n mov qword [fvar_tbl + " ^ (string_of_int (find_fvar_offset fvars varname)) ^ "], rax" ^
@@ -208,35 +195,27 @@ match e with
                                                                   "\n mov qword[rbx + WORD_SIZE * " ^ (string_of_int minor) ^ "], rax" ^
                                                                   "\n mov rax, SOB_VOID_ADDRESS\n"
 )
-
 | Def'(VarFree(varname), value) -> "\n" ^ (generate_code consts fvars value depth) ^ 
                                                   "\n mov qword [fvar_tbl + " ^ (string_of_int (find_fvar_offset fvars varname)) ^ "], rax" ^
                                                   "\n mov rax, SOB_VOID_ADDRESS\n"
- 
 | Seq'(exprs) -> "\n" ^ String.concat "\n" (List.map (fun expr -> (generate_code consts fvars expr depth)) exprs)
-
 | Or'(exprs) -> let label = label_counter_gen  in
                 let label = (label true) in 
                 let str = (String.concat ("\n cmp rax, SOB_FALSE_ADDRESS \n jne Lexit" ^ label ^ "\n") 
                 (List.map (fun expr -> (generate_code consts fvars expr depth)) exprs)) in
                 str ^ "\n\n Lexit" ^ label ^ ":"
-
 | If'(test, dit, dif) -> let label = label_counter_gen in
                          let label = (label true) in 
                         (generate_code consts fvars test depth) ^ "\n cmp rax, SOB_FALSE_ADDRESS \n je Lelse" ^ label ^ "\n"
                         ^ (generate_code consts fvars dit depth) ^ "\n jmp Lexit" ^ label ^ "\n\n Lelse" ^ label ^ ":"
                         ^ (generate_code consts fvars dif depth) ^ "\n\n Lexit" ^ label ^ ":"  
-
 | BoxGet'(var) -> (generate_code consts fvars (Var'(var)) depth) ^ "\n mov rax, qword [rax]"  
-
 | BoxSet'(var, value) -> (generate_code consts fvars value depth) ^ "\n push rax \n" ^ 
                          (generate_code consts fvars (Var'(var)) depth) ^ "\n pop qword [rax] \n mov rax, SOB_VOID_ADDRESS" 
-
 | Box'(var) -> "\n MALLOC r11, 8" ^
               (generate_code consts fvars (Var'(var)) depth ) ^
               "\n mov qword [r11] , rax" ^
               "\n mov rax , r11"
-
 | LambdaSimple'(args, body) -> let label = label_counter_gen in
                               let label = (label true) in
                               "\n mov r13, " ^ string_of_int (depth + 1) ^ 
@@ -294,7 +273,6 @@ match e with
                               "\n leave \n ret" ^
 
                               "\n\n lcont" ^ label ^ ":"
-
 | LambdaOpt'(args, optArg, body) -> let label = label_counter_gen in
                                     let label = (label true) in
                                     "\n mov r13, " ^ string_of_int (depth + 1) ^ 
@@ -401,35 +379,32 @@ match e with
                                    "\n add rsp, WORD_SIZE" ^
 
                                    "\n\n lcont" ^ label ^ ":"
- 
+| ApplicTP' (rator,rands) -> let label = (label_counter_gen) in
+                            let label = (label true) in
+                            "\n push SOB_NIL_ADDRESS" ^ 
+                            (String.concat ""
+                            (List.rev (List.map (fun rand -> (generate_code consts fvars rand depth) ^ "\n push rax") rands))) ^
+                            "\n push qword " ^ string_of_int (List.length rands) ^ "\n" ^
+                            (generate_code consts fvars rator depth) ^
 
-| ApplicTP' (rator,rands) -> 
-      let label = (label_counter_gen) in
-                                    let label = (label true) in
-                                   "\n push SOB_NIL_ADDRESS" ^ 
-                                   (String.concat ""
-                                   (List.rev (List.map (fun rand -> (generate_code consts fvars rand depth) ^ "\n push rax") rands))) ^
-                                   "\n push qword " ^ string_of_int (List.length rands) ^ "\n" ^
-                                   (generate_code consts fvars rator depth) ^
+                            "\n CLOSURE_ENV rbx, rax" ^ 
+                            "\n push rbx ; env" ^
+                            "\n push qword [rbp + 8 * 1] ; old ret addr" ^
 
-                                   "\n CLOSURE_ENV rbx, rax" ^ 
-                                   "\n push rbx ; env" ^
-                                   "\n push qword [rbp + 8 * 1] ; old ret addr" ^
-
-                                   "\n ;fix the stack" ^
-                                   "\n mov rcx, PARAM_COUNT" ^
-                                   "\n mov rbx, [rbp]             ; old rbp" ^
-                                   "\n SHIFT_FRAME " ^ string_of_int (5 + List.length (rands)) ^  
-                                   "\n add rcx, 5" ^
-                                   "\n shl rcx, 3" ^  
-                                   "\n add rsp, rcx" ^
-                                   "\n mov rbp, rbx" ^
-                                   "\n ;finished fixing the stack" ^
-                                   
-                                   "\n CLOSURE_CODE rdx, rax" ^
-                                   "\n jmp rdx                 ;jmp code" ^ 
-                                    
-                                   "\n\n lcont" ^ label ^ ":"
+                            "\n ;fix the stack" ^
+                            "\n mov rcx, PARAM_COUNT" ^
+                            "\n mov rbx, [rbp]             ; old rbp" ^
+                            "\n SHIFT_FRAME " ^ string_of_int (5 + List.length (rands)) ^  
+                            "\n add rcx, 5" ^
+                            "\n shl rcx, 3" ^  
+                            "\n add rsp, rcx" ^
+                            "\n mov rbp, rbx" ^
+                            "\n ;finished fixing the stack" ^
+                            
+                            "\n CLOSURE_CODE rdx, rax" ^
+                            "\n jmp rdx                 ;jmp code" ^ 
+                            
+                            "\n\n lcont" ^ label ^ ":"
 
 | _ -> "" ;;                      
 
