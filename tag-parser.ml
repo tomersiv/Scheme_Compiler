@@ -211,7 +211,7 @@ and tag_quasiQuote sexpr =
                       | Symbol(x) -> (Pair(Symbol("quote"),Pair(Symbol(x),Nil)))
                       | Nil ->  (Pair(Symbol("quote"),Pair(Nil,Nil)))
                       | Pair(a,b) ->  (case_5_quasiQuote a b)
-                      | _ ->  raise X_syntax_error 
+                      | _ ->  sexpr 
 
 and case_5_quasiQuote a b = 
                         match a,b with
