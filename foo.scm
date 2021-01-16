@@ -1,3 +1,1 @@
-((lambda (x)
-    ((lambda () (set! x 2))) x
-) 1)
+(map (lambda (x) (+ x 1)) '(1))

@@ -416,49 +416,21 @@ module Prims : PRIMS = struct
        jmp push_objects
    finish_push_objects:
        push rdx                  ; rdx is the total args number (including list)
-       mov r12, PVAR(0)          ; r12 holds the closure     
-       CLOSURE_ENV rbx, r12
+       mov rax, PVAR(0)          ; rax holds the closure     
+       CLOSURE_ENV rbx, rax
        push rbx
-       push qword [rbp+8]
-    push qword [rbp]
-    mov r11,rdx
-    add r11,5
-    mov r13,qword [rbp+24]               ;paste it down
-;;;;;;;;;;;;;;;;;;;;;;;;;;;shift start (r11)
-	mov r8, 5                             
-	add r8, r13                      
-	mov r10,1                               
-	mov rdx,0                              
-shift_loop:
-	cmp rdx ,r11                           
-    je endShift                   
-	dec r8                               
-	shl r10,3
-    mov rax,0
-    sub rax, r10
-    mov r10,rax
-    mov r9,rbp
-    add r9,r10
-	mov r14, qword[r9]  
-    mov r15,r8
-    shl r15,3    
-    add r15,rbp         
-	mov [r15], r14           
-    mov rax,0
-    sub rax, r10
-    mov r10,rax
-	shr r10, 3 
-    add r10,1                                                 
-	add rdx,1                       
-	jmp shift_loop
-endShift:
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;shift end
-    add r13,5                       ; rsp = rsp + numberof args +40
-    shl r13,3
-    add rsp,r13                   
-    CLOSURE_CODE r9,r12             ; call closure code macro 
-    pop rbp
-    jmp r9"
+       push qword [rbp + 8]      ; ret address
+       push qword [rbp]          ; old rbp
+       mov rbx, 5
+       add rbx, rdx
+       mov rcx, PARAM_COUNT      ; save for later
+       SHIFT_FRAME_APPLY rbx     
+       add rcx, 5                       
+       shl rcx, 3
+       add rsp, rcx              ; restore rsp    
+       CLOSURE_CODE rbx, rax      
+       pop rbp
+       jmp rbx" 
 
   (* This is the interface of the module. It constructs a large x86 64-bit string using the routines
      defined above. The main compiler pipline code (in compiler.ml) calls into this module to get the

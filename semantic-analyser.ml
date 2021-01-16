@@ -85,7 +85,11 @@ let rec find_var_in_boundlist x boundlst index =
 let extract_var expr = 
                     match expr with
                     | Var'(x) -> x  
-                    | _ -> raise X_syntax_error                             
+                    | _ -> raise X_syntax_error  
+
+let rec remove_duplicates lst = match lst with
+                              | [] -> lst
+                              | curr :: rest -> if(List.mem curr rest) then (remove_duplicates rest) else curr :: (remove_duplicates rest) ;;                                               
 
 let rec calculate_lexical_addresses paramList boundList expr  =  
                                     match expr with 
@@ -211,52 +215,186 @@ and flatten_sequence lst = List.map (fun lst -> match lst with
                                             |Seq'(lst) -> lst
                                             |x -> [x]
                                             )lst                                                       
+  and read_write_additional_criteria vars expr = match expr with
+    | Var'(varname) -> read_write_var vars varname
+    | If'(test, dit, dif) -> merge_reads_writes_list [read_write_additional_criteria vars test;
+                                                      read_write_additional_criteria vars dit;
+                                                      read_write_additional_criteria vars test]
+    | Or'(exprs) -> merge_reads_writes_list (List.map (read_write_additional_criteria vars) exprs)
+    | Set'(var, value) -> read_write_set vars var value
+    | Seq'(exprs) -> merge_reads_writes_list (List.map (read_write_additional_criteria vars) exprs)
+    | LambdaSimple'(args, body) -> read_write_lambda vars args body
+    | LambdaOpt'(args, optArg, body) -> read_write_lambda vars (List.append args [optArg]) body
+    | Applic'(rator, rands) -> merge_two_reads_writes (read_write_additional_criteria vars rator)
+                                                       (merge_reads_writes_list (List.map (read_write_additional_criteria vars) rands))
+    | ApplicTP'(rator, rands) -> merge_two_reads_writes (read_write_additional_criteria vars rator)
+                                                       (merge_reads_writes_list (List.map (read_write_additional_criteria vars) rands))
+    | _ -> ([], [])
 
+  and read_write_var vars var = match var with
+    | VarParam(varname, major_index) -> (match (List.mem varname vars) with
+                                        | true -> ([VarParam(varname, major_index)], [])
+                                        | false -> ([], [])
+      )
+    | VarBound(varname, major_index, minor_index) -> (match (List.mem varname vars) with
+                                        | true -> ([VarBound(varname, major_index, minor_index)], [])
+                                        | false -> ([], [])
+      )
+    | VarFree(_) -> ([], [])
+
+  and read_write_set vars var value = match var with
+    | VarParam(varname, major_index) -> (match (List.mem varname vars) with
+                                        | true -> merge_two_reads_writes ([], [VarParam(varname, major_index)]) (read_write_additional_criteria vars value)
+                                        | false -> merge_two_reads_writes ([], []) (read_write_additional_criteria vars value)
+      )
+    | VarBound(varname, major_index, minor_index) -> (match (List.mem varname vars) with
+                                        | true -> merge_two_reads_writes ([], [VarBound(varname, major_index, minor_index)]) (read_write_additional_criteria vars value)
+                                        | false -> merge_two_reads_writes ([], []) (read_write_additional_criteria vars value)
+      )
+    | VarFree(_) -> merge_two_reads_writes ([], []) (read_write_additional_criteria vars value)
+
+  and read_write_lambda vars args body = 
+    let updated_vars = List.rev (remove_duplicates (List.append vars args)) in
+    let body_reads_writes = read_write_additional_criteria updated_vars body in
+    (filter_body_reads_writes body_reads_writes args)
+
+  and filter_body_reads_writes body_reads_writes args = match body_reads_writes with
+                                                    | (VarParam (varname, major_index) :: rest_reads, rest_writes) -> (
+                                                        match (List.mem varname args) with 
+                                                        | true -> (filter_body_reads_writes (rest_reads, rest_writes) args)
+                                                        | false -> (merge_two_reads_writes ([VarParam (varname, major_index)], rest_writes)
+                                                                                           (filter_body_reads_writes (rest_reads, rest_writes) args))
+                                                      )
+                                                    | (VarBound (varname, major_index, minor_index) :: rest_reads, rest_writes) -> (
+                                                        match (List.mem varname args) with
+                                                        | true -> (filter_body_reads_writes (rest_reads, rest_writes) args)
+                                                        | false -> (merge_two_reads_writes ([VarBound (varname, major_index, minor_index)], rest_writes)
+                                                                                           (filter_body_reads_writes (rest_reads, rest_writes) args))
+                                                      )
+                                                    | ([], VarParam (varname, major_index) :: rest_reads_writes) -> (
+                                                        match (List.mem varname args) with 
+                                                        | true -> (filter_body_reads_writes ([], rest_reads_writes) args)
+                                                        | false -> (merge_two_reads_writes ([], [VarParam(varname, major_index)])
+                                                                                           (filter_body_reads_writes ([], rest_reads_writes) args ))
+                                                      )
+                                                    | ([], VarBound (varname, major_index, minor_index) :: rest_reads_writes) -> (
+                                                        match (List.mem varname args) with
+                                                        | true -> (filter_body_reads_writes ([], rest_reads_writes) args)
+                                                        | false -> (merge_two_reads_writes ([], [VarBound(varname, major_index, minor_index)])
+                                                                                           (filter_body_reads_writes ([], rest_reads_writes) args))
+                                                      )
+                                                    | ([],[]) -> ([], [])  
+                                                    | _ -> raise X_syntax_error
+        
+        
+  and merge_reads_writes_list reads_writes_list =   
+    List.fold_left merge_two_reads_writes ([],[]) reads_writes_list
+
+  and merge_two_reads_writes first_reads_writes second_reads_writes = match first_reads_writes, second_reads_writes with
+    | (first_reads, first_writes), (second_reads, second_writes) -> (List.append first_reads second_reads, List.append first_writes second_writes)
 
   and calculate_additional_criteria read_occur write_occur expression_with_read_occur expression_with_write_occur exprs arg_name =
     let read_occur_expr expr = 
                           match expr with  
                           | Var'(VarParam(varname, minor_index)) -> if (varname = arg_name) then true else false
                           | Var'(VarBound(varname, minor_index, major_index)) -> if (varname = arg_name) then true else false
-                          | _ -> false in
+                          | _ -> false
+   
+    in
     let write_occur_expr expr = 
                             match expr with
                             | Set'(var, value) -> true 
-                            | _ -> false in
-    let e_with_read_occur_expr expr = 
-    List.exists (fun x -> x > 0) (calculate_read_occurrences arg_name expr)  in
-    let e_with_write_occur_expr expr =
-    List.exists (fun x -> x > 0) (calculate_write_occurrences arg_name expr) in
-    let calculate_rest_of_expressions1 curr_expr rest = 
+                            | _ -> false 
+    
+    in
+    let e_with_read_occur_expr reads_writes = 
+      let (reads, writes) = reads_writes in
+      List.exists (fun var -> match var with
+                                          | VarBound(_, _, _) -> true
+                                          | _ -> false
+      )
+      reads 
+
+    in
+    let e_with_write_occur_expr reads_writes = 
+      let (reads, writes) = reads_writes in
+      List.exists (fun var -> match var with
+                                          | VarBound(_, _, _) -> true
+                                          | _ -> false
+      )
+      writes
+
+      in 
+      let calculate_rest_of_expressions1 curr_expr rest =
+                                                        match (write_occur_expr curr_expr) || 
+                                                        (e_with_write_occur_expr (read_write_additional_criteria [arg_name] curr_expr)) with
+                                                        | true -> false
+                                                        | false -> calculate_additional_criteria read_occur write_occur expression_with_read_occur expression_with_write_occur rest arg_name
+   
+    in
+    let calculate_rest_of_expressions2 curr_expr rest = 
+                                                      match (read_occur_expr curr_expr) || 
+                                                      (e_with_read_occur_expr (read_write_additional_criteria [arg_name] curr_expr)) with
+                                                      | true -> false
+                                                      | false -> calculate_additional_criteria read_occur write_occur expression_with_read_occur expression_with_write_occur rest arg_name
+    
+    in  
+    let calculate_rest_of_expressions3 curr_expr rest =  
                                                       match (read_occur_expr curr_expr) || (write_occur_expr curr_expr) ||
-                                                            (e_with_read_occur_expr curr_expr) || (e_with_write_occur_expr curr_expr)
+                                                            (e_with_read_occur_expr (read_write_additional_criteria [arg_name] curr_expr))
+                                                             || (e_with_write_occur_expr (read_write_additional_criteria [arg_name] curr_expr))
                                                       with
                                                       | true -> false      
                                                       | false -> calculate_additional_criteria read_occur write_occur expression_with_read_occur expression_with_write_occur rest arg_name
+    
     in
-    let calculate_rest_of_expressions2 curr_expr rest read_occur write_occur expression_with_read_occur expression_with_write_occur = 
+    let calculate_rest_of_expressions4 curr_expr rest read_occur write_occur expression_with_read_occur expression_with_write_occur = 
         calculate_additional_criteria ((read_occur_expr curr_expr) || read_occur)
                                       ((write_occur_expr curr_expr) || write_occur)
-                                      ((e_with_read_occur_expr curr_expr) || expression_with_read_occur)
-                                      ((e_with_write_occur_expr curr_expr) || expression_with_write_occur)
+                                      ((e_with_read_occur_expr (read_write_additional_criteria [arg_name] curr_expr)) || expression_with_read_occur)
+                                      ((e_with_write_occur_expr (read_write_additional_criteria [arg_name] curr_expr)) || expression_with_write_occur)
                                       rest 
                                       arg_name
+    
     in
     match read_occur, write_occur, expression_with_read_occur, expression_with_write_occur, exprs with
+    | _, false, true, false, curr_expr :: rest -> calculate_rest_of_expressions1 curr_expr rest     
+    | false, _, false, true, curr_expr :: rest -> calculate_rest_of_expressions2 curr_expr rest   
     | true, _, _, true, [] -> true 
     | _, true, true, _, [] -> true 
     | _, _, _, _, [] -> false
-    | true, _, _, true, curr_expr :: rest -> calculate_rest_of_expressions1 curr_expr rest
-    | _, true, true, _, curr_expr :: rest -> calculate_rest_of_expressions1 curr_expr rest
-    | _, _, _, _, curr_expr :: rest -> calculate_rest_of_expressions2 curr_expr rest read_occur write_occur expression_with_read_occur expression_with_write_occur
+    | true, _, _, true, curr_expr :: rest -> calculate_rest_of_expressions3 curr_expr rest
+    | _, true, true, _, curr_expr :: rest -> calculate_rest_of_expressions3 curr_expr rest
+    | _, _, _, _, curr_expr :: rest -> calculate_rest_of_expressions4 curr_expr rest read_occur write_occur expression_with_read_occur expression_with_write_occur
+
 
 and set_write_param_read_bound body arg = match body with
-  | Seq'(exprs) -> (List.fold_left (fun x y -> x || y) false (List.map (check_set_write_param_read_bound arg) exprs))
+  | Seq'(exprs) -> let lst = (List.map (check_set_write_param_read_bound arg) exprs) in 
+                             (List.fold_left (fun x y -> x || y) false lst)
   | _ -> check_set_write_param_read_bound arg body
 
   and check_set_write_param_read_bound var_name expr = match expr with
-  | Set'(VarParam(varname, minor_index), value) -> List.exists (fun x -> x > 0) (calculate_read_occurrences var_name expr)
+  | Set'(VarParam(varname, minor_index), value) -> is_var_bound_in_expr varname value
   | _ -> false
+
+
+  and is_var_bound_in_expr var_name expr = match expr with
+                                        | Var'(VarBound(varname, _,_)) -> varname = var_name
+                                        | Set'(var, value) -> is_var_bound_in_expr var_name value
+                                        | If'(test, dit, dif) -> (is_var_bound_in_expr var_name test) ||
+                                                                 (is_var_bound_in_expr var_name dit) ||
+                                                                 (is_var_bound_in_expr var_name dif)
+                                        | Or'(exprs) -> let lst = (List.map (is_var_bound_in_expr var_name) exprs) in 
+                                                                  (List.fold_left (fun x y -> x || y) false lst)
+                                        | Seq'(exprs) -> let lst = (List.map (is_var_bound_in_expr var_name) exprs) in 
+                                                                   (List.fold_left (fun x y -> x || y) false lst)  
+                                        | LambdaSimple'(args, body) -> is_var_bound_in_expr var_name body 
+                                        | LambdaOpt'(args, optArg, body) -> is_var_bound_in_expr var_name body 
+                                        | Applic'(rator, rands) -> (is_var_bound_in_expr var_name rator) || (let lst = (List.map (is_var_bound_in_expr var_name) rands) in 
+                                                                   (List.fold_left (fun x y -> x || y) false lst))
+                                        | ApplicTP'(rator, rands) -> (is_var_bound_in_expr var_name rator) || (let lst = (List.map (is_var_bound_in_expr var_name) rands) in 
+                                                                   (List.fold_left (fun x y -> x || y) false lst))                           
+                                        | _ -> false     
 
 and needs_boxing arg body =
                     let write_occurrences = calculate_write_occurrences arg body in 
@@ -266,9 +404,6 @@ and needs_boxing arg body =
                     let res1 = List.map (fun x -> compare_read_write x read_occurrences) write_occurrences in
                     let res2 = List.map (fun x -> compare_read_write x write_occurrences) read_occurrences in 
                     if(List.mem true res1 || List.mem true res2)
-                    (*without additional criteria*)
-                    (* then true else false *)
-                    (*with additional criteria*)
                     then ((match body with
                     | Seq'(exprs) ->  not (calculate_additional_criteria false false false false exprs arg)
                     | _ -> true

@@ -20,7 +20,7 @@
 %define PARAM_COUNT qword [rbp+3*WORD_SIZE]
 
 
-%macro SHIFT_FRAME 1
+%macro SHIFT_FRAME_APPLICTP 1
 	push rax
 	push rbx
 	mov rax, PARAM_COUNT
@@ -35,6 +35,111 @@
 	pop rbx
 	pop rax
 %endmacro
+
+%macro SHIFT_FRAME_APPLY 1
+	mov rcx, PARAM_COUNT
+    mov rdx, rcx                             
+	add rdx, 5                      
+	mov r8, -8                               
+	mov rbx, %1                             
+shift_frame:
+	cmp rbx, 0                           
+	je end_shift_frame                                                 
+	mov r11, r8
+	add r11, rbp
+	mov r13, qword [r11]
+	dec rdx   
+	mov r12, rdx
+	shl r12, 3    
+	add r12, rbp         
+	mov [r12], r13           
+	sub r8, 8                                                 
+	dec rbx                      
+	jmp shift_frame
+end_shift_frame:
+%endmacro
+
+%macro FIX_STACK_APPLICTP 1
+	mov rcx, PARAM_COUNT
+    mov rbx, [rbp]            
+	SHIFT_FRAME_APPLICTP %1
+	add rcx, 5 
+	shl rcx, 3   
+	add rsp, rcx 
+	mov rbp, rbx 
+%endmacro
+
+%macro FIX_STACK_LAMBDA_OPT 1
+	mov rcx, PARAM_COUNT                                ;number of total args                              
+	sub rcx, %1                                         ;number of opt args
+	mov r8, PARAM_COUNT
+	add r8, 3
+	shl r8, 3
+	add r8, rbp                                         ;first opt arg
+	mov r9, SOB_NIL_ADDRESS
+	cmp rcx, 0
+	je %%doneLambda 
+%%createOptList:
+	cmp rcx, 0
+	je %%doneOptList
+	mov r11, [r8]
+	MAKE_PAIR (r12, r11, r9)
+	mov r9, r12                                          ;holds the opt list 
+	dec rcx
+	sub r8, 8
+	jmp %%createOptList
+%%doneOptList:
+	mov r11, %1
+	add r11, 4
+	shl r11, 3
+	mov [rbp + r11], r9
+	mov r10, %1
+	dec r10
+%%doneLambda:	
+%endmacro
+
+%macro CREATE_EXT_ENV 1
+	mov r11, 0                                 
+	cmp r11, %1
+	jne %%start_env_copy
+	mov r13, SOB_NIL_ADDRESS
+	jmp %%make_closure 
+%%start_env_copy:
+	mov r12, qword [rbp + WORD_SIZE * 2] ; env pointer
+	mov r8, 0
+	mov rbx, 0                           ; i
+	mov rcx, 1                           ; j
+	shl rcx, 3
+%%env_pointer_loop:                      ; Start copying env pointers                             
+	cmp r8, %1
+	je %%end_copy_env
+	mov r11, qword [r12 + rbx]
+	mov [r13 + rcx], r11
+	add rbx, 8
+	add rcx, 8
+	inc r8
+	jmp %%env_pointer_loop
+%%end_copy_env:
+	mov rcx, PARAM_COUNT                 
+	inc rcx
+	shl rcx, 3
+	MALLOC rcx, rcx
+	mov qword [r13], rcx
+	mov r9, 0                               ; ExtEnv[0][i]
+	mov r11, 0                                     
+%%params_copy_loop:                         ; Start copying params
+	cmp r9, PARAM_COUNT                 
+	je %%end_param_loop
+	mov rdx, qword [rbp + WORD_SIZE * 4 + r11]
+	mov qword [rcx + r11], rdx
+	inc r9
+	add r11, 8
+	jmp %%params_copy_loop 
+%%end_param_loop: 
+	mov qword [rcx + r11], SOB_NIL_ADDRESS
+%%make_closure:
+%endmacro	
+
 
 %macro SKIP_TYPE_TAG 2
 	mov %1, qword [%2+TYPE_SIZE]	
@@ -150,12 +255,13 @@
 	%2
 %endmacro
 
-%macro MAKE_LITERAL_STRING 1
-	db T_STRING
-	dq (%%end_str - %%str)
-%%str:
-	db %1
-%%end_str:
+%macro MAKE_LITERAL_STRING 0-*
+		db T_STRING
+		dq %0
+%rep %0
+		db %1
+%rotate 1		
+%endrep
 %endmacro
 
 
