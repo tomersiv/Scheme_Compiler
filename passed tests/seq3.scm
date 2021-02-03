@@ -1,1 +1,0 @@
-(begin 4 5 (begin (define a #\a)) a)

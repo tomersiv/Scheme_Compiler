@@ -1,1 +1,0 @@
-(define p (cons 1 2))
